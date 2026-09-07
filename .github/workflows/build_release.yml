@@ -1,0 +1,62 @@
+name: TRAVELGO Automated Release Builder (Windows & Android)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  # ==========================================
+  # 1. BUILD ANDROID APK & APP BUNDLE
+  # ==========================================
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.x'
+          cache: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Run Tests
+        run: flutter test
+      - name: Build Android APK
+        run: flutter build apk --release
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TRAVELGO-Android-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  # ==========================================
+  # 2. BUILD WINDOWS EXECUTABLE & INSTALLER
+  # ==========================================
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.x'
+          cache: true
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+      - name: Install Dependencies
+        run: flutter pub get
+      - name: Build Windows Release
+        run: flutter build windows --release
+      - name: Archive Windows Application
+        run: |
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\TRAVELGO-Windows-x64.zip
+      - name: Upload Windows Release Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: TRAVELGO-Windows-x64
+          path: build/TRAVELGO-Windows-x64.zip
