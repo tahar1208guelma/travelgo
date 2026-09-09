@@ -17,6 +17,27 @@ authRouter.post('/register', async (req: Request, res: Response, next: NextFunct
   }
 });
 
+authRouter.post('/verify-email', authenticateJwt, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { otp } = req.body;
+    if (!otp) return res.status(400).json({ error: 'Verification code (OTP) is required' });
+
+    const result = await AuthService.verifyEmail(req.user!.userId, otp);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+authRouter.post('/resend-verification', authenticateJwt, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await AuthService.resendVerification(req.user!.userId);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 authRouter.post('/login', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
