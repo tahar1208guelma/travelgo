@@ -1009,6 +1009,34 @@ class PdfService {
               pw.SizedBox(height: 6),
               pw.Divider(color: cardBorder, thickness: 1),
               pw.SizedBox(height: 4),
+
+                // QR Verification Code Mock for Hotel Voucher
+                pw.Row(
+                  children: [
+                    pw.Container(
+                      width: 50,
+                      height: 50,
+                      child: pw.BarcodeWidget(
+                        color: pw.PdfColor.fromHex('#0F172A'),
+                        barcode: pw.Barcode.qrCode(),
+                        data: 'VOUCHER-${hotel.hotelConfirmationNumber ?? "PENDING"}-${hotel.guestName.replaceAll(" ", "")}',
+                      ),
+                    ),
+                    pw.SizedBox(width: 12),
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text('Digital Verification Code', style: pw.TextStyle(fontSize: 8, fontWeight: pw.FontWeight.bold, color: primaryNavy)),
+                          pw.Text('Scan at reception for express check-in and room sequencing validation.', style: const pw.TextStyle(fontSize: 7, color: textMuted)),
+                        ],
+                      )
+                    )
+                  ],
+                ),
+                pw.SizedBox(height: 12),
+                pw.Divider(color: AppTheme.cardBorder, thickness: 0.5),
+                pw.SizedBox(height: 12),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [

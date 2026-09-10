@@ -30,19 +30,34 @@ class HotelOfferCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (offer.mainImageUrl != null)
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(14), topRight: Radius.circular(14)),
+                  child: Image.network(
+                    offer.mainImageUrl!,
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Container(height: 150, color: Colors.grey[200], child: const Icon(Icons.broken_image, color: Colors.grey)),
+                  ),
+                ),
+              if (offer.mainImageUrl != null) const SizedBox(height: 12),
               // Hotel Name & Star Rating
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accentBlue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+                  if (offer.mainImageUrl == null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.hotel, color: AppTheme.accentBlue, size: 24),
                     ),
-                    child: const Icon(Icons.hotel, color: AppTheme.accentBlue, size: 24),
-                  ),
-                  const SizedBox(width: 12),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,6 +126,25 @@ class HotelOfferCard extends StatelessWidget {
                           offer.mealPlan,
                           style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.accentBlue),
                         ),
+                        if (offer.amenities.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: offer.amenities.take(3).map((a) => Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Text(
+                                a,
+                                style: const TextStyle(fontSize: 9, color: AppTheme.textDark),
+                              ),
+                            )).toList(),
+                          )
+                        ],
                       ],
                     ),
                   ),

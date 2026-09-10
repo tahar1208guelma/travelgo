@@ -115,6 +115,49 @@ export class FlightsService {
       })
     );
 
+    // Calculate smart tags
+    if (finalOffers.length > 0) {
+      // Fastest
+      const offersWithDuration = finalOffers.map((o) => {
+        const totalDuration = o.outboundSegments.reduce((sum, seg) => sum + seg.durationMinutes, 0);
+        let layoverDuration = 0;
+        for (let i = 0; i < o.outboundSegments.length - 1; i++) {
+          const arr = new Date(o.outboundSegments[i].arrivalDateTime).getTime();
+          const dep = new Date(o.outboundSegments[i+1].departureDateTime).getTime();
+          layoverDuration += (dep - arr) / 60000;
+        }
+        return { ...o, totalDuration: totalDuration + layoverDuration };
+      });
+
+      const fastestOffer = offersWithDuration.reduce((prev, current) => (prev.totalDuration < current.totalDuration) ? prev : current);
+      const cheapestOffer = finalOffers.reduce((prev, current) => (prev.price.totalPrice < current.price.totalPrice) ? prev : current);
+
+      // Best Value: normalize price and duration
+      const maxPrice = Math.max(...finalOffers.map(o => o.price.totalPrice));
+      const minPrice = Math.min(...finalOffers.map(o => o.price.totalPrice));
+      const maxDuration = Math.max(...offersWithDuration.map(o => o.totalDuration));
+      const minDuration = Math.min(...offersWithDuration.map(o => o.totalDuration));
+
+      const bestValueOffer = offersWithDuration.reduce((prev, current) => {
+        const priceScorePrev = maxPrice === minPrice ? 0 : (prev.price.totalPrice - minPrice) / (maxPrice - minPrice);
+        const durationScorePrev = maxDuration === minDuration ? 0 : (prev.totalDuration - minDuration) / (maxDuration - minDuration);
+        const scorePrev = priceScorePrev * 0.7 + durationScorePrev * 0.3; // Give more weight to price
+
+        const priceScoreCurr = maxPrice === minPrice ? 0 : (current.price.totalPrice - minPrice) / (maxPrice - minPrice);
+        const durationScoreCurr = maxDuration === minDuration ? 0 : (current.totalDuration - minDuration) / (maxDuration - minDuration);
+        const scoreCurr = priceScoreCurr * 0.7 + durationScoreCurr * 0.3;
+
+        return (scorePrev < scoreCurr) ? prev : current;
+      });
+
+      finalOffers.forEach(o => {
+        (o as any)['smartTags'] = [];
+        if (o.offerId === fastestOffer.offerId) (o as any)['smartTags'].push('Fastest');
+        if (o.offerId === cheapestOffer.offerId && !((o as any)['smartTags'] as string[]).includes('Cheapest')) (o as any)['smartTags'].push('Cheapest');
+        if (o.offerId === bestValueOffer.offerId && !((o as any)['smartTags'] as string[]).includes('Best Value')) (o as any)['smartTags'].push('Best Value');
+      });
+    }
+
     return {
       searchId,
       provider: { id: provider.providerId, name: provider.providerName, isDemo: provider.isDemo },
