@@ -36,8 +36,10 @@ class FlightOfferCard extends StatelessWidget {
               // Airline & Cabin Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(6),
@@ -189,6 +191,38 @@ class FlightOfferCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                        if (!offer.isDirect)
+                          ...offer.outboundSegments.sublist(0, offer.outboundSegments.length - 1).asMap().entries.map((entry) {
+                            final idx = entry.key;
+                            final seg = entry.value;
+                            final nextSeg = offer.outboundSegments[idx + 1];
+                            final layover = nextSeg.departureDateTime.difference(seg.arrivalDateTime);
+                            final isRisky = layover.inMinutes < 60;
+                            final isOptimal = layover.inMinutes >= 90 && layover.inMinutes <= 180;
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.timer_outlined, size: 10, color: isRisky ? AppTheme.errorRed : isOptimal ? AppTheme.successGreen : AppTheme.textMuted),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${layover.inHours}h ${layover.inMinutes.remainder(60)}m at ${seg.arrivalAirportCode}',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: isRisky || isOptimal ? FontWeight.bold : FontWeight.normal,
+                                      color: isRisky ? AppTheme.errorRed : isOptimal ? AppTheme.successGreen : AppTheme.textMuted,
+                                    ),
+                                  ),
+                                  if (isRisky)
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 4),
+                                      child: Text('(Risky)', style: TextStyle(fontSize: 8, color: AppTheme.errorRed, fontWeight: FontWeight.bold)),
+                                    )
+                                ],
+                              ),
+                            );
+                          }).toList()
                       ],
                     ),
                   ),
