@@ -1035,7 +1035,7 @@ class PdfService {
                   ],
                 ),
                 pw.SizedBox(height: 12),
-                pw.Divider(color: AppTheme.cardBorder, thickness: 0.5),
+                pw.Divider(color: cardBorder, thickness: 0.5),
                 pw.SizedBox(height: 12),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,

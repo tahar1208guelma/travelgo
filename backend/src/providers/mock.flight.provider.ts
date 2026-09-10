@@ -61,8 +61,12 @@ export class MockFlightProvider implements IFlightProvider {
       depTime.setHours(8 + index * 3, 30, 0, 0);
       const arrTime = new Date(depTime.getTime() + 2.5 * 3600 * 1000);
 
-      const basePrice = airline.base * cabinMultiplier * criteria.adults;
-      const taxes = airline.taxes * criteria.adults;
+      const currency = criteria.currency || (origin === 'ALG' || dest === 'ALG' ? 'DZD' : 'USD');
+      const currencyMultiplier = currency === 'DZD' ? 148.0 : (currency === 'EUR' ? 0.92 : (currency === 'GBP' ? 0.79 : 1.0));
+      const taxRate = currency === 'DZD' ? 4500.0 : airline.taxes;
+
+      const basePrice = Math.round(airline.base * currencyMultiplier * cabinMultiplier * criteria.adults);
+      const taxes = Math.round(taxRate * criteria.adults);
 
       offers.push({
         providerOfferId: `DEMO-DIR-${airline.code}-${100 + index}`,
@@ -72,7 +76,7 @@ export class MockFlightProvider implements IFlightProvider {
         validatingAirlineCode: airline.code,
         basePrice,
         taxes,
-        currency: 'USD',
+        currency,
         seatsRemaining: 9 - index,
         isRefundable: criteria.cabinClass !== 'Economy',
         baggageSummary: '1 x 23 kg checked, 1 x 8 kg cabin',
@@ -116,15 +120,22 @@ export class MockFlightProvider implements IFlightProvider {
       const dep2 = new Date(arr1.getTime() + 2 * 3600 * 1000); // 2h layover
       const arr2 = new Date(dep2.getTime() + 4 * 3600 * 1000);
 
+      const currency = criteria.currency || (origin === 'ALG' || dest === 'ALG' ? 'DZD' : 'USD');
+      const currencyMultiplier = currency === 'DZD' ? 148.0 : (currency === 'EUR' ? 0.92 : (currency === 'GBP' ? 0.79 : 1.0));
+      const taxRate = currency === 'DZD' ? 6200.0 : 52.0;
+
+      const basePrice = Math.round(hubItem.base * currencyMultiplier * cabinMultiplier * criteria.adults);
+      const taxes = Math.round(taxRate * criteria.adults);
+
       offers.push({
         providerOfferId: `DEMO-1STOP-${hubItem.code}-${200 + idx}`,
         providerCode: this.providerId,
         isDemo: true,
         validatingAirline: hubItem.airline,
         validatingAirlineCode: hubItem.code,
-        basePrice: hubItem.base * cabinMultiplier * criteria.adults,
-        taxes: 52.0 * criteria.adults,
-        currency: 'USD',
+        basePrice,
+        taxes,
+        currency,
         seatsRemaining: 5,
         isRefundable: false,
         baggageSummary: '2 x 23 kg checked (Auto-transferred)',

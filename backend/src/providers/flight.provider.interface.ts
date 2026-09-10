@@ -44,6 +44,7 @@ export interface FlightSearchCriteria {
   children: number;
   infants: number;
   cabinClass: string; // 'Economy' | 'Premium Economy' | 'Business' | 'First'
+  currency?: string;
 }
 
 export interface FlightBookingRequest {

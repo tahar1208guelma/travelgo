@@ -11,6 +11,7 @@ class FlightSearchQuery {
   final String cabinClass; // Economy, Premium Economy, Business, First
   final bool nonStopOnly;
   final double? maxPrice;
+  final String currency;
 
   const FlightSearchQuery({
     required this.originCode,
@@ -25,6 +26,7 @@ class FlightSearchQuery {
     this.cabinClass = 'Economy',
     this.nonStopOnly = false,
     this.maxPrice,
+    this.currency = 'DZD',
   });
 
   bool get isRoundTrip => returnDate != null;
@@ -41,6 +43,7 @@ class FlightSearchQuery {
       'infants': infants,
       'cabinClass': cabinClass,
       'nonStopOnly': nonStopOnly,
+      'currency': currency,
       if (maxPrice != null) 'maxPrice': maxPrice,
     };
   }
