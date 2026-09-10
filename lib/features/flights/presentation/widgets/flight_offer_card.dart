@@ -222,7 +222,7 @@ class FlightOfferCard extends StatelessWidget {
                                 ],
                               ),
                             );
-                          }).toList()
+                          })
                       ],
                     ),
                   ),
