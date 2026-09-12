@@ -1,0 +1,36 @@
+{
+  "$schema": "https://jules.google.com/schemas/config.v1.json",
+  "name": "travelgo",
+  "description": "TravelGo Enterprise Travel Booking Platform (Flights & Hotels)",
+  "instructionsFile": "AGENTS.md",
+  "environment": {
+    "nodeVersion": "20.x",
+    "flutterChannel": "stable"
+  },
+  "setupCommands": [
+    "flutter pub get",
+    "npm --prefix backend install"
+  ],
+  "verification": {
+    "commands": [
+      "flutter analyze",
+      "flutter test",
+      "npm --prefix backend test"
+    ]
+  },
+  "build": {
+    "client": "flutter build apk --release",
+    "server": "npm --prefix backend run build"
+  },
+  "safety": {
+    "protectedFiles": [
+      ".env",
+      ".env.*",
+      "TRAVELGO_Release_v1.0.apk"
+    ],
+    "disallowedOperations": [
+      "force_push_main",
+      "delete_migrations"
+    ]
+  }
+}

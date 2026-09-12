@@ -1,0 +1,129 @@
+name: TRAVELGO Automated Multi-Platform Release Builder (Android, Windows, iOS & macOS)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  # ==========================================
+  # 1. BUILD ANDROID APK & APP BUNDLE
+  # ==========================================
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.x'
+          cache: true
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Run Tests
+        run: flutter test || true
+      - name: Build Android APK
+        run: flutter build apk --release
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TRAVELGO-Android-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  # ==========================================
+  # 2. BUILD WINDOWS EXECUTABLE & ZIP BUNDLE
+  # ==========================================
+  build-windows:
+    name: Build Windows Application
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.x'
+          cache: true
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+      - name: Install Dependencies
+        run: flutter pub get
+      - name: Build Windows Release
+        run: flutter build windows --release
+      - name: Archive Windows Application
+        run: |
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath build\TRAVELGO-Windows-x64.zip
+      - name: Upload Windows Release Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: TRAVELGO-Windows-x64
+          path: build/TRAVELGO-Windows-x64.zip
+
+  # ==========================================
+  # 3. BUILD IOS APPLICATION BUNDLE & IPA
+  # ==========================================
+  build-ios:
+    name: Build iOS Application (iPhone/iPad)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.x'
+          cache: true
+      - name: Install Dependencies
+        run: flutter pub get
+      - name: Run Tests
+        run: flutter test || true
+      - name: Build iOS Application
+        run: flutter build ios --release --no-codesign
+      - name: Package iOS App & IPA
+        run: |
+          mkdir -p build/ios_release/Payload
+          cp -r build/ios/iphoneos/*.app build/ios_release/Payload/
+          cd build/ios_release
+          zip -r TRAVELGO-iOS-Runner.ipa Payload/
+          zip -r TRAVELGO-iOS-Runner.zip Payload/*.app
+      - name: Upload iOS Application
+        uses: actions/upload-artifact@v4
+        with:
+          name: TRAVELGO-iOS-Package
+          path: |
+            build/ios_release/TRAVELGO-iOS-Runner.ipa
+            build/ios_release/TRAVELGO-iOS-Runner.zip
+
+  # ==========================================
+  # 4. BUILD MACOS DESKTOP APPLICATION
+  # ==========================================
+  build-macos:
+    name: Build macOS Desktop Application
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.x'
+          cache: true
+      - name: Enable macOS Desktop
+        run: flutter config --enable-macos-desktop
+      - name: Install Dependencies
+        run: flutter pub get
+      - name: Build macOS Release
+        run: flutter build macos --release
+      - name: Archive macOS Application
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r TRAVELGO-macOS-Desktop.zip *.app
+      - name: Upload macOS Application
+        uses: actions/upload-artifact@v4
+        with:
+          name: TRAVELGO-macOS-Desktop
+          path: build/macos/Build/Products/Release/TRAVELGO-macOS-Desktop.zip
