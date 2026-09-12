@@ -33,6 +33,45 @@ class FlightOfferCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (offer.smartTags != null && offer.smartTags!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: offer.smartTags!.map((tag) {
+                      Color tagColor = AppTheme.accentBlue;
+                      IconData tagIcon = Icons.label;
+                      if (tag.toLowerCase().contains('fastest')) {
+                        tagColor = AppTheme.electricCyan;
+                        tagIcon = Icons.flash_on;
+                      } else if (tag.toLowerCase().contains('cheapest')) {
+                        tagColor = AppTheme.successGreen;
+                        tagIcon = Icons.savings;
+                      } else if (tag.toLowerCase().contains('value')) {
+                        tagColor = Colors.purple;
+                        tagIcon = Icons.star;
+                      }
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: tagColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: tagColor.withValues(alpha: 0.5)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(tagIcon, size: 12, color: tagColor),
+                            const SizedBox(width: 4),
+                            Text(tag, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: tagColor)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
               // Airline & Cabin Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

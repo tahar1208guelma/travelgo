@@ -66,7 +66,7 @@ export class AuthService {
     const token = JwtHelper.sign({ userId: user.id, email: user.email, roles: ['customer'] });
 
     // 7. Send Verification Email
-    const { EmailService } = require('../services/email.service');
+    const { EmailService } = await import('../services/email.service');
     await EmailService.sendVerificationEmail(user.email, otp);
 
     return { user, token };
@@ -114,7 +114,7 @@ export class AuthService {
       [otp, otpExpiresAt, userId]
     );
 
-    const { EmailService } = require('../services/email.service');
+    const { EmailService } = await import('../services/email.service');
     await EmailService.sendVerificationEmail(user.email, otp);
 
     return { success: true, message: 'Verification code resent' };

@@ -77,160 +77,166 @@ class ProfileScreen extends StatelessWidget {
               // ============================================================
               // TRAVELGO COMMISSION & EARNINGS DASHBOARD
               // ============================================================
-              Text(
-                'TRAVELGO Commission & Revenue (0.75%)',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryNavy,
-                    ),
-              ),
-              const SizedBox(height: 10),
-
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppTheme.primaryNavy, Color(0xFF1E293B)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryNavy.withValues(alpha: 0.15),
-                      blurRadius: 14,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
+              if (true) // TODO: Check actual user role from Auth BLoC state when available, hardcoded to true for demo purposes
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.account_balance_wallet, color: AppTheme.electricCyan, size: 24),
-                            SizedBox(width: 8),
-                            Text(
-                              'Total Commission Balance',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                          ],
-                        ),
-                        Chip(
-                          label: Text('Rate: 0.75%', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
-                          backgroundColor: AppTheme.accentBlue,
-                          padding: EdgeInsets.zero,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ],
+                    Text(
+                      'TRAVELGO Commission & Revenue (0.75%)',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryNavy,
+                          ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
 
-                    if (context.isDesktop)
-                      const Row(
-                        children: [
-                          Expanded(child: _StatTile(title: 'Accumulated Earnings', value: '\$148.35', icon: Icons.trending_up, isHighlight: true)),
-                          SizedBox(width: 12),
-                          Expanded(child: _StatTile(title: 'Gross Volume Processed', value: '\$19,780.00', icon: Icons.payments)),
-                          SizedBox(width: 12),
-                          Expanded(child: _StatTile(title: 'Total Bookings Issued', value: '24 Bookings', icon: Icons.confirmation_number)),
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppTheme.primaryNavy, Color(0xFF1E293B)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryNavy.withValues(alpha: 0.15),
+                            blurRadius: 14,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
-                      )
-                    else
-                      const Column(
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(child: _StatTile(title: 'Earned Commission', value: '\$148.35', icon: Icons.trending_up, isHighlight: true)),
-                              SizedBox(width: 10),
-                              Expanded(child: _StatTile(title: 'Gross Volume', value: '\$19,780.00', icon: Icons.payments)),
+                              Row(
+                                children: [
+                                  Icon(Icons.account_balance_wallet, color: AppTheme.electricCyan, size: 24),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Total Commission Balance',
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                              Chip(
+                                label: Text('Rate: 0.75%', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                                backgroundColor: AppTheme.accentBlue,
+                                padding: EdgeInsets.zero,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          _StatTile(title: 'Total Bookings Processed', value: '24 Successful Bookings', icon: Icons.confirmation_number),
+                          const SizedBox(height: 16),
+
+                          if (context.isDesktop)
+                            const Row(
+                              children: [
+                                Expanded(child: _StatTile(title: 'Accumulated Earnings', value: '\$148.35', icon: Icons.trending_up, isHighlight: true)),
+                                SizedBox(width: 12),
+                                Expanded(child: _StatTile(title: 'Gross Volume Processed', value: '\$19,780.00', icon: Icons.payments)),
+                                SizedBox(width: 12),
+                                Expanded(child: _StatTile(title: 'Total Bookings Issued', value: '24 Bookings', icon: Icons.confirmation_number)),
+                              ],
+                            )
+                          else
+                            const Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(child: _StatTile(title: 'Earned Commission', value: '\$148.35', icon: Icons.trending_up, isHighlight: true)),
+                                    SizedBox(width: 10),
+                                    Expanded(child: _StatTile(title: 'Gross Volume', value: '\$19,780.00', icon: Icons.payments)),
+                                  ],
+                                ),
+                                SizedBox(height: 10),
+                                _StatTile(title: 'Total Bookings Processed', value: '24 Successful Bookings', icon: Icons.confirmation_number),
+                              ],
+                            ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(Icons.outbox, size: 18),
+                                  label: const Text('Withdraw Commission / سحب الأرباح', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.electricCyan,
+                                    foregroundColor: AppTheme.primaryNavy,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => const AdminFinanceScreen()),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.admin_panel_settings, size: 18),
+                                label: const Text('Admin Console', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.accentBlue,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            icon: const Icon(Icons.outbox, size: 18),
-                            label: const Text('Withdraw Commission / سحب الأرباح', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.electricCyan,
-                              foregroundColor: AppTheme.primaryNavy,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const AdminFinanceScreen()),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.admin_panel_settings, size: 18),
-                          label: const Text('Admin Console', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.accentBlue,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
-                            );
-                          },
-                        ),
-                      ],
                     ),
+                    const SizedBox(height: 20),
+
+                    // Recent Commission Breakdown Table
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: AppTheme.cardBorder),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Recent Commission Earnings Log', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.primaryNavy)),
+                                Text('0.75% Fixed', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.accentBlue)),
+                              ],
+                            ),
+                            const Divider(height: 20, color: AppTheme.cardBorder),
+
+                            _buildCommissionRow('TRV-2026-000001 (Flight ALG → IST)', 'Base: \$250.00', '+\$1.88 Fee'),
+                            const Divider(height: 16, color: AppTheme.cardBorder),
+                            _buildCommissionRow('TRV-2026-000002 (Hotel Grand Bosphorus)', 'Base: \$650.00', '+\$4.88 Fee'),
+                            const Divider(height: 16, color: AppTheme.cardBorder),
+                            _buildCommissionRow('TRV-2026-000003 (Flight + Hotel Combo)', 'Base: \$1,200.00', '+\$9.00 Fee'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Recent Commission Breakdown Table
-              Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: AppTheme.cardBorder),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Recent Commission Earnings Log', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.primaryNavy)),
-                          Text('0.75% Fixed', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.accentBlue)),
-                        ],
-                      ),
-                      const Divider(height: 20, color: AppTheme.cardBorder),
-
-                      _buildCommissionRow('TRV-2026-000001 (Flight ALG → IST)', 'Base: \$250.00', '+\$1.88 Fee'),
-                      const Divider(height: 16, color: AppTheme.cardBorder),
-                      _buildCommissionRow('TRV-2026-000002 (Hotel Grand Bosphorus)', 'Base: \$650.00', '+\$4.88 Fee'),
-                      const Divider(height: 16, color: AppTheme.cardBorder),
-                      _buildCommissionRow('TRV-2026-000003 (Flight + Hotel Combo)', 'Base: \$1,200.00', '+\$9.00 Fee'),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
 
               // Saved Passenger Profiles Section
               Text(

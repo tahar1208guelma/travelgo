@@ -15,6 +15,7 @@ import '../../models/passenger_input.dart';
 import '../widgets/hosted_card_input_widget.dart';
 import '../widgets/three_d_secure_dialog.dart';
 import 'booking_success_screen.dart';
+import '../../../auth/presentation/pages/email_verification_screen.dart';
 
 class FlightCheckoutScreen extends StatefulWidget {
   final FlightOffer offer;
@@ -49,21 +50,32 @@ class _FlightCheckoutScreenState extends State<FlightCheckoutScreen> {
     super.dispose();
   }
 
-  void _proceedToPayment() {
-    final passenger = PassengerInput(
-      firstName: _firstNameController.text.trim(),
-      lastName: _lastNameController.text.trim(),
-      email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
-      passportNumber: _passportController.text.trim(),
-      dateOfBirth: DateTime(1992, 5, 14),
+  void _proceedToPayment() async {
+    final email = _emailController.text.trim();
+    // 1. Verify Email first
+    final isVerified = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EmailVerificationScreen(email: email),
+      ),
     );
 
-    widget.bloc.add(SubmitTravelerDetails(
-      passengers: [passenger],
-      contactEmail: _emailController.text.trim(),
-      contactPhone: _phoneController.text.trim(),
-    ));
+    if (isVerified == true) {
+      final passenger = PassengerInput(
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        email: email,
+        phone: _phoneController.text.trim(),
+        passportNumber: _passportController.text.trim(),
+        dateOfBirth: DateTime(1992, 5, 14),
+      );
+
+      widget.bloc.add(SubmitTravelerDetails(
+        passengers: [passenger],
+        contactEmail: email,
+        contactPhone: _phoneController.text.trim(),
+      ));
+    }
   }
 
   @override

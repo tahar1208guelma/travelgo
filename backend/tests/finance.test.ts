@@ -3,9 +3,22 @@ import { WithdrawalService } from '../src/finance/withdrawal.service';
 import { ManualBankTransferPayoutProvider } from '../src/providers/manual_transfer.payout.provider';
 import { StripeConnectPayoutProvider } from '../src/providers/stripe_connect.payout.provider';
 
+import { db } from '../src/config/database';
+
+jest.mock('../src/config/database', () => ({
+  db: {
+    query: jest.fn(),
+  },
+}));
+
 describe('Merchant Financial System & Commission Tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('Commission Calculations (0.75% standard rate)', () => {
     it('calculates exact 0.75% commission on 100 EUR', async () => {
+      (db.query as jest.Mock).mockResolvedValue({ rows: [{ value: '0.0075' }] });
       const result = await CommissionService.calculate(100.0, 25.0, 'EUR');
       expect(result.commissionAmount).toBe(0.75);
       expect(result.commissionRate).toBe(0.0075);
@@ -14,6 +27,7 @@ describe('Merchant Financial System & Commission Tests', () => {
 
     it('calculates exact commission on high value DZD booking', async () => {
       // 120,000 DZD flight -> 0.75% = 900 DZD
+      (db.query as jest.Mock).mockResolvedValue({ rows: [{ value: '0.0075' }] });
       const result = await CommissionService.calculate(120000.0, 15000.0, 'DZD');
       expect(result.commissionAmount).toBe(900.0);
       expect(result.totalPrice).toBe(135900.0);
@@ -22,6 +36,7 @@ describe('Merchant Financial System & Commission Tests', () => {
 
   describe('Withdrawal Thresholds and Validation', () => {
     it('returns default minimum withdrawal limits per currency', async () => {
+      (db.query as jest.Mock).mockResolvedValue({ rows: [] }); // return empty to trigger fallback default minimums
       const eurMin = await WithdrawalService.getMinimumWithdrawal('EUR');
       const dzdMin = await WithdrawalService.getMinimumWithdrawal('DZD');
       const usdMin = await WithdrawalService.getMinimumWithdrawal('USD');

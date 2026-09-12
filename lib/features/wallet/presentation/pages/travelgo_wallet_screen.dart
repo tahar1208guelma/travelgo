@@ -184,16 +184,18 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
         title: const Text('TRAVELGO • Digital Wallet & Commissions'),
         elevation: 0,
         actions: [
-          IconButton(
-            tooltip: 'Export PDF Statement',
-            icon: const Icon(Icons.file_download_outlined),
-            onPressed: _showStatementNotice,
-          ),
-          IconButton(
-            tooltip: 'Auto-Payout Settings',
-            icon: const Icon(Icons.tune),
-            onPressed: _showAutoPayoutModal,
-          ),
+          if (true) // TODO: role check
+            IconButton(
+              tooltip: 'Export PDF Statement',
+              icon: const Icon(Icons.file_download_outlined),
+              onPressed: _showStatementNotice,
+            ),
+          if (true) // TODO: role check
+            IconButton(
+              tooltip: 'Auto-Payout Settings',
+              icon: const Icon(Icons.tune),
+              onPressed: _showAutoPayoutModal,
+            ),
         ],
       ),
       body: ResponsiveContainer(
@@ -202,10 +204,22 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (!true) // TODO: role check (simulate access denied for normal user, allowing true for admin)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(32.0),
+                    child: Text(
+                      'Access Denied: You do not have permission to view this page. This section is strictly restricted to Platform Owners / Admins.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: AppTheme.errorRed, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
               // ============================================================
               // DIGITAL WALLET HERO CARD
               // ============================================================
-              Container(
+              if (true) // TODO: role check
+                Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -409,209 +423,219 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
               // ============================================================
               // KEY WALLET METRICS
               // ============================================================
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Gross Turnover',
-                      value: '\$${_totalGrossVolume.toStringAsFixed(2)}',
-                      subtitle: 'Total Volume Processed',
-                      icon: Icons.show_chart,
-                      iconColor: AppTheme.accentBlue,
+              if (true) // TODO: role check
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Gross Turnover',
+                        value: '\$${_totalGrossVolume.toStringAsFixed(2)}',
+                        subtitle: 'Total Volume Processed',
+                        icon: Icons.show_chart,
+                        iconColor: AppTheme.accentBlue,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildMetricCard(
-                      title: 'Bookings Issued',
-                      value: '$_totalBookingsCount Orders',
-                      subtitle: 'Flights & Hotel Nights',
-                      icon: Icons.flight_takeoff,
-                      iconColor: AppTheme.successGreen,
-                    ),
-                  ),
-                  if (isDesktop) ...[
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildMetricCard(
-                        title: 'Fixed Commission',
-                        value: '0.75%',
-                        subtitle: 'Transparent Net Fee',
-                        icon: Icons.percent,
-                        iconColor: AppTheme.electricCyan,
+                        title: 'Bookings Issued',
+                        value: '$_totalBookingsCount Orders',
+                        subtitle: 'Flights & Hotel Nights',
+                        icon: Icons.flight_takeoff,
+                        iconColor: AppTheme.successGreen,
                       ),
                     ),
+                    if (isDesktop) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMetricCard(
+                          title: 'Fixed Commission',
+                          value: '0.75%',
+                          subtitle: 'Transparent Net Fee',
+                          icon: Icons.percent,
+                          iconColor: AppTheme.electricCyan,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-              const SizedBox(height: 24),
+                ),
+              if (true) // TODO: role check
+                const SizedBox(height: 24),
 
               // ============================================================
               // LINKED BANK & PAYOUT ACCOUNT
               // ============================================================
-              Text(
-                'Linked Bank Accounts & Payout Destination',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryNavy,
-                    ),
-              ),
-              const SizedBox(height: 10),
-              Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  side: const BorderSide(color: AppTheme.cardBorder),
+              if (true) // TODO: role check
+                Text(
+                  'Linked Bank Accounts & Payout Destination',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryNavy,
+                      ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentBlue.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+              if (true) // TODO: role check
+                const SizedBox(height: 10),
+              if (true) // TODO: role check
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: const BorderSide(color: AppTheme.cardBorder),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.account_balance, color: AppTheme.accentBlue, size: 28),
                         ),
-                        child: const Icon(Icons.account_balance, color: AppTheme.accentBlue, size: 28),
-                      ),
-                      const SizedBox(width: 16),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Banque Nationale d\'Algérie (BNA) • Primary IBAN',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.primaryNavy),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              'IBAN: DZ00 2000 1234 5678 9012 3456 • SWIFT: BNALDZALXXX',
-                              style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
-                            ),
-                          ],
+                        const SizedBox(width: 16),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Banque Nationale d\'Algérie (BNA) • Primary IBAN',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppTheme.primaryNavy),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'IBAN: DZ00 2000 1234 5678 9012 3456 • SWIFT: BNALDZALXXX',
+                                style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.successGreen.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppTheme.successGreen.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'Verified',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.successGreen),
+                          ),
                         ),
-                        child: const Text(
-                          'Verified',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppTheme.successGreen),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
+              if (true) // TODO: role check
+                const SizedBox(height: 24),
 
               // ============================================================
               // COMMISSION & TRANSACTION LEDGER
               // ============================================================
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Commission Earnings Ledger',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryNavy,
-                        ),
+              if (true) // TODO: role check
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Commission Earnings Ledger',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryNavy,
+                          ),
+                    ),
+                    // Filter Chips
+                    Row(
+                      children: ['All', 'Flights', 'Hotels', 'Payouts'].map((filter) {
+                        final isSelected = _activeFilter == filter;
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: ChoiceChip(
+                            label: Text(filter, style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                            selected: isSelected,
+                            selectedColor: AppTheme.accentBlue.withValues(alpha: 0.15),
+                            onSelected: (_) => setState(() => _activeFilter = filter),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              if (true) // TODO: role check
+                const SizedBox(height: 12),
+
+              if (true) // TODO: role check
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: const BorderSide(color: AppTheme.cardBorder),
                   ),
-                  // Filter Chips
-                  Row(
-                    children: ['All', 'Flights', 'Hotels', 'Payouts'].map((filter) {
-                      final isSelected = _activeFilter == filter;
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: ChoiceChip(
-                          label: Text(filter, style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-                          selected: isSelected,
-                          selectedColor: AppTheme.accentBlue.withValues(alpha: 0.15),
-                          onSelected: (_) => setState(() => _activeFilter = filter),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredTxns.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
+                    itemBuilder: (ctx, idx) {
+                      final txn = filteredTxns[idx];
+                      final isPayout = txn['type'] == 'payout';
+                      final fee = txn['fee'] as double;
+                      final gross = txn['gross'] as double;
+
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        leading: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: isPayout
+                                ? AppTheme.warningOrange.withValues(alpha: 0.15)
+                                : AppTheme.accentBlue.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isPayout
+                                ? Icons.outbox
+                                : txn['type'] == 'flight'
+                                    ? Icons.flight
+                                    : Icons.hotel,
+                            color: isPayout ? AppTheme.warningOrange : AppTheme.accentBlue,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          txn['title'] as String,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AppTheme.primaryNavy),
+                        ),
+                        subtitle: Text(
+                          '${txn['ref']} • ${txn['date']}',
+                          style: const TextStyle(fontSize: 11.5, color: AppTheme.textMuted),
+                        ),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              isPayout
+                                  ? '-\$${fee.abs().toStringAsFixed(2)}'
+                                  : '+\$${fee.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: isPayout ? AppTheme.primaryNavy : AppTheme.successGreen,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              isPayout ? 'Payout' : 'Gross: \$${gross.toStringAsFixed(2)} (0.75%)',
+                              style: const TextStyle(fontSize: 10.5, color: AppTheme.textMuted),
+                            ),
+                          ],
                         ),
                       );
-                    }).toList(),
+                    },
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  side: const BorderSide(color: AppTheme.cardBorder),
                 ),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: filteredTxns.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
-                  itemBuilder: (ctx, idx) {
-                    final txn = filteredTxns[idx];
-                    final isPayout = txn['type'] == 'payout';
-                    final fee = txn['fee'] as double;
-                    final gross = txn['gross'] as double;
-
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      leading: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isPayout
-                              ? AppTheme.warningOrange.withValues(alpha: 0.15)
-                              : AppTheme.accentBlue.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isPayout
-                              ? Icons.outbox
-                              : txn['type'] == 'flight'
-                                  ? Icons.flight
-                                  : Icons.hotel,
-                          color: isPayout ? AppTheme.warningOrange : AppTheme.accentBlue,
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(
-                        txn['title'] as String,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AppTheme.primaryNavy),
-                      ),
-                      subtitle: Text(
-                        '${txn['ref']} • ${txn['date']}',
-                        style: const TextStyle(fontSize: 11.5, color: AppTheme.textMuted),
-                      ),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            isPayout
-                                ? '-\$${fee.abs().toStringAsFixed(2)}'
-                                : '+\$${fee.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: isPayout ? AppTheme.primaryNavy : AppTheme.successGreen,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            isPayout ? 'Payout' : 'Gross: \$${gross.toStringAsFixed(2)} (0.75%)',
-                            style: const TextStyle(fontSize: 10.5, color: AppTheme.textMuted),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 30),
+              if (true) // TODO: role check
+                const SizedBox(height: 30),
             ],
           ),
         ),

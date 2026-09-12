@@ -15,6 +15,7 @@ import '../../models/passenger_input.dart';
 import '../widgets/hosted_card_input_widget.dart';
 import '../widgets/three_d_secure_dialog.dart';
 import 'booking_success_screen.dart';
+import '../../../auth/presentation/pages/email_verification_screen.dart';
 
 class HotelCheckoutScreen extends StatefulWidget {
   final HotelOffer hotel;
