@@ -80,7 +80,9 @@ jobs:
           cache: true
 
       - name: Enable Windows Desktop
-        run: flutter config --enable-windows-desktop
+        run: |
+          flutter config --enable-windows-desktop
+          flutter create --platforms=windows .
 
       - name: Install dependencies
         run: flutter pub get
@@ -116,6 +118,11 @@ jobs:
           flutter-version: '3.22.x'
           channel: 'stable'
           cache: true
+
+      - name: Enable Web Platform
+        run: |
+          flutter config --enable-web
+          flutter create --platforms=web .
 
       - name: Install dependencies
         run: flutter pub get

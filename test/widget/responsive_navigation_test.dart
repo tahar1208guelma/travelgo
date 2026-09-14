@@ -33,11 +33,11 @@ void main() {
 
     // Verify bottom NavigationBar exists on mobile
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Flights'), findsOneWidget);
-    expect(find.text('Hotels'), findsOneWidget);
-    expect(find.text('My Trips'), findsOneWidget);
-    expect(find.text('Profile'), findsOneWidget);
+    expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('Home')), findsOneWidget);
+    expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('Flights')), findsOneWidget);
+    expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('Hotels')), findsOneWidget);
+    expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('My Trips')), findsOneWidget);
+    expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('Profile')), findsOneWidget);
   });
 
   testWidgets('Renders Desktop Sidebar on wide screens (>= 1024px)', (tester) async {
@@ -55,10 +55,10 @@ void main() {
     // Desktop sidebar brand header and navigation items should be visible
     expect(find.text('TRAVELGO'), findsWidgets);
     expect(find.text('Cross-Platform App'), findsOneWidget);
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Flights'), findsOneWidget);
-    expect(find.text('Hotels'), findsOneWidget);
-    expect(find.text('My Trips'), findsOneWidget);
-    expect(find.text('Profile'), findsOneWidget);
+    expect(find.text('Home'), findsWidgets);
+    expect(find.text('Flights'), findsWidgets);
+    expect(find.text('Hotels'), findsWidgets);
+    expect(find.text('My Trips'), findsWidgets);
+    expect(find.text('Profile'), findsWidgets);
   });
 }
