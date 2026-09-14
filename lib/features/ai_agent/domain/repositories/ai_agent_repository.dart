@@ -1,8 +1,11 @@
 import '../entities/ai_budget_breakdown.dart';
 import '../entities/ai_message_entity.dart';
+import '../entities/ai_search_intent.dart';
 import '../entities/ai_trip_plan_entity.dart';
 
 abstract class AIAgentRepository {
+  Future<AISearchIntent> parseSearchIntent(String naturalQuery, {bool isArabic = false});
+
   Future<AIMessageEntity> sendMessage({
     required String userQuery,
     required List<AIMessageEntity> conversationHistory,

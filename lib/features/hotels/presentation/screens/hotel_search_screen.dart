@@ -10,6 +10,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../shared/models/destination.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_card.dart';
+import '../../../ai_agent/presentation/widgets/ai_search_entry_bar.dart';
 import '../../domain/entities/hotel_search_params.dart';
 import '../controllers/hotel_search_controller.dart';
 import 'hotel_results_screen.dart';
@@ -110,6 +111,9 @@ class _HotelSearchScreenState extends ConsumerState<HotelSearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+            // Optional AI Natural Language Hotel Search Bar
+            const AISearchEntryBar(isHotel: true),
+
             // Destination Search Field
             CustomCard(
               padding: const EdgeInsets.all(AppSpacing.md),

@@ -209,5 +209,15 @@
   "ai_book_recommendation": "Book Recommendation",
   "ai_badge_verified": "Verified Live Fare",
   "ai_why_recommended": "Why we recommend this",
-  "ai_budget_title": "Trip Budget Allocation"
+  "ai_budget_title": "Trip Budget Allocation",
+  "ai_search_title": "AI Smart Search",
+  "ai_search_banner_flight": "Search Flights with AI",
+  "ai_search_banner_hotel": "Search Hotels with AI",
+  "ai_search_banner_desc": "Describe your trip naturally in your own words",
+  "ai_search_missing_fields_title": "Clarify Trip Details",
+  "ai_search_missing_fields_desc": "We understood most of your request! Please clarify the following missing details:",
+  "ai_search_recognized_details": "Recognized Details:",
+  "ai_search_continue_action": "Continue to Results",
+  "ai_search_input_hint": "e.g. Flight from Algiers to Paris for 2 adults next month",
+  "ai_search_hotel_input_hint": "e.g. 4-star hotel in Istanbul near city center for 5 nights"
 }

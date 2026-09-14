@@ -10,6 +10,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../shared/models/airport.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_card.dart';
+import '../../../ai_agent/presentation/widgets/ai_search_entry_bar.dart';
 import '../../domain/entities/flight_search_params.dart';
 import '../controllers/flight_search_controller.dart';
 import '../widgets/airport_picker_sheet.dart';
@@ -159,6 +160,9 @@ class _FlightSearchScreenState extends ConsumerState<FlightSearchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+            // Optional AI Natural Language Search Bar
+            const AISearchEntryBar(),
+
             // Trip Type Selector (Round-Trip / One-Way)
             Container(
               padding: const EdgeInsets.all(4),

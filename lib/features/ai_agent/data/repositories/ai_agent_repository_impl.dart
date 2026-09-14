@@ -1,13 +1,22 @@
 import '../../domain/entities/ai_budget_breakdown.dart';
 import '../../domain/entities/ai_message_entity.dart';
+import '../../domain/entities/ai_search_intent.dart';
 import '../../domain/entities/ai_trip_plan_entity.dart';
 import '../../domain/repositories/ai_agent_repository.dart';
 import '../datasources/ai_agent_datasource.dart';
+import '../datasources/ai_nlp_intent_parser.dart';
 
 class AIAgentRepositoryImpl implements AIAgentRepository {
   final AIAgentDataSource _dataSource;
 
   AIAgentRepositoryImpl(this._dataSource);
+
+  @override
+  Future<AISearchIntent> parseSearchIntent(String naturalQuery, {bool isArabic = false}) async {
+    // Non-blocking asynchronous intent parsing
+    await Future.delayed(const Duration(milliseconds: 100));
+    return AINlpIntentParser.parseQuery(naturalQuery);
+  }
 
   @override
   Future<AIMessageEntity> sendMessage({

@@ -1,0 +1,266 @@
+import '../../../flights/domain/entities/flight_search_params.dart';
+import '../../domain/entities/ai_search_intent.dart';
+
+class AINlpIntentParser {
+  static const Map<String, Map<String, String>> _cityMap = {
+    'algiers': {'code': 'ALG', 'cityEn': 'Algiers', 'cityAr': 'الجزائر'},
+    'الجزائر': {'code': 'ALG', 'cityEn': 'Algiers', 'cityAr': 'الجزائر'},
+    'paris': {'code': 'CDG', 'cityEn': 'Paris', 'cityAr': 'باريس'},
+    'باريس': {'code': 'CDG', 'cityEn': 'Paris', 'cityAr': 'باريس'},
+    'dubai': {'code': 'DXB', 'cityEn': 'Dubai', 'cityAr': 'دبي'},
+    'دبي': {'code': 'DXB', 'cityEn': 'Dubai', 'cityAr': 'دبي'},
+    'istanbul': {'code': 'IST', 'cityEn': 'Istanbul', 'cityAr': 'إسطنبول'},
+    'إسطنبول': {'code': 'IST', 'cityEn': 'Istanbul', 'cityAr': 'إسطنبول'},
+    'اسطنبول': {'code': 'IST', 'cityEn': 'Istanbul', 'cityAr': 'إسطنبول'},
+    'riyadh': {'code': 'RUH', 'cityEn': 'Riyadh', 'cityAr': 'الرياض'},
+    'الرياض': {'code': 'RUH', 'cityEn': 'Riyadh', 'cityAr': 'الرياض'},
+    'london': {'code': 'LHR', 'cityEn': 'London', 'cityAr': 'لندن'},
+    'لندن': {'code': 'LHR', 'cityEn': 'London', 'cityAr': 'لندن'},
+    'cairo': {'code': 'CAI', 'cityEn': 'Cairo', 'cityAr': 'القاهرة'},
+    'القاهرة': {'code': 'CAI', 'cityEn': 'Cairo', 'cityAr': 'القاهرة'},
+    'doha': {'code': 'DOH', 'cityEn': 'Doha', 'cityAr': 'الدوحة'},
+    'الدوحة': {'code': 'DOH', 'cityEn': 'Doha', 'cityAr': 'الدوحة'},
+  };
+
+  /// Parses a natural language query into a validated AISearchIntent
+  static AISearchIntent parseQuery(String query, {DateTime? referenceDate}) {
+    final now = referenceDate ?? DateTime.now();
+    final lower = query.toLowerCase().trim();
+    final List<String> missingFields = [];
+    final List<String> validationErrors = [];
+    final List<String> userPreferences = [];
+
+    // 1. Detect Search Type (Flight, Hotel, Package)
+    AISearchType searchType = AISearchType.flight;
+    final isHotelOnly = lower.contains('hotel') ||
+        lower.contains('فندق') ||
+        lower.contains('إقامة') ||
+        lower.contains('منتجع') ||
+        lower.contains('resort') ||
+        lower.contains('stay');
+
+    final isFlight = lower.contains('flight') ||
+        lower.contains('طيران') ||
+        lower.contains('رحلة') ||
+        lower.contains('تذكرة') ||
+        lower.contains('fly') ||
+        lower.contains('سفر');
+
+    if (isHotelOnly && !isFlight) {
+      searchType = AISearchType.hotel;
+    } else if (isHotelOnly && isFlight) {
+      searchType = AISearchType.package;
+    }
+
+    // 2. Extract Origin and Destination
+    String? originCode;
+    String? originCity;
+    String? destCode;
+    String? destCity;
+
+    // Check for "from X" or "من X"
+    for (final entry in _cityMap.entries) {
+      final key = entry.key;
+      final fromPatternEn = RegExp(r'\bfrom\s+' + key + r'\b', caseSensitive: false);
+      final fromPatternAr = RegExp(r'من\s+' + key);
+
+      if (fromPatternEn.hasMatch(lower) || fromPatternAr.hasMatch(lower)) {
+        originCode = entry.value['code'];
+        originCity = entry.value['cityEn'];
+        break;
+      }
+    }
+
+    // Check for "to Y" or "إلى Y" or general destination mention
+    for (final entry in _cityMap.entries) {
+      final key = entry.key;
+      final toPatternEn = RegExp(r'\bto\s+' + key + r'\b', caseSensitive: false);
+      final inPatternEn = RegExp(r'\bin\s+' + key + r'\b', caseSensitive: false);
+      final toPatternAr = RegExp(r'إلى\s+' + key);
+      final inPatternAr = RegExp(r'في\s+' + key);
+
+      if (toPatternEn.hasMatch(lower) ||
+          inPatternEn.hasMatch(lower) ||
+          toPatternAr.hasMatch(lower) ||
+          inPatternAr.hasMatch(lower)) {
+        destCode = entry.value['code'];
+        destCity = entry.value['cityEn'];
+        break;
+      }
+    }
+
+    // If destination is still not found, check direct word match
+    if (destCode == null) {
+      for (final entry in _cityMap.entries) {
+        if (lower.contains(entry.key) && entry.value['code'] != originCode) {
+          destCode = entry.value['code'];
+          destCity = entry.value['cityEn'];
+          break;
+        }
+      }
+    }
+
+    // 3. Extract Passenger Counts
+    int adults = 1;
+    int children = 0;
+    int infants = 0;
+
+    if (lower.contains('لشخصين') ||
+        lower.contains('شخصين') ||
+        lower.contains('2 adults') ||
+        lower.contains('for 2') ||
+        lower.contains('two adults') ||
+        lower.contains('شخصان')) {
+      adults = 2;
+    } else {
+      final adultMatch = RegExp(r'(\d+)\s*(adult|adults|بالغ|بالغين|مسافر|مسافرين|people|persons)', caseSensitive: false).firstMatch(lower);
+      if (adultMatch != null) {
+        adults = int.tryParse(adultMatch.group(1)!) ?? 1;
+      }
+    }
+
+    final childMatch = RegExp(r'(\d+)\s*(child|children|طفل|أطفال)', caseSensitive: false).firstMatch(lower);
+    if (childMatch != null) {
+      children = int.tryParse(childMatch.group(1)!) ?? 0;
+    }
+
+    // 4. Extract Duration & Dates
+    int? durationDays;
+    int? numberOfNights;
+    DateTime? departureDate;
+    DateTime? returnDate;
+    TripType tripType = TripType.roundTrip;
+
+    // Trip duration keywords
+    if (lower.contains('أسبوع') || lower.contains('week') || lower.contains('7 days')) {
+      durationDays = 7;
+    }
+
+    final nightsMatch = RegExp(r'(\d+)\s*(night|nights|ليال|ليالي|ليلة)', caseSensitive: false).firstMatch(lower);
+    if (nightsMatch != null) {
+      numberOfNights = int.tryParse(nightsMatch.group(1)!);
+      durationDays = numberOfNights;
+    }
+
+    final daysMatch = RegExp(r'(\d+)\s*(day|days|أيام|يوم)', caseSensitive: false).firstMatch(lower);
+    if (daysMatch != null) {
+      durationDays = int.tryParse(daysMatch.group(1)!);
+    }
+
+    // Date extraction: Month or relative
+    if (lower.contains('نوفمبر') || lower.contains('november')) {
+      final targetYear = now.month > 11 ? now.year + 1 : now.year;
+      departureDate = DateTime(targetYear, 11, 10);
+    } else if (lower.contains('ديسمبر') || lower.contains('december')) {
+      final targetYear = now.month > 12 ? now.year + 1 : now.year;
+      departureDate = DateTime(targetYear, 12, 10);
+    } else if (lower.contains('أكتوبر') || lower.contains('october')) {
+      final targetYear = now.month > 10 ? now.year + 1 : now.year;
+      departureDate = DateTime(targetYear, 10, 10);
+    } else if (lower.contains('الشهر القادم') || lower.contains('next month')) {
+      departureDate = DateTime(now.year, now.month + 1, 15);
+    } else if (lower.contains('الأسبوع القادم') || lower.contains('next week')) {
+      departureDate = now.add(const Duration(days: 7));
+    } else if (lower.contains('غدا') || lower.contains('tomorrow')) {
+      departureDate = now.add(const Duration(days: 1));
+    }
+
+    if (departureDate != null && durationDays != null) {
+      returnDate = departureDate.add(Duration(days: durationDays));
+    }
+
+    if (lower.contains('one way') || lower.contains('ذهاب فقط') || lower.contains('one-way')) {
+      tripType = TripType.oneWay;
+      returnDate = null;
+    }
+
+    // 5. Extract Hotel Specifics
+    int? hotelMinStars;
+    String? hotelLocation;
+
+    if (lower.contains('5 نجوم') || lower.contains('5 star') || lower.contains('5 stars') || lower.contains('5-star')) {
+      hotelMinStars = 5;
+    } else if (lower.contains('4 نجوم') || lower.contains('4 star') || lower.contains('4 stars') || lower.contains('4-star')) {
+      hotelMinStars = 4;
+    } else if (lower.contains('3 نجوم') || lower.contains('3 star') || lower.contains('3 stars') || lower.contains('3-star')) {
+      hotelMinStars = 3;
+    }
+
+    if (lower.contains('وسط المدينة') || lower.contains('city center') || lower.contains('downtown')) {
+      hotelLocation = 'City Center';
+    } else if (lower.contains('beach') || lower.contains('شاطئ') || lower.contains('بحر')) {
+      hotelLocation = 'Beachfront';
+    }
+
+    // 6. Nonstop & Cabin Class
+    bool nonstop = false;
+    if (lower.contains('direct') || lower.contains('مباشر') || lower.contains('nonstop') || lower.contains('non-stop')) {
+      nonstop = true;
+    }
+
+    CabinClass cabinClass = CabinClass.economy;
+    if (lower.contains('business') || lower.contains('درجة الأعمال') || lower.contains('الأعمال')) {
+      cabinClass = CabinClass.business;
+    } else if (lower.contains('first class') || lower.contains('الدرجة الأولى')) {
+      cabinClass = CabinClass.first;
+    } else if (lower.contains('premium') || lower.contains('الممتازة')) {
+      cabinClass = CabinClass.premiumEconomy;
+    }
+
+    // 7. Preferences & Budget
+    double? budgetUSD;
+    final budgetMatch = RegExp(r'(\d+)\s*(\$|usd|dollar|دولار)', caseSensitive: false).firstMatch(lower);
+    if (budgetMatch != null) {
+      budgetUSD = double.tryParse(budgetMatch.group(1)!);
+    }
+
+    if (lower.contains('breakfast') || lower.contains('إفطار') || lower.contains('فطور')) {
+      userPreferences.add('breakfast_included');
+    }
+    if (lower.contains('free cancellation') || lower.contains('إلغاء مجاني')) {
+      userPreferences.add('free_cancellation');
+    }
+    if (lower.contains('cheapest') || lower.contains('أرخص')) {
+      userPreferences.add('cheapest');
+    }
+
+    // 8. Missing Fields Calculation (Mandatory fields for execution)
+    if (searchType == AISearchType.flight || searchType == AISearchType.package) {
+      if (originCode == null) missingFields.add('origin');
+      if (destCode == null) missingFields.add('destination');
+      if (departureDate == null) missingFields.add('departure_date');
+    } else if (searchType == AISearchType.hotel) {
+      if (destCity == null && destCode == null) missingFields.add('destination');
+      if (departureDate == null) missingFields.add('check_in_date');
+    }
+
+    // 9. Schema Validations
+    if (originCode != null && destCode != null && originCode.toUpperCase() == destCode.toUpperCase()) {
+      validationErrors.add('Origin and destination cannot be the same airport.');
+    }
+
+    return AISearchIntent(
+      rawQuery: query,
+      searchType: searchType,
+      originCode: originCode,
+      originCity: originCity,
+      destinationCode: destCode,
+      destinationCity: destCity,
+      departureDate: departureDate,
+      returnDate: returnDate,
+      tripType: tripType,
+      adults: adults,
+      children: children,
+      infants: infants,
+      cabinClass: cabinClass,
+      nonstopPreference: nonstop,
+      hotelMinStars: hotelMinStars,
+      hotelLocationPreference: hotelLocation,
+      numberOfNights: numberOfNights ?? durationDays,
+      budgetUSD: budgetUSD,
+      userPreferences: userPreferences,
+      missingFields: missingFields,
+      validationErrors: validationErrors,
+    );
+  }
+}

@@ -209,5 +209,15 @@
   "ai_book_recommendation": "احجز هذا الخيار الآن",
   "ai_badge_verified": "سعر حقيقي مؤكد",
   "ai_why_recommended": "لماذا نرشح هذا الخيار؟",
-  "ai_budget_title": "توزيع الميزانية المقترحة"
+  "ai_budget_title": "توزيع الميزانية المقترحة",
+  "ai_search_title": "البحث الذكي بالذكاء الاصطناعي",
+  "ai_search_banner_flight": "ابحث عن رحلاتك بالذكاء الاصطناعي",
+  "ai_search_banner_hotel": "ابحث عن فندقك بالذكاء الاصطناعي",
+  "ai_search_banner_desc": "صف رحلتك بكلماتك وسيقوم المساعد الذكي بالبحث الفوري",
+  "ai_search_missing_fields_title": "تأكيد تفاصيل الرحلة",
+  "ai_search_missing_fields_desc": "فهمنا طلبك! يرجى استكمال البيانات الناقصة التالية للمتابعة:",
+  "ai_search_recognized_details": "التفاصيل التي تم التعرف عليها:",
+  "ai_search_continue_action": "المتابعة إلى النتائج",
+  "ai_search_input_hint": "مثال: رحلة من الجزائر إلى باريس لشخصين الشهر القادم",
+  "ai_search_hotel_input_hint": "مثال: فندق 4 نجوم في إسطنبول قريب من وسط المدينة لمدة 5 ليال"
 }
