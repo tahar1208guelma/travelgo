@@ -407,7 +407,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> with SingleTick
             ListView.separated(
               shrinkWrap: true,
               itemCount: _bankAccounts.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
+              separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (c, idx) {
                 final b = _bankAccounts[idx];
                 return ListTile(
