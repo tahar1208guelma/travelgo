@@ -79,7 +79,7 @@ void main() {
     expect(find.text('TRV-2026-000001'), findsOneWidget);
     expect(find.text('DEMO / TEST BOOKING'), findsOneWidget);
     expect(find.text('Tahar Braknia'), findsOneWidget);
-    expect(find.text('View PDF Document'), findsOneWidget);
+    expect(find.text('View PDF'), findsOneWidget);
     expect(find.text('Save PDF'), findsOneWidget);
   });
 
