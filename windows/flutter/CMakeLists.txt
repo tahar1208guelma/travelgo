@@ -6,7 +6,10 @@ project(flutter LANGUAGES CXX)
 set(FLUTTER_EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ephemeral")
 
 # Configuration provided via flutter tool.
-if(DEFINED FLUTTER_TARGET_PLATFORM)
-  set(WRAPPER_ROOT "${FLUTTER_EPHEMERAL_DIR}/cpp_client_wrapper")
+include(${FLUTTER_EPHEMERAL_DIR}/generated_config.cmake OPTIONAL)
+
+set(WRAPPER_ROOT "${FLUTTER_EPHEMERAL_DIR}/cpp_client_wrapper")
+
+if(EXISTS "${WRAPPER_ROOT}")
   add_subdirectory("${WRAPPER_ROOT}" "flutter_wrapper")
 endif()

@@ -39,7 +39,7 @@ jobs:
         run: flutter pub get
 
       - name: Run unit & widget tests
-        run: flutter test
+        run: flutter test --no-pub
 
       - name: Build Android APK (Release)
         run: flutter build apk --release
@@ -128,7 +128,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web Application
-        run: flutter build web --release
+        run: flutter build web --release --no-tree-shake-icons
 
       - name: Upload Web Build
         uses: actions/upload-artifact@v4

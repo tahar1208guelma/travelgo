@@ -200,8 +200,8 @@ class PdfService {
                     ),
                     alignment: pw.Alignment.center,
                     child: pw.Text(
-                      '✈',
-                      style: const pw.TextStyle(color: PdfColors.white, fontSize: 13),
+                      'TG',
+                      style: pw.TextStyle(color: PdfColors.white, fontSize: 10, fontWeight: pw.FontWeight.bold),
                     ),
                   ),
                   pw.SizedBox(width: 8),
@@ -303,7 +303,7 @@ class PdfService {
                 ),
                 pw.SizedBox(height: 6),
                 pw.Text(
-                  'Issued On: $issueDate • Provider: ${booking.provider}',
+                  'Issued On: $issueDate | Provider: ${booking.provider}',
                   style: const pw.TextStyle(fontSize: 8.5, color: mutedTextColor),
                 ),
                 if (booking.providerBookingReference != null)
@@ -442,7 +442,7 @@ class PdfService {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     pw.Text(
-                      'Primary Contact: ${customer.fullName} • ${customer.email}',
+                      'Primary Contact: ${customer.fullName} | ${customer.email}',
                       style: const pw.TextStyle(fontSize: 8, color: mutedTextColor),
                     ),
                     if (customer.phone.isNotEmpty)
@@ -543,7 +543,7 @@ class PdfService {
                         ),
                       ),
                       pw.Text(
-                        'Cabin: ${seg.cabinClass} • Duration: ${seg.flightDuration}',
+                        'Cabin: ${seg.cabinClass} | Duration: ${seg.flightDuration}',
                         style: const pw.TextStyle(fontSize: 8.5, color: mutedTextColor),
                       ),
                     ],
@@ -581,7 +581,7 @@ class PdfService {
                               ),
                             pw.SizedBox(height: 3),
                             pw.Text(
-                              '${dateFormat.format(seg.departureDateTime)} • ${timeFormat.format(seg.departureDateTime)}',
+                              '${dateFormat.format(seg.departureDateTime)} | ${timeFormat.format(seg.departureDateTime)}',
                               style: pw.TextStyle(
                                 fontSize: 8.5,
                                 fontWeight: pw.FontWeight.bold,
@@ -597,12 +597,12 @@ class PdfService {
                         child: pw.Column(
                           children: [
                             pw.Text(
-                              '✈ ➔',
-                              style: const pw.TextStyle(fontSize: 14, color: primaryColor),
+                              '-->',
+                              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: primaryColor),
                             ),
                             if (flightDetails.baggageAllowance != null)
                               pw.Text(
-                                '🧳 ${flightDetails.baggageAllowance}',
+                                'Bag: ${flightDetails.baggageAllowance}',
                                 style: const pw.TextStyle(fontSize: 6.5, color: mutedTextColor),
                               ),
                           ],
@@ -638,7 +638,7 @@ class PdfService {
                               ),
                             pw.SizedBox(height: 3),
                             pw.Text(
-                              '${dateFormat.format(seg.arrivalDateTime)} • ${timeFormat.format(seg.arrivalDateTime)}',
+                              '${dateFormat.format(seg.arrivalDateTime)} | ${timeFormat.format(seg.arrivalDateTime)}',
                               textAlign: pw.TextAlign.right,
                               style: pw.TextStyle(
                                 fontSize: 8.5,
@@ -702,7 +702,7 @@ class PdfService {
                     ),
                     if (hotelDetails.hotelRating != null)
                       pw.Text(
-                        '★ ${hotelDetails.hotelRating!.toStringAsFixed(1)} / 5.0',
+                        'Rating: ${hotelDetails.hotelRating!.toStringAsFixed(1)} / 5.0',
                         style: pw.TextStyle(
                           fontSize: 9.5,
                           fontWeight: pw.FontWeight.bold,
@@ -718,7 +718,7 @@ class PdfService {
                 ),
                 if (hotelDetails.hotelPhone != null)
                   pw.Text(
-                    'Hotel Phone: ${hotelDetails.hotelPhone} • Confirmation: ${hotelDetails.hotelConfirmationNumber}',
+                    'Hotel Phone: ${hotelDetails.hotelPhone} | Confirmation: ${hotelDetails.hotelConfirmationNumber}',
                     style: const pw.TextStyle(fontSize: 8, color: mutedTextColor),
                   ),
                 pw.SizedBox(height: 10),
@@ -891,7 +891,7 @@ class PdfService {
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
               pw.Text(
-                'Customer Care: ${document.supportEmail} • Hotline: ${document.supportPhone}',
+                'Customer Care: ${document.supportEmail} | Hotline: ${document.supportPhone}',
                 style: const pw.TextStyle(fontSize: 7, color: mutedTextColor),
               ),
               pw.Text(
@@ -917,7 +917,7 @@ class PdfService {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(
-            'TRAVELGO Booking Document • Ref: ${document.bookingReference}',
+            'TRAVELGO Booking Document | Ref: ${document.bookingReference}',
             style: const pw.TextStyle(fontSize: 7, color: mutedTextColor),
           ),
           pw.Text(

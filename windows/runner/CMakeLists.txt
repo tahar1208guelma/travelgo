@@ -12,7 +12,7 @@ add_executable(${BINARY_NAME} WIN32
   "resource.h"
 )
 
-# Apply standard C++20 / C++17 configuration
+# Apply standard C++17 configuration
 target_compile_features(${BINARY_NAME} PRIVATE cxx_std_17)
 
 target_include_directories(${BINARY_NAME} PRIVATE
@@ -20,9 +20,17 @@ target_include_directories(${BINARY_NAME} PRIVATE
 )
 
 target_link_libraries(${BINARY_NAME} PRIVATE
+  flutter
+  flutter_wrapper_app
   dwmapi.lib
   imm32.lib
 )
+
+# Include generated plugins libraries
+include(flutter/generated_plugins.cmake OPTIONAL)
+if(DEFINED PLUGIN_LIBRARIES)
+  target_link_libraries(${BINARY_NAME} PRIVATE ${PLUGIN_LIBRARIES})
+endif()
 
 # Apply the standard set of build settings.
 if(MSVC)

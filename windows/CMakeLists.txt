@@ -38,8 +38,4 @@ endif()
 add_subdirectory(flutter)
 add_subdirectory(runner)
 
-# Packaging assets
-set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
-install(DIRECTORY "${PROJECT_BUILD_DIR}/client/"
-  DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
-  COMPONENT Runtime)
+include(flutter/generated_plugins.cmake OPTIONAL)
