@@ -17,6 +17,7 @@ target_compile_features(${BINARY_NAME} PRIVATE cxx_std_17)
 
 target_include_directories(${BINARY_NAME} PRIVATE
   "${CMAKE_SOURCE_DIR}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../flutter/ephemeral"
 )
 
 target_link_libraries(${BINARY_NAME} PRIVATE

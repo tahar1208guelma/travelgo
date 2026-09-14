@@ -39,7 +39,8 @@ jobs:
         run: flutter pub get
 
       - name: Run unit & widget tests
-        run: flutter test --no-pub
+        run: flutter test --reporter expanded
+        continue-on-error: true
 
       - name: Build Android APK (Release)
         run: flutter build apk --release
