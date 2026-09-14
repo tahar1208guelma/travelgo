@@ -5,6 +5,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/utils/responsive.dart';
+import '../../../ai_agent/presentation/screens/ai_travel_agent_screen.dart';
 import '../../../bookings/presentation/pages/my_bookings_screen.dart';
 import '../../../flights/presentation/controllers/flight_search_controller.dart';
 import '../../../flights/presentation/screens/flight_search_screen.dart';
@@ -195,6 +196,17 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: screens,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const AITravelAgentScreen()),
+          );
+        },
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        tooltip: context.tr('ai_assistant_title'),
+        child: const Icon(Icons.auto_awesome_rounded),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

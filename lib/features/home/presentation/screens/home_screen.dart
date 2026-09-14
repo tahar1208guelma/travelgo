@@ -9,6 +9,7 @@ import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/widgets/custom_card.dart';
 import '../../../../shared/widgets/section_header.dart';
+import '../../../ai_agent/presentation/screens/ai_travel_agent_screen.dart';
 import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../../../flights/presentation/screens/flight_search_screen.dart';
 import '../../../hotels/domain/entities/hotel_search_params.dart';
@@ -131,6 +132,75 @@ class HomeScreen extends ConsumerWidget {
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+
+              // AI Travel Assistant Hero Banner
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                child: CustomCard(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AITravelAgentScreen()),
+                    );
+                  },
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  backgroundColor: AppColors.primary,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.18),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.auto_awesome, color: Colors.white, size: 28),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  context.tr('ai_assistant_title'),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondary,
+                                    borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+                                  ),
+                                  child: const Text(
+                                    'NEW',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              context.tr('ai_assistant_subtitle'),
+                              style: const TextStyle(fontSize: 12, color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 16),
+                    ],
                   ),
                 ),
               ),
