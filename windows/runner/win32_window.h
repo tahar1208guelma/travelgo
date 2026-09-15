@@ -7,7 +7,9 @@
 #include <memory>
 #include <string>
 
-// A class that abstracts the creation and management of a Win32 window.
+// A class abstraction for a high DPI-aware Win32 Window. Intended to be
+// inherited from by classes that wish to specialize with custom
+// rendering and input handling
 class Win32Window {
  public:
   struct Point {
@@ -34,7 +36,7 @@ class Win32Window {
   // |Show| is called. Returns true if the window was created successfully.
   bool Create(const std::wstring& title, const Point& origin, const Size& size);
 
-  // Show the current window.
+  // Show the current window. Returns true if the window was successfully shown.
   bool Show();
 
   // Release OS resources associated with window.
@@ -43,26 +45,27 @@ class Win32Window {
   // Inserts |content| into the window tree.
   void SetChildContent(HWND content);
 
-  // Returns the backing Window handle to enable clients to set capture and other
-  // window attributes.
-  HWND GetHandle() const;
+  // Returns the backing Window handle to enable clients to set icon and other
+  // window properties. Returns nullptr if the window has been destroyed.
+  HWND GetHandle();
 
   // If true, closing this window will quit the application.
   void SetQuitOnClose(bool quit_on_close);
 
   // Return a RECT representing the bounds of the current client area.
-  RECT GetClientArea() const;
+  RECT GetClientArea();
 
  protected:
-  // Processes and routes salient window messages for mouse handling,
-  // size changes and DPI. Delegates handling of these to member overloads that
-  // accepting larger numbers of arguments.
+  // Processes and route salient window messages for mouse handling,
+  // size change and DPI. Delegates handling of these to member overloads that
+  // inheriting classes can handle.
   virtual LRESULT MessageHandler(HWND window,
                                  UINT const message,
                                  WPARAM const wparam,
                                  LPARAM const lparam) noexcept;
 
-  // Called when CreateAndShow is called, after the window has been created.
+  // Called when CreateAndShow is called, allowing subclass window-related
+  // setup. Subclasses should return false if setup fails.
   virtual bool OnCreate();
 
   // Called when Destroy is called.
@@ -84,15 +87,15 @@ class Win32Window {
   // Retrieves a class instance pointer for |window|
   static Win32Window* GetThisFromHandle(HWND const window) noexcept;
 
-  // Update the window frame that's themed by the OS.
-  void TrackWindowThemeChanged();
+  // Update the window frame's theme to match the system theme.
+  static void UpdateTheme(HWND const window);
 
   bool quit_on_close_ = false;
 
-  // Window handle for top level window.
+  // window handle for top level window.
   HWND window_handle_ = nullptr;
 
-  // Window handle for hosted content.
+  // window handle for hosted content.
   HWND child_content_ = nullptr;
 };
 

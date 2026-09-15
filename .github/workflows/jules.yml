@@ -1,0 +1,91 @@
+name: Google Jules Autonomous Coding Agent
+
+on:
+  issues:
+    types: [labeled, opened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Task instructions for Jules'
+        required: true
+        type: string
+      branch:
+        description: 'Base branch for Jules to work on'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  jules:
+    name: Run Google Jules Agent
+    # Trigger if issue has label 'jules', comment starts with /jules or contains @jules, or via manual dispatch
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'jules')) ||
+      (github.event_name == 'issue_comment' && (startsWith(github.event.comment.body, '/jules') || contains(github.event.comment.body, '@jules')))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.x'
+          cache: true
+
+      - name: Install Project Dependencies
+        run: |
+          echo "📦 Fetching Flutter dependencies..."
+          flutter pub get
+          echo "📦 Fetching Backend dependencies..."
+          if [ -d "backend" ]; then
+            cd backend && npm ci || npm install
+          fi
+
+      - name: Verify Baseline Tests
+        run: |
+          echo "🧪 Running baseline checks before dispatch..."
+          flutter analyze --no-fatal-warnings || true
+          flutter test || true
+
+      - name: Dispatch Task to Google Jules
+        uses: google-labs-code/jules-action@v1
+        continue-on-error: true
+        with:
+          jules_api_key: ${{ secrets.JULES_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          instructions_file: 'AGENTS.md'
+          prompt: ${{ github.event.inputs.prompt || github.event.comment.body || github.event.issue.body }}
+          base_branch: ${{ github.event.inputs.branch || 'main' }}
+
+      - name: Acknowledge Jules Task in Issue/PR
+        if: github.event_name == 'issue_comment' || github.event_name == 'issues'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            const author = context.actor;
+            const message = `🤖 **Google Jules AI Agent has received your task!**\n\nJules is spinning up an isolated Google Cloud VM, referencing \`AGENTS.md\`, and will autonomously test and open a Pull Request with the solution.\n\nYou can track and manage active sessions at [jules.google.com](https://jules.google.com).`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: message,
+            });
