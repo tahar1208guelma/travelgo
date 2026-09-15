@@ -1,5 +1,10 @@
 import 'dart:convert';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+final storageServiceProvider = Provider<StorageService>((ref) {
+  throw UnimplementedError('storageServiceProvider must be overridden in main.dart');
+});
 
 class StorageService {
   static const String _searchesKey = 'recent_searches_cache';

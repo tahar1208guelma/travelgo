@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/language_provider.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../authentication/presentation/screens/login_screen.dart';
 import '../../../favorites/presentation/controllers/favorites_controller.dart';

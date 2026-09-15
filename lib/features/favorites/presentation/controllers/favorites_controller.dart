@@ -2,10 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/storage_service.dart';
 import '../domain/entities/favorite_item_entity.dart';
 
-final storageServiceProvider = Provider<StorageService>((ref) {
-  throw UnimplementedError('StorageService must be overridden in main.dart');
-});
-
 final favoritesControllerProvider = StateNotifierProvider<FavoritesController, List<FavoriteItemEntity>>((ref) {
   final storage = ref.watch(storageServiceProvider);
   return FavoritesController(storage);
