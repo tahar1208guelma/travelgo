@@ -934,7 +934,7 @@ class PdfService {
                     ],
                     if (hotel.specialRequests != null) ...[
                       pw.SizedBox(height: 6),
-                      pw.Text('Special Guest Requests: ${hotel.specialRequests}', style: const pw.TextStyle(fontSize: 7.5, color: textMuted, fontStyle: pw.FontStyle.italic)),
+                      pw.Text('Special Guest Requests: ${hotel.specialRequests}', style: pw.TextStyle(fontSize: 7.5, color: textMuted, fontStyle: pw.FontStyle.italic)),
                     ],
                   ],
                 ),

@@ -551,7 +551,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: filteredTxns.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1, color: AppTheme.cardBorder),
+                  separatorBuilder: (context, index) => const Divider(height: 1, color: AppTheme.cardBorder),
                   itemBuilder: (ctx, idx) {
                     final txn = filteredTxns[idx];
                     final isPayout = txn['type'] == 'payout';

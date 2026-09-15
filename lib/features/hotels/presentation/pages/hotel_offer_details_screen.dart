@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../core/network/api_client.dart';
 import '../../../../core/responsive/responsive_container.dart';
 import '../../../../core/services/provider_redirect_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../bookings/presentation/widgets/price_summary_card.dart';
-import '../../../checkout/bloc/checkout_bloc.dart';
-import '../../../checkout/presentation/pages/hotel_checkout_screen.dart';
-import '../../../checkout/services/payment_gateway_service.dart';
 import '../../models/hotel_offer.dart';
 
 class HotelOfferDetailsScreen extends StatelessWidget {

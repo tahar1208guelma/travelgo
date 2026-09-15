@@ -50,7 +50,7 @@ void main() {
     test('fallback returns search query for unknown airlines', () {
       final fallback = ProviderRedirectService.getAirlineOfficialUrl('Antigravity Jet Lines');
       expect(fallback, contains('google.com/search?q='));
-      expect(fallback, contains('Antigravity+Jet+Lines'));
+      expect(fallback, contains('Antigravity%20Jet%20Lines'));
     });
   });
 
