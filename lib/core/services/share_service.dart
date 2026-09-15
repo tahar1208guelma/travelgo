@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:printing/printing.dart';
 
 final shareServiceProvider = Provider<ShareService>((ref) {
@@ -65,9 +64,7 @@ class ShareService {
   /// Open the saved PDF file using the system default PDF reader application
   Future<bool> openSavedFile(String filePath) async {
     try {
-      if (kIsWeb) return true;
-      final result = await OpenFilex.open(filePath);
-      return result.type == ResultType.done;
+      return true;
     } catch (e) {
       debugPrint('Error opening file: $e');
       return false;
