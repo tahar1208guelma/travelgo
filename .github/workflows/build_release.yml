@@ -124,7 +124,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web Application
-        run: flutter build web --release --no-tree-shake-icons
+        run: flutter build web --release
 
       - name: Archive Web Static Bundle
         run: |
