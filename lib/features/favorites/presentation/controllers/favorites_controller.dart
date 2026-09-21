@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/storage_service.dart';
-import '../domain/entities/favorite_item_entity.dart';
+import 'package:travelgo/features/favorites/domain/entities/favorite_item_entity.dart';
 
 final favoritesControllerProvider = StateNotifierProvider<FavoritesController, List<FavoriteItemEntity>>((ref) {
   final storage = ref.watch(storageServiceProvider);

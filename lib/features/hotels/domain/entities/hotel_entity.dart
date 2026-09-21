@@ -1,4 +1,4 @@
-import '../../flights/domain/entities/flight_entity.dart';
+import 'package:travelgo/features/flights/domain/entities/flight_entity.dart';
 
 class HotelRoomOption {
   final String id;
@@ -100,4 +100,5 @@ class HotelEntity {
   String getCancellationPolicy({bool isArabic = false}) => isArabic ? cancellationPolicyAr : cancellationPolicyEn;
 
   bool get isAffiliate => bookingChannel == BookingChannel.affiliate;
+  bool get isDirect => bookingChannel == BookingChannel.direct;
 }

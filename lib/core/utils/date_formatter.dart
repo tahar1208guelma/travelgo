@@ -15,6 +15,10 @@ class AppDateFormatter {
     return DateFormat('HH:mm', locale).format(dateTime);
   }
 
+  static String formatDateTime(DateTime dateTime, {String locale = 'en'}) {
+    return DateFormat('d MMM yyyy, HH:mm', locale).format(dateTime);
+  }
+
   static String formatDuration(Duration duration, {bool isArabic = false}) {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers_layer/travel_provider.dart';
 import '../../../flights/presentation/controllers/flight_search_controller.dart';
+import '../../../hotel_partner/data/repositories/hotel_partner_repository.dart';
 import '../../data/repositories/hotel_repository_impl.dart';
 import '../../domain/entities/hotel_entity.dart';
 import '../../domain/entities/hotel_search_params.dart';
@@ -113,13 +114,15 @@ final hotelRepositoryProvider = Provider<HotelRepositoryImpl>((ref) {
 
 final hotelSearchControllerProvider = StateNotifierProvider<HotelSearchController, HotelSearchResultState>((ref) {
   final repository = ref.watch(hotelRepositoryProvider);
-  return HotelSearchController(repository);
+  final partnerRepository = ref.watch(hotelPartnerRepositoryProvider);
+  return HotelSearchController(repository, partnerRepository);
 });
 
 class HotelSearchController extends StateNotifier<HotelSearchResultState> {
   final HotelRepositoryImpl _repository;
+  final HotelPartnerRepository _partnerRepository;
 
-  HotelSearchController(this._repository)
+  HotelSearchController(this._repository, this._partnerRepository)
       : super(HotelSearchResultState(
           params: HotelSearchParams(
             destination: 'Dubai',
@@ -140,7 +143,21 @@ class HotelSearchController extends StateNotifier<HotelSearchResultState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final results = await _repository.searchHotels(state.params);
-      state = state.copyWith(rawHotels: results, isLoading: false);
+      final partnerHotels = await _partnerRepository.getPublishedHotelEntities();
+
+      final query = state.params.destination.trim().toLowerCase();
+      final matchingPartners = partnerHotels.where((p) {
+        if (query.isEmpty) return true;
+        return p.cityEn.toLowerCase().contains(query) ||
+            p.cityAr.toLowerCase().contains(query) ||
+            p.countryEn.toLowerCase().contains(query) ||
+            p.countryAr.toLowerCase().contains(query) ||
+            p.nameEn.toLowerCase().contains(query) ||
+            p.nameAr.toLowerCase().contains(query);
+      }).toList();
+
+      final combined = [...matchingPartners, ...results];
+      state = state.copyWith(rawHotels: combined, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }

@@ -32,11 +32,8 @@ class CustomCard extends StatelessWidget {
     );
 
     Widget content = Container(
-      padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? defaultBg,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: hasBorder ? (customBorder ?? defaultBorder) : null,
         boxShadow: isDark
             ? null
             : [
@@ -47,7 +44,21 @@ class CustomCard extends StatelessWidget {
                 ),
               ],
       ),
-      child: child,
+      child: Material(
+        color: backgroundColor ?? defaultBg,
+        shape: hasBorder
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+                side: customBorder ?? defaultBorder,
+              )
+            : RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(borderRadius),
+              ),
+        child: Padding(
+          padding: padding,
+          child: child,
+        ),
+      ),
     );
 
     if (onTap != null) {

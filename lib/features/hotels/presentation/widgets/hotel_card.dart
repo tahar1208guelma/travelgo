@@ -60,19 +60,26 @@ class HotelCard extends ConsumerWidget {
                 top: 12,
                 left: isArabic ? null : 12,
                 right: isArabic ? 12 : null,
-                child: hotel.isAffiliate
+                child: hotel.providerName == 'TRAVELGO Direct Partner'
                     ? BadgeChip(
-                        label: context.tr('affiliate_booking'),
-                        icon: Icons.open_in_new_rounded,
-                        backgroundColor: Colors.black.withOpacity(0.7),
-                        textColor: AppColors.secondary,
-                      )
-                    : BadgeChip(
-                        label: context.tr('direct_booking'),
+                        label: isArabic ? '🌟 شريك فندقي معتمد' : '🌟 Verified Partner',
                         icon: Icons.verified_rounded,
-                        backgroundColor: AppColors.primary.withOpacity(0.85),
+                        backgroundColor: const Color(0xFF00897B),
                         textColor: Colors.white,
-                      ),
+                      )
+                    : (hotel.isAffiliate
+                        ? BadgeChip(
+                            label: context.tr('affiliate_booking'),
+                            icon: Icons.open_in_new_rounded,
+                            backgroundColor: Colors.black.withOpacity(0.7),
+                            textColor: AppColors.secondary,
+                          )
+                        : BadgeChip(
+                            label: context.tr('direct_booking'),
+                            icon: Icons.verified_rounded,
+                            backgroundColor: AppColors.primary.withOpacity(0.85),
+                            textColor: Colors.white,
+                          )),
               ),
 
               // Favorite Heart Button

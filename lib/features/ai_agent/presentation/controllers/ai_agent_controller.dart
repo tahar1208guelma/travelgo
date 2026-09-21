@@ -72,7 +72,7 @@ class AIAgentController extends StateNotifier<AIAgentState> {
             'جرّب أن تسألني: *"خطط لرحلة 4 أيام إلى باريس بميزانية 900 دولار"* أو اختر من الاقتراحات السريعة أدناه.'
           : 'Welcome to **TRAVELGO AI Travel Assistant**! ✈️\n\n'
             'I can craft customized multi-day itineraries, discover verified flight deals, optimize your travel budget, and find top-rated hotels.\n\n'
-            'Try asking: *"Plan a 4-day trip to Paris under $900"* or tap any quick suggestion below.',
+            'Try asking: *"Plan a 4-day trip to Paris under \$900"* or tap any quick suggestion below.',
       timestamp: DateTime.now(),
     );
 

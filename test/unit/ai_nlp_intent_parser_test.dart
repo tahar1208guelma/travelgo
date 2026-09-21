@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:travelgo/features/ai_agent/data/datasources/ai_nlp_intent_parser.dart';
 import 'package:travelgo/features/ai_agent/domain/entities/ai_search_intent.dart';
-import 'package:travelgo/flights/domain/entities/flight_search_params.dart' as flight_params;
+import 'package:travelgo/features/flights/domain/entities/flight_search_params.dart' as flight_params;
 
 void main() {
   group('Phase AI-02: NLP Intent Parser & Schema Validation Tests', () {

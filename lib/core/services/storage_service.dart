@@ -68,4 +68,18 @@ class StorageService {
       await _prefs.setString(_userKey, json.encode(user));
     }
   }
+
+  // Hotel Partner Portal Storage
+  static const String _partnerHotelsKey = 'partner_hotels_cache_v1';
+  static const String _partnerProfileKey = 'partner_profile_cache_v1';
+  static const String _partnerReservationsKey = 'partner_reservations_cache_v1';
+
+  List<String>? getPartnerHotelsJson() => _prefs.getStringList(_partnerHotelsKey);
+  Future<void> savePartnerHotelsJson(List<String> list) => _prefs.setStringList(_partnerHotelsKey, list);
+
+  String? getPartnerProfileJson() => _prefs.getString(_partnerProfileKey);
+  Future<void> savePartnerProfileJson(String jsonStr) => _prefs.setString(_partnerProfileKey, jsonStr);
+
+  List<String>? getPartnerReservationsJson() => _prefs.getStringList(_partnerReservationsKey);
+  Future<void> savePartnerReservationsJson(List<String> list) => _prefs.setStringList(_partnerReservationsKey, list);
 }

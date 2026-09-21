@@ -92,23 +92,25 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                         ),
                         if (isDesktop) ...[
                           const SizedBox(width: 12),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'TRAVELGO',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.2,
-                                  color: AppColors.primary,
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'TRAVELGO',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                    color: AppColors.primary,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Cross-Platform App',
-                                style: TextStyle(fontSize: 10, color: Colors.grey),
-                              ),
-                            ],
+                                Text(
+                                  'Cross-Platform App',
+                                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ],

@@ -86,11 +86,15 @@ class _AISearchEntryBarState extends ConsumerState<AISearchEntryBar> {
                   child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  widget.isHotel
-                      ? context.tr('ai_search_banner_hotel')
-                      : context.tr('ai_search_banner_flight'),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                Expanded(
+                  child: Text(
+                    widget.isHotel
+                        ? context.tr('ai_search_banner_hotel')
+                        : context.tr('ai_search_banner_flight'),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

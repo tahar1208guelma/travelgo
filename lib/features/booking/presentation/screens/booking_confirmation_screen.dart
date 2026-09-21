@@ -1,19 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../shared/widgets/custom_button.dart';
-import '../../../bookings/models/booking_model.dart';
+import '../../../bookings/models/booking_document.dart';
+import '../../../bookings/models/booking_model.dart' as models;
+import '../../../bookings/models/customer_info.dart';
+import '../../../bookings/models/price_breakdown.dart';
 import '../../../bookings/presentation/pages/booking_document_screen.dart';
-import '../../../bookings/presentation/pages/pdf_preview_screen.dart';
 import '../../../home/presentation/screens/main_navigation_screen.dart';
+import '../../domain/entities/booking_entity.dart';
 import '../widgets/booking_ticket_widget.dart';
 
 class BookingConfirmationScreen extends StatelessWidget {
-  final Booking booking;
+  final BookingEntity booking;
 
   const BookingConfirmationScreen({super.key, required this.booking});
+
+  models.Booking _toBookingModel() {
+    return models.Booking(
+      bookingId: booking.id,
+      bookingReference: booking.externalBookingReference,
+      bookingType: booking.bookingType == BookingType.flight
+          ? models.BookingType.flight
+          : models.BookingType.hotel,
+      status: models.BookingStatus.confirmed,
+      customer: CustomerInfo(
+        id: booking.userId,
+        fullName: booking.passengerOrGuestName,
+        email: booking.contactEmail,
+        phone: booking.contactPhone,
+      ),
+      provider: booking.provider,
+      priceBreakdown: PriceBreakdown(
+        basePrice: booking.basePriceUSD,
+        taxes: booking.taxesUSD,
+        serviceFee: booking.serviceFeeUSD,
+        totalAmount: booking.totalAmountUSD,
+        currency: booking.currency,
+      ),
+      createdAt: booking.createdAt,
+      document: BookingDocument(
+        documentId: 'DOC-${booking.externalBookingReference}',
+        bookingReference: booking.externalBookingReference,
+        issuedAt: booking.createdAt,
+        qrData: booking.externalBookingReference,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +88,7 @@ class BookingConfirmationScreen extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                context.tr('booking_confirmation_subtitle'),
+                context.tr('booking_service_fee_note'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -74,7 +108,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => BookingDocumentScreen(booking: booking),
+                      builder: (_) => BookingDocumentScreen(booking: _toBookingModel()),
                     ),
                   );
                 },
@@ -88,7 +122,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (_) => const MainNavigationScreen(initialTabIndex: 3), // Bookings tab
+                      builder: (_) => const MainNavigationScreen(initialTabIndex: 3),
                     ),
                     (route) => false,
                   );

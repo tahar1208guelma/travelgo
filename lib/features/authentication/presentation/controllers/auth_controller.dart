@@ -5,7 +5,8 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  throw UnimplementedError('Initialize storageService first in main.dart');
+  final storage = ref.watch(storageServiceProvider);
+  return AuthRepositoryImpl(storage);
 });
 
 final authStateProvider = StateNotifierProvider<AuthController, AsyncValue<UserEntity?>>((ref) {

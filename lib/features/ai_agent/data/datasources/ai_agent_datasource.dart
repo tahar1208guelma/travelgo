@@ -95,11 +95,17 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
 
     // 2. Extract budget if mentioned
     double budget = 1000.0;
-    final budgetMatch = RegExp(r'(\d+)\s*(\$|usd|dollar|دولار)?', caseSensitive: false).firstMatch(query);
+    final budgetMatch = RegExp(
+      r'(?:\$|usd|dollar|دولار|ميزانية|under|بميزانية)\s*(\d+)|(\d+)\s*(?:\$|usd|dollar|dollars|دولار)',
+      caseSensitive: false,
+    ).firstMatch(query);
     if (budgetMatch != null) {
-      final parsed = double.tryParse(budgetMatch.group(1)!);
-      if (parsed != null && parsed >= 100) {
-        budget = parsed;
+      final valStr = budgetMatch.group(1) ?? budgetMatch.group(2);
+      if (valStr != null) {
+        final parsed = double.tryParse(valStr);
+        if (parsed != null && parsed > 0) {
+          budget = parsed;
+        }
       }
     }
 
@@ -157,12 +163,25 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
       travelers: 1,
     );
 
-    // 6. Build contextual AI response text
     String replyContent;
     String rationale;
 
+    final displayDest = isArabic
+        ? (destinationCity == 'Paris'
+            ? 'باريس'
+            : destinationCity == 'Istanbul'
+                ? 'إسطنبول'
+                : destinationCity == 'Algiers'
+                    ? 'الجزائر العاصمة'
+                    : destinationCity == 'Riyadh'
+                        ? 'الرياض'
+                        : destinationCity == 'London'
+                            ? 'لندن'
+                            : destinationCity)
+        : destinationCity;
+
     if (isArabic) {
-      replyContent = 'لقد قمت بتحليل طلبك وصممت لك برنامج رحلة متكامل إلى **$destinationCity** لمدة **$days أيام** بميزانية تقديرية تقارب **\$$budget دولار**.\n\n'
+      replyContent = 'لقد قمت بتحليل طلبك وصممت لك برنامج رحلة متكامل إلى **$displayDest** لمدة **$days أيام** بميزانية تقديرية تقارب **\$$budget دولار**.\n\n'
           '✨ قمت بالتحقق من جداول الرحلات المباشرة وأفضل الفنادق المعتمدة التي تتناسب مع ميزانيتك أدناه:';
       rationale = 'تم اختيار هذه الخيارات لتوفير أفضل قيمة سعرية مع ضمان رحلات مريحة وإقامة في مواقع مركزية.';
     } else {

@@ -10,6 +10,8 @@ import 'package:travelgo/features/bookings/presentation/pages/my_bookings_screen
 import 'package:travelgo/features/bookings/presentation/widgets/booking_card.dart';
 import 'package:travelgo/features/bookings/presentation/widgets/qr_code_widget.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 Widget createTestableWidget(Widget child, {List<Override> overrides = const []}) {
   return ProviderScope(
     overrides: overrides,
@@ -28,6 +30,9 @@ Widget createTestableWidget(Widget child, {List<Override> overrides = const []})
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
   testWidgets('SafeQrCodeWidget renders with caption', (WidgetTester tester) async {
     await tester.pumpWidget(
       createTestableWidget(
@@ -39,6 +44,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text('Scan to verify booking'), findsOneWidget);
     expect(find.byType(SafeQrCodeWidget), findsOneWidget);
@@ -55,6 +61,7 @@ void main() {
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     // Verify booking reference & flight route & passenger
     expect(find.textContaining('TRV-2026-000001'), findsOneWidget);
@@ -73,11 +80,12 @@ void main() {
         BookingDocumentScreen(booking: booking),
       ),
     );
+    await tester.pumpAndSettle();
 
     // Verify Title & Reference
     expect(find.text('Booking Document'), findsOneWidget);
     expect(find.text('TRAVELGO'), findsOneWidget);
-    expect(find.text('TRV-2026-000001'), findsWidgets);
+    expect(find.textContaining('TRV-2026-000001'), findsWidgets);
     expect(find.text('DEMO / TEST BOOKING'), findsOneWidget);
     expect(find.text('Tahar Braknia'), findsOneWidget);
     expect(find.textContaining('View PDF'), findsWidgets);

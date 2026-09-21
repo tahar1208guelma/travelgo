@@ -202,16 +202,22 @@ class AINlpIntentParser {
     if (lower.contains('business') || lower.contains('درجة الأعمال') || lower.contains('الأعمال')) {
       cabinClass = CabinClass.business;
     } else if (lower.contains('first class') || lower.contains('الدرجة الأولى')) {
-      cabinClass = CabinClass.first;
+      cabinClass = CabinClass.firstClass;
     } else if (lower.contains('premium') || lower.contains('الممتازة')) {
       cabinClass = CabinClass.premiumEconomy;
     }
 
     // 7. Preferences & Budget
     double? budgetUSD;
-    final budgetMatch = RegExp(r'(\d+)\s*(\$|usd|dollar|دولار)', caseSensitive: false).firstMatch(lower);
+    final budgetMatch = RegExp(
+      r'(?:\$|usd|dollar|دولار|ميزانية|under|بميزانية)\s*(\d+)|(\d+)\s*(?:\$|usd|dollar|dollars|دولار)',
+      caseSensitive: false,
+    ).firstMatch(lower);
     if (budgetMatch != null) {
-      budgetUSD = double.tryParse(budgetMatch.group(1)!);
+      final valStr = budgetMatch.group(1) ?? budgetMatch.group(2);
+      if (valStr != null) {
+        budgetUSD = double.tryParse(valStr);
+      }
     }
 
     if (lower.contains('breakfast') || lower.contains('إفطار') || lower.contains('فطور')) {

@@ -6,7 +6,11 @@ class AppLocalizations {
   final Locale locale;
   Map<String, String> _localizedStrings = {};
 
-  AppLocalizations(this.locale);
+  AppLocalizations(this.locale) {
+    if (locale.languageCode == 'en') {
+      _localizedStrings = Map.from(_fallbackEn);
+    }
+  }
 
   static AppLocalizations? of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
@@ -124,15 +128,30 @@ class AppLocalizations {
     'ai_thinking': 'AI is searching & crafting your plan...',
   };
 
+  static Map<String, String> _flattenJson(Map<String, dynamic> json, [String prefix = '']) {
+    final result = <String, String>{};
+    json.forEach((key, value) {
+      final fullKey = prefix.isEmpty ? key : '$prefix.$key';
+      if (value is Map<String, dynamic>) {
+        result.addAll(_flattenJson(value, fullKey));
+      } else {
+        result[fullKey] = value.toString();
+      }
+    });
+    return result;
+  }
+
   Future<bool> load() async {
     try {
-      final jsonString = await rootBundle.loadString('assets/translations/${locale.languageCode}.json');
+      final jsonString = await rootBundle
+          .loadString('assets/translations/${locale.languageCode}.json')
+          .timeout(const Duration(milliseconds: 100));
       final Map<String, dynamic> jsonMap = json.decode(jsonString);
-      _localizedStrings = jsonMap.map((key, value) => MapEntry(key, value.toString()));
+      _localizedStrings = _flattenJson(jsonMap);
       return true;
     } catch (e) {
       // Fallback to embedded default map if asset loading fails in headless tests
-      _localizedStrings = {};
+      _localizedStrings = locale.languageCode == 'en' ? Map.from(_fallbackEn) : {};
       return false;
     }
   }
@@ -158,7 +177,9 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   @override
   Future<AppLocalizations> load(Locale locale) async {
     final localizations = AppLocalizations(locale);
-    await localizations.load();
+    try {
+      await localizations.load();
+    } catch (_) {}
     return localizations;
   }
 

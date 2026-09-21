@@ -13,7 +13,9 @@ import '../../../authentication/presentation/controllers/auth_controller.dart';
 import '../../../authentication/presentation/screens/login_screen.dart';
 import '../../../favorites/presentation/screens/favorites_screen.dart';
 import '../../../bookings/presentation/pages/my_bookings_screen.dart';
-import '../../settings/presentation/screens/settings_screen.dart';
+import '../../../hotel_partner/presentation/screens/hotel_partner_dashboard_screen.dart';
+import '../../../hotel_partner/presentation/screens/hotel_registration_wizard_screen.dart';
+import 'package:travelgo/features/settings/presentation/screens/settings_screen.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -71,7 +73,7 @@ class ProfileScreen extends ConsumerWidget {
             icon: const Icon(Icons.settings_outlined),
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                MaterialPageRoute(builder: (_) => SettingsScreen()),
               );
             },
           ),
@@ -155,6 +157,97 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
 
+            // Hotel Partner & Host Portal Entry Banner Card
+            CustomCard(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              backgroundColor: isDark ? AppColors.surfaceDark : AppColors.primaryContainer.withOpacity(0.5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.apartment_rounded, color: AppColors.primary, size: 24),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              language.languageCode == 'ar' ? 'بوابة شركاء الفنادق والاستضافة' : 'Hotel Partner & Host Portal',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? AppColors.textPrimaryDark : AppColors.primaryDark,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              language.languageCode == 'ar'
+                                  ? 'سجّل فندقك، وأدر الغرف واستقبل الحجوزات المباشرة فوراً'
+                                  : 'List properties, manage rooms & direct guest bookings',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isDark ? AppColors.textMutedDark : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const HotelPartnerDashboardScreen()),
+                            );
+                          },
+                          icon: const Icon(Icons.dashboard_rounded, size: 15, color: Colors.white),
+                          label: Text(
+                            language.languageCode == 'ar' ? 'لوحة الشريك' : 'Host Dashboard',
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const HotelRegistrationWizardScreen()),
+                          );
+                        },
+                        icon: const Icon(Icons.add_business_rounded, size: 15),
+                        label: Text(
+                          language.languageCode == 'ar' ? '+ إضافة فندق' : '+ Add Hotel',
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
             // Profile Navigation Items
             CustomCard(
               padding: EdgeInsets.zero,
@@ -207,7 +300,7 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                        MaterialPageRoute(builder: (_) => SettingsScreen()),
                       );
                     },
                   ),
