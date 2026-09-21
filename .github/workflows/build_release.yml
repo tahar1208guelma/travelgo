@@ -44,10 +44,10 @@ jobs:
         run: flutter test || true
 
       - name: Build Android APK (Release)
-        run: flutter build apk --release
+        run: flutter build apk --release --no-tree-shake-icons
 
       - name: Build Android App Bundle (Release)
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --no-tree-shake-icons
 
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
@@ -87,7 +87,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows Application (Release)
-        run: flutter build windows --release
+        run: flutter build windows --release --no-tree-shake-icons
 
       - name: Archive Windows Application
         run: |
@@ -124,7 +124,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Web Application
-        run: flutter build web --release
+        run: flutter build web --release --no-tree-shake-icons
 
       - name: Archive Web Static Bundle
         run: |
@@ -161,7 +161,7 @@ jobs:
         run: flutter test || true
 
       - name: Build iOS Application
-        run: flutter build ios --release --no-codesign
+        run: flutter build ios --release --no-codesign --no-tree-shake-icons
 
       - name: Package iOS App & IPA
         run: |
@@ -204,7 +204,7 @@ jobs:
         run: flutter pub get
 
       - name: Build macOS Release
-        run: flutter build macos --release
+        run: flutter build macos --release --no-tree-shake-icons
 
       - name: Archive macOS Application
         run: |
