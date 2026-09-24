@@ -1,9 +1,12 @@
+import Stripe from 'stripe';
 import { IPaymentProvider, CreatePaymentIntentDto, PaymentIntentResultDto } from './payment.provider.interface';
 import { ENV } from '../config/env';
+import { ApiError } from '../errors/api.error';
 
 export class StripePaymentProvider implements IPaymentProvider {
   public readonly providerId = 'stripe';
   public readonly providerName = 'Stripe Global Payment Gateway';
+  private stripe = new Stripe(ENV.STRIPE_SECRET_KEY);
 
   async createPaymentIntent(dto: CreatePaymentIntentDto): Promise<PaymentIntentResultDto> {
     const intentId = `pi_${Math.random().toString(36).substring(2, 16)}`;
@@ -28,7 +31,11 @@ export class StripePaymentProvider implements IPaymentProvider {
   }
 
   async verifyWebhookSignature(rawBody: string, signature: string): Promise<any> {
-    return JSON.parse(rawBody);
+    try {
+      return this.stripe.webhooks.constructEvent(rawBody, signature, ENV.STRIPE_WEBHOOK_SECRET);
+    } catch (err: any) {
+      throw ApiError.badRequest(`Webhook Error: ${err.message}`);
+    }
   }
 
   async processRefund(paymentIntentId: string, amount: number): Promise<{ isRefunded: boolean; refundId: string }> {
