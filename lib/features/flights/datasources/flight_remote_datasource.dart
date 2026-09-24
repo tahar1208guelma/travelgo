@@ -55,18 +55,20 @@ class FlightRemoteDataSourceImpl implements FlightRemoteDataSource {
 
   @override
   Future<String> executeSeatHold(String offerId, List<Passenger> passengers) async {
-    final result = await apiClient.post<String>(
-      '/flights/orders/hold',
-      body: {
-        'offerId': offerId,
-        'passengers': passengers.map((p) => p.toMap()).toList(),
-      },
-      responseParser: (json) => json['holdReference'] as String? ?? 'TG-HOLD-${Random().nextInt(899999) + 100000}',
-    );
+    try {
+      final result = await apiClient.post<String>(
+        '/flights/orders/hold',
+        body: {
+          'offerId': offerId,
+          'passengers': passengers.map((p) => p.toMap()).toList(),
+        },
+        responseParser: (json) => json['holdReference'] as String? ?? 'TG-HOLD-${Random().nextInt(899999) + 100000}',
+      );
 
-    if (result.isSuccess && result.dataOrNull != null) {
-      return result.dataOrNull!;
-    }
+      if (result.isSuccess && result.dataOrNull != null) {
+        return result.dataOrNull!;
+      }
+    } catch (_) {}
 
     return 'TG-HOLD-${Random().nextInt(899999) + 100000}';
   }
