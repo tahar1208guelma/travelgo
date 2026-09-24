@@ -41,7 +41,8 @@ paymentsRouter.post('/webhook', async (req: Request, res: Response, next: NextFu
   try {
     const sig = req.headers['stripe-signature'] as string || '';
     const provider = req.query.provider as string || 'stripe';
-    const result = await PaymentsService.handleWebhook(provider, JSON.stringify(req.body), sig);
+    const rawBody = (req as any).rawBody || JSON.stringify(req.body);
+    const result = await PaymentsService.handleWebhook(provider, rawBody, sig);
     res.json(result);
   } catch (err) {
     next(err);
