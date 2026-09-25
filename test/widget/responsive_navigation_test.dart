@@ -106,9 +106,13 @@ void main() {
     expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('Hotels')), findsOneWidget);
     expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('My Trips')), findsOneWidget);
     expect(find.descendant(of: find.byType(NavigationBar), matching: find.text('Profile')), findsOneWidget);
+
+    // Verify AI Assistant FloatingActionButton is present on mobile
+    expect(find.byType(FloatingActionButton), findsOneWidget);
+    expect(find.byIcon(Icons.auto_awesome_rounded), findsWidgets);
   });
 
-  testWidgets('Renders Desktop Sidebar on wide screens (>= 1024px)', (tester) async {
+  testWidgets('Renders Desktop Sidebar and AI assistant on wide screens (>= 1024px)', (tester) async {
     tester.view.physicalSize = const Size(1440, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -129,5 +133,26 @@ void main() {
     expect(find.text('Hotels'), findsWidgets);
     expect(find.text('My Trips'), findsWidgets);
     expect(find.text('Profile'), findsWidgets);
+
+    // AI Travel Assistant should be visible in Desktop sidebar and as FAB
+    expect(find.text('AI Travel Assistant'), findsWidgets);
+    expect(find.byIcon(Icons.auto_awesome_rounded), findsWidgets);
+  });
+
+  testWidgets('Renders Tablet Sidebar icon and AI assistant button on tablet screens (768px - 1023px)', (tester) async {
+    tester.view.physicalSize = const Size(800, 1024);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(createTestableNavApp(storage));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+
+    // On tablet, bottom NavigationBar should NOT be rendered
+    expect(find.byType(NavigationBar), findsNothing);
+
+    // AI Assistant icon should be rendered
+    expect(find.byIcon(Icons.auto_awesome_rounded), findsWidgets);
   });
 }
