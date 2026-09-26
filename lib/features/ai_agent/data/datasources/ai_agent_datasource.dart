@@ -61,39 +61,153 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
     );
   }
 
+  static const Map<String, Map<String, String>> _destInfo = {
+    'paris': {'nameEn': 'Paris', 'nameAr': 'باريس', 'code': 'CDG'},
+    'باريس': {'nameEn': 'Paris', 'nameAr': 'باريس', 'code': 'CDG'},
+    'istanbul': {'nameEn': 'Istanbul', 'nameAr': 'إسطنبول', 'code': 'IST'},
+    'إسطنبول': {'nameEn': 'Istanbul', 'nameAr': 'إسطنبول', 'code': 'IST'},
+    'اسطنبول': {'nameEn': 'Istanbul', 'nameAr': 'إسطنبول', 'code': 'IST'},
+    'dubai': {'nameEn': 'Dubai', 'nameAr': 'دبي', 'code': 'DXB'},
+    'دبي': {'nameEn': 'Dubai', 'nameAr': 'دبي', 'code': 'DXB'},
+    'antalya': {'nameEn': 'Antalya', 'nameAr': 'أنطاليا', 'code': 'AYT'},
+    'أنطاليا': {'nameEn': 'Antalya', 'nameAr': 'أنطاليا', 'code': 'AYT'},
+    'انطاليا': {'nameEn': 'Antalya', 'nameAr': 'أنطاليا', 'code': 'AYT'},
+    'riyadh': {'nameEn': 'Riyadh', 'nameAr': 'الرياض', 'code': 'RUH'},
+    'الرياض': {'nameEn': 'Riyadh', 'nameAr': 'الرياض', 'code': 'RUH'},
+    'jeddah': {'nameEn': 'Jeddah', 'nameAr': 'جدة', 'code': 'JED'},
+    'جدة': {'nameEn': 'Jeddah', 'nameAr': 'جدة', 'code': 'JED'},
+    'madinah': {'nameEn': 'Madinah', 'nameAr': 'المدينة المنورة', 'code': 'MED'},
+    'المدينة': {'nameEn': 'Madinah', 'nameAr': 'المدينة المنورة', 'code': 'MED'},
+    'london': {'nameEn': 'London', 'nameAr': 'لندن', 'code': 'LHR'},
+    'لندن': {'nameEn': 'London', 'nameAr': 'لندن', 'code': 'LHR'},
+    'cairo': {'nameEn': 'Cairo', 'nameAr': 'القاهرة', 'code': 'CAI'},
+    'القاهرة': {'nameEn': 'Cairo', 'nameAr': 'القاهرة', 'code': 'CAI'},
+    'sharm': {'nameEn': 'Sharm El Sheikh', 'nameAr': 'شرم الشيخ', 'code': 'SSH'},
+    'شرم الشيخ': {'nameEn': 'Sharm El Sheikh', 'nameAr': 'شرم الشيخ', 'code': 'SSH'},
+    'algiers': {'nameEn': 'Algiers', 'nameAr': 'الجزائر العاصمة', 'code': 'ALG'},
+    'الجزائر': {'nameEn': 'Algiers', 'nameAr': 'الجزائر العاصمة', 'code': 'ALG'},
+    'oran': {'nameEn': 'Oran', 'nameAr': 'وهران', 'code': 'ORN'},
+    'وهران': {'nameEn': 'Oran', 'nameAr': 'وهران', 'code': 'ORN'},
+    'tunis': {'nameEn': 'Tunis', 'nameAr': 'تونس', 'code': 'TUN'},
+    'تونس': {'nameEn': 'Tunis', 'nameAr': 'تونس', 'code': 'TUN'},
+    'casablanca': {'nameEn': 'Casablanca', 'nameAr': 'الدار البيضاء', 'code': 'CMN'},
+    'الدار البيضاء': {'nameEn': 'Casablanca', 'nameAr': 'الدار البيضاء', 'code': 'CMN'},
+    'rome': {'nameEn': 'Rome', 'nameAr': 'روما', 'code': 'FCO'},
+    'روما': {'nameEn': 'Rome', 'nameAr': 'روما', 'code': 'FCO'},
+    'milan': {'nameEn': 'Milan', 'nameAr': 'ميلانو', 'code': 'MXP'},
+    'ميلانو': {'nameEn': 'Milan', 'nameAr': 'ميلانو', 'code': 'MXP'},
+    'madrid': {'nameEn': 'Madrid', 'nameAr': 'مدريد', 'code': 'MAD'},
+    'مدريد': {'nameEn': 'Madrid', 'nameAr': 'مدريد', 'code': 'MAD'},
+    'barcelona': {'nameEn': 'Barcelona', 'nameAr': 'برشلونة', 'code': 'BCN'},
+    'برشلونة': {'nameEn': 'Barcelona', 'nameAr': 'برشلونة', 'code': 'BCN'},
+    'kuala lumpur': {'nameEn': 'Kuala Lumpur', 'nameAr': 'كوالالمبور', 'code': 'KUL'},
+    'كوالالمبور': {'nameEn': 'Kuala Lumpur', 'nameAr': 'كوالالمبور', 'code': 'KUL'},
+    'bangkok': {'nameEn': 'Bangkok', 'nameAr': 'بانكوك', 'code': 'BKK'},
+    'بانكوك': {'nameEn': 'Bangkok', 'nameAr': 'بانكوك', 'code': 'BKK'},
+    'bali': {'nameEn': 'Bali', 'nameAr': 'بالي', 'code': 'DPS'},
+    'بالي': {'nameEn': 'Bali', 'nameAr': 'بالي', 'code': 'DPS'},
+    'maldives': {'nameEn': 'Maldives', 'nameAr': 'المالديف', 'code': 'MLE'},
+    'المالديف': {'nameEn': 'Maldives', 'nameAr': 'المالديف', 'code': 'MLE'},
+    'tokyo': {'nameEn': 'Tokyo', 'nameAr': 'طوكيو', 'code': 'HND'},
+    'طوكيو': {'nameEn': 'Tokyo', 'nameAr': 'طوكيو', 'code': 'HND'},
+    'doha': {'nameEn': 'Doha', 'nameAr': 'الدوحة', 'code': 'DOH'},
+    'الدوحة': {'nameEn': 'Doha', 'nameAr': 'الدوحة', 'code': 'DOH'},
+  };
+
   @override
   Future<AIMessageEntity> processUserQuery({
     required String query,
     required List<AIMessageEntity> history,
     bool isArabic = false,
   }) async {
-    // Simulate natural AI thinking latency (non-blocking)
-    await Future.delayed(const Duration(milliseconds: 700));
+    // Simulate non-blocking natural thinking latency
+    await Future.delayed(const Duration(milliseconds: 600));
 
-    final normalized = query.toLowerCase();
+    final normalized = query.toLowerCase().trim();
 
-    // 1. Extract destination from query
+    // 1. Detect Destination
     String destinationCity = 'Dubai';
     String destAirportCode = 'DXB';
+    String destCityAr = 'دبي';
+    bool destMatched = false;
 
-    if (normalized.contains('paris') || normalized.contains('باريس')) {
-      destinationCity = 'Paris';
-      destAirportCode = 'CDG';
-    } else if (normalized.contains('istanbul') || normalized.contains('اسطنبول') || normalized.contains('إسطنبول')) {
-      destinationCity = 'Istanbul';
-      destAirportCode = 'IST';
-    } else if (normalized.contains('algiers') || normalized.contains('الجزائر')) {
-      destinationCity = 'Algiers';
-      destAirportCode = 'ALG';
-    } else if (normalized.contains('riyadh') || normalized.contains('الرياض')) {
-      destinationCity = 'Riyadh';
-      destAirportCode = 'RUH';
-    } else if (normalized.contains('london') || normalized.contains('لندن')) {
-      destinationCity = 'London';
-      destAirportCode = 'LHR';
+    for (final entry in _destInfo.entries) {
+      if (normalized.contains(entry.key)) {
+        destinationCity = entry.value['nameEn']!;
+        destCityAr = entry.value['nameAr']!;
+        destAirportCode = entry.value['code']!;
+        destMatched = true;
+        break;
+      }
     }
 
-    // 2. Extract budget if mentioned
+    final displayDest = isArabic ? destCityAr : destinationCity;
+
+    // 2. Handle FAQs / Broad questions
+    if (normalized.contains('أفضل وقت') || normalized.contains('best time')) {
+      final reply = isArabic
+          ? '🌟 **أفضل وقت لزيارة $displayDest:**\n\n'
+              'الفترة المثالية تمتد من **أكتوبر إلى أبريل** حيث تكون درجات الحرارة معتدلة ومناسبة للأنشطة السياحية والاستجمام.\n\n'
+              'هل ترغب في أن أخطط لك رحلة مفصلة تشمل الطيران وحجز الفندق؟'
+          : '🌟 **Best Time to Visit $displayDest:**\n\n'
+              'The prime travel season runs from **October through April**, offering pleasant weather ideal for sightseeing and outdoor activities.\n\n'
+              'Would you like me to curate a full travel itinerary for you?';
+
+      return AIMessageEntity(
+        id: 'ai_msg_${_uuid.v4().substring(0, 8)}',
+        sender: AIMessageSender.assistant,
+        content: reply,
+        timestamp: DateTime.now(),
+        quickReplies: isArabic
+            ? ['خطط رحلة 4 أيام في $displayDest', 'أرخص الرحلات إلى $displayDest', 'أفضل الفنادق في $displayDest']
+            : ['Plan 4 days in $destinationCity', 'Cheapest flights to $destinationCity', 'Best hotels in $destinationCity'],
+      );
+    }
+
+    if (normalized.contains('تأشيرة') || normalized.contains('فيزا') || normalized.contains('visa')) {
+      final reply = isArabic
+          ? '🛂 **معلومات التأشيرة والسفر إلى $displayDest:**\n\n'
+              '• تختلف متطلبات التأشيرة بحسب جنسيتك وجواز سفرك.\n'
+              '• العديد من الوجهات توفر تأشيرة إلكترونية سريعة (eVisa) أو تأشيرة عند الوصول.\n'
+              '• تأكد من صلاحية جواز سفرك لمدة 6 أشهر على الأقل قبل موعد السفر.\n\n'
+              'اختر أحد الخيارات التالية لمتابعة التخطيط:'
+          : '🛂 **Visa & Entry Requirements for $displayDest:**\n\n'
+              '• Requirements vary based on your nationality and passport.\n'
+              '• Many destinations provide convenient eVisas or Visa upon Arrival.\n'
+              '• Ensure your passport is valid for at least 6 months before your departure date.\n\n'
+              'Choose an option below to proceed:';
+
+      return AIMessageEntity(
+        id: 'ai_msg_${_uuid.v4().substring(0, 8)}',
+        sender: AIMessageSender.assistant,
+        content: reply,
+        timestamp: DateTime.now(),
+        quickReplies: isArabic
+            ? ['حجز طيران إلى $displayDest', 'حجز فندق مع إلغاء مجاني', 'توزيع الميزانية']
+            : ['Book flights to $destinationCity', 'Hotels with free cancellation', 'Budget optimization'],
+      );
+    }
+
+    // 3. Handle Greetings or General Prompts without explicit destination
+    if (!destMatched && (normalized.contains('مرحبا') || normalized.contains('hello') || normalized.contains('hi') || normalized.length < 10)) {
+      final reply = isArabic
+          ? 'مرحباً بك في **ترافل جو (TRAVELGO)**! 🌍✈️\n\n'
+              'أنا مساعدك الذكي لتخطيط الرحلات وحجز الطيران والفنادق بأفضل الأسعار. إلى أين ترغب بالسفر؟'
+          : 'Welcome to **TRAVELGO**! 🌍✈️\n\n'
+              'I am your AI Travel Companion ready to plan trips, compare flights, and find hotels at the best rates. Where would you like to explore?';
+
+      return AIMessageEntity(
+        id: 'ai_msg_${_uuid.v4().substring(0, 8)}',
+        sender: AIMessageSender.assistant,
+        content: reply,
+        timestamp: DateTime.now(),
+        quickReplies: isArabic
+            ? ['إسطنبول 🇹🇷', 'دبي 🇦🇪', 'باريس 🇫🇷', 'المالديف 🏝️', 'رحلة عائلية 👨‍👩‍👧', 'رحلة اقتصادية 🎒']
+            : ['Istanbul 🇹🇷', 'Dubai 🇦🇪', 'Paris 🇫🇷', 'Maldives 🏝️', 'Family Trip 👨‍👩‍👧', 'Budget Trip 🎒'],
+      );
+    }
+
+    // 4. Extract Budget
     double budget = 1000.0;
     final budgetMatch = RegExp(
       r'(?:\$|usd|dollar|دولار|ميزانية|under|بميزانية)\s*(\d+)|(\d+)\s*(?:\$|usd|dollar|dollars|دولار)',
@@ -109,9 +223,9 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
       }
     }
 
-    // 3. Extract duration in days
+    // 5. Extract duration in days
     int days = 4;
-    final daysMatch = RegExp(r'(\d+)\s*(day|days|يوم|أيام)', caseSensitive: false).firstMatch(query);
+    final daysMatch = RegExp(r'(\d+)[-\s]*(day|days|يوم|أيام|night|nights|ليال|ليالي|ليلة)', caseSensitive: false).firstMatch(query);
     if (daysMatch != null) {
       final parsedDays = int.tryParse(daysMatch.group(1)!);
       if (parsedDays != null && parsedDays > 0 && parsedDays <= 30) {
@@ -119,7 +233,7 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
       }
     }
 
-    // 4. Query Verified Flights and Hotels from deterministic repositories
+    // 6. Query Verified Flights and Hotels
     final flightSearchParams = FlightSearchParams(
       originCode: 'ALG',
       originCity: 'Algiers',
@@ -148,7 +262,7 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
       matchingHotels = allHotels.take(2).toList();
     } catch (_) {}
 
-    // 5. Generate Trip Plan if requested or general search
+    // 7. Generate Trip Plan
     final tripPlan = await generateTripPlan(
       destination: destinationCity,
       origin: 'Algiers',
@@ -166,20 +280,6 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
     String replyContent;
     String rationale;
 
-    final displayDest = isArabic
-        ? (destinationCity == 'Paris'
-            ? 'باريس'
-            : destinationCity == 'Istanbul'
-                ? 'إسطنبول'
-                : destinationCity == 'Algiers'
-                    ? 'الجزائر العاصمة'
-                    : destinationCity == 'Riyadh'
-                        ? 'الرياض'
-                        : destinationCity == 'London'
-                            ? 'لندن'
-                            : destinationCity)
-        : destinationCity;
-
     if (isArabic) {
       replyContent = 'لقد قمت بتحليل طلبك وصممت لك برنامج رحلة متكامل إلى **$displayDest** لمدة **$days أيام** بميزانية تقديرية تقارب **\$$budget دولار**.\n\n'
           '✨ قمت بالتحقق من جداول الرحلات المباشرة وأفضل الفنادق المعتمدة التي تتناسب مع ميزانيتك أدناه:';
@@ -189,6 +289,20 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
           '✨ Below are verified real-time flight connections and handpicked hotel stays tailored for your trip:';
       rationale = 'Selected for optimal price-to-comfort ratio, central location, and verified traveler satisfaction.';
     }
+
+    final followUpReplies = isArabic
+        ? [
+            'تعديل الميزانية إلى \$${(budget * 1.5).toInt()}',
+            'إضافة أنشطة عائلية إلى $displayDest',
+            'أرخص فنادق في $displayDest',
+            'خطط رحلة 7 أيام',
+          ]
+        : [
+            'Adjust budget to \$${(budget * 1.5).toInt()}',
+            'Add family activities in $destinationCity',
+            'Cheapest hotels in $destinationCity',
+            'Plan a 7-day trip',
+          ];
 
     return AIMessageEntity(
       id: 'ai_msg_${_uuid.v4().substring(0, 8)}',
@@ -206,6 +320,7 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
       tripPlan: tripPlan,
       budgetBreakdown: budgetBreakdown,
       aiRationale: rationale,
+      quickReplies: followUpReplies,
     );
   }
 
@@ -306,7 +421,7 @@ class AIAgentDataSourceImpl implements AIAgentDataSource {
       destination: destination,
       origin: origin,
       durationDays: days,
-      estimatedTotalCostUSD: budgetUSD * 0.92, // estimated actual total below user ceiling
+      estimatedTotalCostUSD: budgetUSD * 0.92,
       summary: isArabic
           ? 'برنامج متوازن يجمع بين المعالم البارزة، الاسترخاء، والتجارب الثقافية الممتعة.'
           : 'A well-rounded, balanced itinerary combining marquee sights, culinary highlights, and relaxation.',

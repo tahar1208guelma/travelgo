@@ -118,5 +118,22 @@ void main() {
 
       expect(() => simulateTimeoutCall(), throwsA(isA<TimeoutException>()));
     });
+
+    // 8. Expanded Regional & Global Destinations
+    test('parses new destinations like Oran, Antalya, Rome, and Maldives correctly', () {
+      final oranAntalya = AINlpIntentParser.parseQuery('رحلة من وهران إلى أنطاليا لشخصين', referenceDate: fixedRefDate);
+      expect(oranAntalya.originCode, 'ORN');
+      expect(oranAntalya.destinationCode, 'AYT');
+      expect(oranAntalya.adults, 2);
+
+      final constRome = AINlpIntentParser.parseQuery('Flight from Constantine to Rome next week', referenceDate: fixedRefDate);
+      expect(constRome.originCode, 'CZL');
+      expect(constRome.destinationCode, 'FCO');
+
+      final maldives = AINlpIntentParser.parseQuery('فندق 5 نجوم في المالديف لمدة 7 ليال', referenceDate: fixedRefDate);
+      expect(maldives.destinationCode, 'MLE');
+      expect(maldives.hotelMinStars, 5);
+      expect(maldives.numberOfNights, 7);
+    });
   });
 }

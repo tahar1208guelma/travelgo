@@ -38,6 +38,7 @@ class AIMessageEntity {
   final AITripPlanEntity? tripPlan;
   final AIBudgetBreakdown? budgetBreakdown;
   final String? aiRationale;
+  final List<String> quickReplies;
 
   const AIMessageEntity({
     required this.id,
@@ -50,10 +51,12 @@ class AIMessageEntity {
     this.tripPlan,
     this.budgetBreakdown,
     this.aiRationale,
+    this.quickReplies = const [],
   });
 
   bool get isUser => sender == AIMessageSender.user;
   bool get hasRecommendations => recommendedFlights.isNotEmpty || recommendedHotels.isNotEmpty;
   bool get hasTripPlan => tripPlan != null;
   bool get hasBudgetBreakdown => budgetBreakdown != null;
+  bool get hasQuickReplies => quickReplies.isNotEmpty;
 }

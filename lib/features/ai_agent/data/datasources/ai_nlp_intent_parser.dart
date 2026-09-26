@@ -3,23 +3,85 @@ import '../../domain/entities/ai_search_intent.dart';
 
 class AINlpIntentParser {
   static const Map<String, Map<String, String>> _cityMap = {
+    // Algeria
     'algiers': {'code': 'ALG', 'cityEn': 'Algiers', 'cityAr': 'الجزائر'},
     'الجزائر': {'code': 'ALG', 'cityEn': 'Algiers', 'cityAr': 'الجزائر'},
+    'oran': {'code': 'ORN', 'cityEn': 'Oran', 'cityAr': 'وهران'},
+    'وهران': {'code': 'ORN', 'cityEn': 'Oran', 'cityAr': 'وهران'},
+    'constantine': {'code': 'CZL', 'cityEn': 'Constantine', 'cityAr': 'قسنطينة'},
+    'قسنطينة': {'code': 'CZL', 'cityEn': 'Constantine', 'cityAr': 'قسنطينة'},
+    'annaba': {'code': 'AAE', 'cityEn': 'Annaba', 'cityAr': 'عنابة'},
+    'عنابة': {'code': 'AAE', 'cityEn': 'Annaba', 'cityAr': 'عنابة'},
+
+    // France & Europe
     'paris': {'code': 'CDG', 'cityEn': 'Paris', 'cityAr': 'باريس'},
     'باريس': {'code': 'CDG', 'cityEn': 'Paris', 'cityAr': 'باريس'},
+    'marseille': {'code': 'MRS', 'cityEn': 'Marseille', 'cityAr': 'مارسيليا'},
+    'مارسيليا': {'code': 'MRS', 'cityEn': 'Marseille', 'cityAr': 'مارسيليا'},
+    'london': {'code': 'LHR', 'cityEn': 'London', 'cityAr': 'لندن'},
+    'لندن': {'code': 'LHR', 'cityEn': 'London', 'cityAr': 'لندن'},
+    'rome': {'code': 'FCO', 'cityEn': 'Rome', 'cityAr': 'روما'},
+    'روما': {'code': 'FCO', 'cityEn': 'Rome', 'cityAr': 'روما'},
+    'milan': {'code': 'MXP', 'cityEn': 'Milan', 'cityAr': 'ميلانو'},
+    'ميلانو': {'code': 'MXP', 'cityEn': 'Milan', 'cityAr': 'ميلانو'},
+    'madrid': {'code': 'MAD', 'cityEn': 'Madrid', 'cityAr': 'مدريد'},
+    'مدريد': {'code': 'MAD', 'cityEn': 'Madrid', 'cityAr': 'مدريد'},
+    'barcelona': {'code': 'BCN', 'cityEn': 'Barcelona', 'cityAr': 'برشلونة'},
+    'برشلونة': {'code': 'BCN', 'cityEn': 'Barcelona', 'cityAr': 'برشلونة'},
+    'amsterdam': {'code': 'AMS', 'cityEn': 'Amsterdam', 'cityAr': 'أمستردام'},
+    'أمستردام': {'code': 'AMS', 'cityEn': 'Amsterdam', 'cityAr': 'أمستردام'},
+    'امستردام': {'code': 'AMS', 'cityEn': 'Amsterdam', 'cityAr': 'أمستردام'},
+
+    // Middle East & Gulf
     'dubai': {'code': 'DXB', 'cityEn': 'Dubai', 'cityAr': 'دبي'},
     'دبي': {'code': 'DXB', 'cityEn': 'Dubai', 'cityAr': 'دبي'},
+    'abu dhabi': {'code': 'AUH', 'cityEn': 'Abu Dhabi', 'cityAr': 'أبوظبي'},
+    'أبوظبي': {'code': 'AUH', 'cityEn': 'Abu Dhabi', 'cityAr': 'أبوظبي'},
+    'ابوظبي': {'code': 'AUH', 'cityEn': 'Abu Dhabi', 'cityAr': 'أبوظبي'},
+    'riyadh': {'code': 'RUH', 'cityEn': 'Riyadh', 'cityAr': 'الرياض'},
+    'الرياض': {'code': 'RUH', 'cityEn': 'Riyadh', 'cityAr': 'الرياض'},
+    'jeddah': {'code': 'JED', 'cityEn': 'Jeddah', 'cityAr': 'جدة'},
+    'جدة': {'code': 'JED', 'cityEn': 'Jeddah', 'cityAr': 'جدة'},
+    'madinah': {'code': 'MED', 'cityEn': 'Madinah', 'cityAr': 'المدينة المنورة'},
+    'المدينة': {'code': 'MED', 'cityEn': 'Madinah', 'cityAr': 'المدينة المنورة'},
+    'المدينة المنورة': {'code': 'MED', 'cityEn': 'Madinah', 'cityAr': 'المدينة المنورة'},
+    'doha': {'code': 'DOH', 'cityEn': 'Doha', 'cityAr': 'الدوحة'},
+    'الدوحة': {'code': 'DOH', 'cityEn': 'Doha', 'cityAr': 'الدوحة'},
+
+    // Turkey
     'istanbul': {'code': 'IST', 'cityEn': 'Istanbul', 'cityAr': 'إسطنبول'},
     'إسطنبول': {'code': 'IST', 'cityEn': 'Istanbul', 'cityAr': 'إسطنبول'},
     'اسطنبول': {'code': 'IST', 'cityEn': 'Istanbul', 'cityAr': 'إسطنبول'},
-    'riyadh': {'code': 'RUH', 'cityEn': 'Riyadh', 'cityAr': 'الرياض'},
-    'الرياض': {'code': 'RUH', 'cityEn': 'Riyadh', 'cityAr': 'الرياض'},
-    'london': {'code': 'LHR', 'cityEn': 'London', 'cityAr': 'لندن'},
-    'لندن': {'code': 'LHR', 'cityEn': 'London', 'cityAr': 'لندن'},
+    'antalya': {'code': 'AYT', 'cityEn': 'Antalya', 'cityAr': 'أنطاليا'},
+    'أنطاليا': {'code': 'AYT', 'cityEn': 'Antalya', 'cityAr': 'أنطاليا'},
+    'انطاليا': {'code': 'AYT', 'cityEn': 'Antalya', 'cityAr': 'أنطاليا'},
+
+    // North Africa
     'cairo': {'code': 'CAI', 'cityEn': 'Cairo', 'cityAr': 'القاهرة'},
     'القاهرة': {'code': 'CAI', 'cityEn': 'Cairo', 'cityAr': 'القاهرة'},
-    'doha': {'code': 'DOH', 'cityEn': 'Doha', 'cityAr': 'الدوحة'},
-    'الدوحة': {'code': 'DOH', 'cityEn': 'Doha', 'cityAr': 'الدوحة'},
+    'sharm': {'code': 'SSH', 'cityEn': 'Sharm El Sheikh', 'cityAr': 'شرم الشيخ'},
+    'شرم الشيخ': {'code': 'SSH', 'cityEn': 'Sharm El Sheikh', 'cityAr': 'شرم الشيخ'},
+    'tunis': {'code': 'TUN', 'cityEn': 'Tunis', 'cityAr': 'تونس'},
+    'تونس': {'code': 'TUN', 'cityEn': 'Tunis', 'cityAr': 'تونس'},
+    'casablanca': {'code': 'CMN', 'cityEn': 'Casablanca', 'cityAr': 'الدار البيضاء'},
+    'الدار البيضاء': {'code': 'CMN', 'cityEn': 'Casablanca', 'cityAr': 'الدار البيضاء'},
+    'كازابلانكا': {'code': 'CMN', 'cityEn': 'Casablanca', 'cityAr': 'الدار البيضاء'},
+    'marrakesh': {'code': 'RAK', 'cityEn': 'Marrakesh', 'cityAr': 'مراكش'},
+    'مراكش': {'code': 'RAK', 'cityEn': 'Marrakesh', 'cityAr': 'مراكش'},
+
+    // Asia & Islands
+    'kuala lumpur': {'code': 'KUL', 'cityEn': 'Kuala Lumpur', 'cityAr': 'كوالالمبور'},
+    'كوالالمبور': {'code': 'KUL', 'cityEn': 'Kuala Lumpur', 'cityAr': 'كوالالمبور'},
+    'bangkok': {'code': 'BKK', 'cityEn': 'Bangkok', 'cityAr': 'بانكوك'},
+    'بانكوك': {'code': 'BKK', 'cityEn': 'Bangkok', 'cityAr': 'بانكوك'},
+    'phuket': {'code': 'HKT', 'cityEn': 'Phuket', 'cityAr': 'فوكيت'},
+    'فوكيت': {'code': 'HKT', 'cityEn': 'Phuket', 'cityAr': 'فوكيت'},
+    'bali': {'code': 'DPS', 'cityEn': 'Bali', 'cityAr': 'بالي'},
+    'بالي': {'code': 'DPS', 'cityEn': 'Bali', 'cityAr': 'بالي'},
+    'maldives': {'code': 'MLE', 'cityEn': 'Maldives', 'cityAr': 'المالديف'},
+    'المالديف': {'code': 'MLE', 'cityEn': 'Maldives', 'cityAr': 'المالديف'},
+    'tokyo': {'code': 'HND', 'cityEn': 'Tokyo', 'cityAr': 'طوكيو'},
+    'طوكيو': {'code': 'HND', 'cityEn': 'Tokyo', 'cityAr': 'طوكيو'},
   };
 
   /// Parses a natural language query into a validated AISearchIntent

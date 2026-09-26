@@ -118,6 +118,7 @@ class _AITravelAgentScreenState extends ConsumerState<AITravelAgentScreen> {
                       return AIChatBubble(
                         message: msg,
                         isArabic: isArabic,
+                        onQuickReplySelected: _handleSubmit,
                       );
                     } else {
                       // Thinking Indicator Bubble
@@ -167,8 +168,8 @@ class _AITravelAgentScreenState extends ConsumerState<AITravelAgentScreen> {
                 ),
               ),
 
-              // Quick Prompt Suggestion Chips
-              if (aiState.messages.length <= 2 && !aiState.isThinking)
+              // Multi-Category Quick Prompt Suggestion Chips
+              if (!aiState.isThinking)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: AIQuickPromptChips(

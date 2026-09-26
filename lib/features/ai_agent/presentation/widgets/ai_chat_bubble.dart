@@ -11,11 +11,13 @@ import 'ai_itinerary_timeline.dart';
 class AIChatBubble extends StatelessWidget {
   final AIMessageEntity message;
   final bool isArabic;
+  final void Function(String reply)? onQuickReplySelected;
 
   const AIChatBubble({
     super.key,
     required this.message,
     required this.isArabic,
+    this.onQuickReplySelected,
   });
 
   @override
@@ -133,6 +135,44 @@ class AIChatBubble extends StatelessWidget {
             const SizedBox(height: 4),
             AIBudgetOptimizerCard(
               budget: message.budgetBreakdown!,
+            ),
+          ],
+
+          // Attached Interactive Quick-Reply Option Pills
+          if (!isUser && message.hasQuickReplies) ...[
+            const SizedBox(height: 8),
+            Padding(
+              padding: EdgeInsets.only(left: isArabic ? 0 : 28, right: isArabic ? 28 : 0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: message.quickReplies.map((reply) {
+                  return ActionChip(
+                    label: Text(
+                      reply,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    backgroundColor: isDark
+                        ? AppColors.cardDark
+                        : AppColors.primaryContainer.withOpacity(0.4),
+                    side: BorderSide(
+                      color: AppColors.primary.withOpacity(0.35),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+                    ),
+                    onPressed: () {
+                      if (onQuickReplySelected != null) {
+                        onQuickReplySelected!(reply);
+                      }
+                    },
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ],

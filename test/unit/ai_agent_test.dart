@@ -86,6 +86,32 @@ void main() {
       expect(response.extractedIntent?.durationDays, 4);
       expect(response.extractedIntent?.budgetUSD, 900.0);
       expect(response.content.contains('باريس'), isTrue);
+      expect(response.hasQuickReplies, isTrue);
+      expect(response.quickReplies.isNotEmpty, isTrue);
+    });
+
+    test('processUserQuery handles general FAQs and generates informative quick replies', () async {
+      final faqResponse = await repository.sendMessage(
+        userQuery: 'ما هو أفضل وقت لزيارة إسطنبول؟',
+        conversationHistory: [],
+        isArabic: true,
+      );
+
+      expect(faqResponse.content.contains('أفضل وقت'), isTrue);
+      expect(faqResponse.hasQuickReplies, isTrue);
+      expect(faqResponse.quickReplies.length, greaterThanOrEqualTo(2));
+    });
+
+    test('processUserQuery supports new destinations such as Antalya and Maldives', () async {
+      final antalyaResponse = await repository.sendMessage(
+        userQuery: 'Plan a 5-day beach trip to Antalya with \$1200 budget',
+        conversationHistory: [],
+      );
+
+      expect(antalyaResponse.extractedIntent?.destination, 'Antalya');
+      expect(antalyaResponse.extractedIntent?.durationDays, 5);
+      expect(antalyaResponse.hasTripPlan, isTrue);
+      expect(antalyaResponse.hasQuickReplies, isTrue);
     });
   });
 }
