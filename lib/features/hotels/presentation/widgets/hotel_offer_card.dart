@@ -51,7 +51,7 @@ class HotelOfferCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                        color: AppTheme.accentBlue.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(Icons.hotel, color: AppTheme.accentBlue, size: 24),
@@ -191,7 +191,14 @@ class HotelOfferCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('View Deal', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Book on Official Hotel Site', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                        SizedBox(width: 4),
+                        Icon(Icons.open_in_new, size: 14),
+                      ],
+                    ),
                   ),
                 ],
               ),

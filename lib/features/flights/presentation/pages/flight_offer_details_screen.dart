@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../core/network/api_client.dart';
 import '../../../../core/responsive/responsive_container.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_formatter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../bookings/presentation/widgets/price_summary_card.dart';
-import '../../../checkout/bloc/checkout_bloc.dart';
-import '../../../checkout/presentation/pages/flight_checkout_screen.dart';
-import '../../../checkout/services/payment_gateway_service.dart';
 import '../../models/flight_offer.dart';
 
 class FlightOfferDetailsScreen extends StatelessWidget {
@@ -43,7 +39,7 @@ class FlightOfferDetailsScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                          color: AppTheme.accentBlue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(Icons.flight, color: AppTheme.accentBlue, size: 28),
@@ -67,7 +63,7 @@ class FlightOfferDetailsScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.electricCyan.withValues(alpha: 0.15),
+                          color: AppTheme.electricCyan.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -104,8 +100,8 @@ class FlightOfferDetailsScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: offer.isDirect
-                                  ? AppTheme.successGreen.withValues(alpha: 0.12)
-                                  : AppTheme.warningOrange.withValues(alpha: 0.12),
+                                  ? AppTheme.successGreen.withOpacity(0.12)
+                                  : AppTheme.warningOrange.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -226,9 +222,9 @@ class FlightOfferDetailsScreen extends StatelessWidget {
                                 margin: const EdgeInsets.symmetric(vertical: 14),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.warningOrange.withValues(alpha: 0.1),
+                                  color: AppTheme.warningOrange.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: AppTheme.warningOrange.withValues(alpha: 0.3)),
+                                  border: Border.all(color: AppTheme.warningOrange.withOpacity(0.3)),
                                 ),
                                 child: Row(
                                   children: [
@@ -296,32 +292,47 @@ class FlightOfferDetailsScreen extends StatelessWidget {
               PriceSummaryCard(price: offer.price),
               const SizedBox(height: 20),
 
-              // Checkout CTA Button
+              // Trust Badge
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppTheme.successGreen.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.successGreen.withOpacity(0.3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.verified_user, color: AppTheme.successGreen),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'حجز مباشر من شركة الطيران • بدون أي عمولة أو رسوم إضافية\nDirect Official Airline Booking • 0% Extra Fees',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.successGreen,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Redirect CTA Button
               SizedBox(
                 height: 52,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    final checkoutBloc = CheckoutBloc(
-                      paymentService: PaymentGatewayServiceImpl(apiClient: ApiClient()),
-                    );
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => FlightCheckoutScreen(
-                          offer: offer,
-                          bloc: checkoutBloc,
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed: () => _launchAirlineUrl(context, offer.validatingAirline),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.accentBlue,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  icon: const Icon(Icons.lock_outline, fontWeight: FontWeight.bold),
-                  label: Text(
-                    'Proceed to Passenger & Payment (${CurrencyFormatter.format(offer.price.totalAmount, currency: offer.price.currency)})',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  icon: const Icon(Icons.open_in_new, fontWeight: FontWeight.bold),
+                  label: const Text(
+                    'Book on Official Airline Website / احجز من الموقع الرسمي',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -329,6 +340,61 @@ class FlightOfferDetailsScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _launchAirlineUrl(BuildContext context, String airlineName) {
+    String urlStr = 'https://www.google.com/flights';
+
+    final nameLower = airlineName.toLowerCase();
+    if (nameLower.contains('algérie') || nameLower.contains('algerie')) {
+      urlStr = 'https://airalgerie.dz';
+    } else if (nameLower.contains('france')) {
+      urlStr = 'https://www.airfrance.com';
+    } else if (nameLower.contains('turkish')) {
+      urlStr = 'https://www.turkishairlines.com';
+    } else if (nameLower.contains('emirates')) {
+      urlStr = 'https://www.emirates.com';
+    } else if (nameLower.contains('qatar')) {
+      urlStr = 'https://www.qatarairways.com';
+    } else if (nameLower.contains('saudia')) {
+      urlStr = 'https://www.saudia.com';
+    } else if (nameLower.contains('lufthansa')) {
+      urlStr = 'https://www.lufthansa.com';
+    } else if (nameLower.contains('transavia')) {
+      urlStr = 'https://www.transavia.com';
+    } else if (nameLower.contains('british')) {
+      urlStr = 'https://www.ba.com';
+    } else if (nameLower.contains('pegasus')) {
+      urlStr = 'https://www.flypgs.com';
+    } else if (nameLower.contains('royal air maroc')) {
+      urlStr = 'https://www.royalairmaroc.com';
+    } else if (nameLower.contains('tunisair')) {
+      urlStr = 'https://www.tunisair.com';
+    } else if (nameLower.contains('ita')) {
+      urlStr = 'https://www.ita-airways.com';
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Redirecting to Airline', style: TextStyle(color: AppTheme.primaryNavy)),
+        content: Text('You will be redirected to the official website of $airlineName to complete your booking securely with 0% extra fees.\n\nDomain: $urlStr'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentBlue, foregroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pop(ctx);
+              launchUrl(Uri.parse(urlStr), mode: LaunchMode.externalApplication);
+            },
+            child: const Text('Continue to Website'),
+          ),
+        ],
       ),
     );
   }

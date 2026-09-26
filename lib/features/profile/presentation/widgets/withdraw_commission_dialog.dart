@@ -98,7 +98,7 @@ class _WithdrawCommissionDialogState extends State<WithdrawCommissionDialog> {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                  color: AppTheme.successGreen.withValues(alpha: 0.15),
+                  color: AppTheme.successGreen.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle, color: AppTheme.successGreen, size: 40),

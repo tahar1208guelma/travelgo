@@ -178,7 +178,7 @@ class _CitySearchModalState extends State<CitySearchModal> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppTheme.accentBlue
-                                : AppTheme.accentBlue.withValues(alpha: 0.1),
+                                : AppTheme.accentBlue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
@@ -264,7 +264,7 @@ class _CitySearchModalState extends State<CitySearchModal> {
           _applyFilter();
         });
       },
-      selectedColor: AppTheme.accentBlue.withValues(alpha: 0.15),
+      selectedColor: AppTheme.accentBlue.withOpacity(0.15),
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

@@ -54,7 +54,7 @@ class _ThreeDSecureDialogState extends State<ThreeDSecureDialog> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                    color: AppTheme.accentBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.verified_user, color: AppTheme.accentBlue, size: 24),

@@ -178,7 +178,7 @@ class _AirportSearchModalState extends State<AirportSearchModal> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppTheme.accentBlue
-                                : AppTheme.accentBlue.withValues(alpha: 0.1),
+                                : AppTheme.accentBlue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           alignment: Alignment.center,
@@ -281,7 +281,7 @@ class _AirportSearchModalState extends State<AirportSearchModal> {
           _applyFilter();
         });
       },
-      selectedColor: AppTheme.accentBlue.withValues(alpha: 0.15),
+      selectedColor: AppTheme.accentBlue.withOpacity(0.15),
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

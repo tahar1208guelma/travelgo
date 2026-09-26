@@ -76,10 +76,10 @@ class BookingFinancialDetailsSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: (isAvailable ? AppTheme.successGreen : AppTheme.warningOrange).withValues(alpha: 0.12),
+                    color: (isAvailable ? AppTheme.successGreen : AppTheme.warningOrange).withOpacity(0.12),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: (isAvailable ? AppTheme.successGreen : AppTheme.warningOrange).withValues(alpha: 0.3),
+                      color: (isAvailable ? AppTheme.successGreen : AppTheme.warningOrange).withOpacity(0.3),
                     ),
                   ),
                   child: Row(
@@ -144,9 +144,9 @@ class BookingFinancialDetailsSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withValues(alpha: 0.08),
+                  color: AppTheme.accentBlue.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppTheme.accentBlue.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [

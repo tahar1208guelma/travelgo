@@ -178,7 +178,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryNavy.withValues(alpha: 0.25),
+                    color: AppTheme.primaryNavy.withOpacity(0.25),
                     blurRadius: 18,
                     offset: const Offset(0, 6),
                   ),
@@ -288,7 +288,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
+                                    color: Colors.black.withOpacity(0.3),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
@@ -323,7 +323,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                             label: Text(cabin, style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, color: isSelected ? Colors.white : Colors.white70)),
                             selected: isSelected,
                             selectedColor: AppTheme.accentBlue,
-                            backgroundColor: Colors.white.withValues(alpha: 0.1),
+                            backgroundColor: Colors.white.withOpacity(0.1),
                             side: BorderSide.none,
                             onSelected: (_) => setState(() => _flightCabin = cabin),
                           ),
@@ -337,9 +337,9 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                     margin: const EdgeInsets.only(top: 12),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: AppTheme.electricCyan.withValues(alpha: 0.3), width: 1),
+                      border: Border.all(color: AppTheme.electricCyan.withOpacity(0.3), width: 1),
                     ),
                     child: const Row(
                       children: [
@@ -519,7 +519,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryNavy.withValues(alpha: 0.15),
+                    color: AppTheme.primaryNavy.withOpacity(0.15),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -695,7 +695,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryNavy.withValues(alpha: 0.2),
+                    color: AppTheme.primaryNavy.withOpacity(0.2),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -816,7 +816,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppTheme.successGreen.withValues(alpha: 0.15),
+                      color: AppTheme.successGreen.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(savings, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: AppTheme.successGreen)),
@@ -921,7 +921,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                  color: AppTheme.accentBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Center(
@@ -984,7 +984,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                  color: AppTheme.accentBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.hotel, color: AppTheme.accentBlue, size: 22),
@@ -1003,7 +1003,7 @@ class _ExploreSearchScreenState extends State<ExploreSearchScreen> with SingleTi
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.warningOrange.withValues(alpha: 0.15),
+                            color: AppTheme.warningOrange.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(badge, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.warningOrange)),

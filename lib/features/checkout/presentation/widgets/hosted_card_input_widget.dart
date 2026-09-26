@@ -161,7 +161,7 @@ class _HostedCardInputWidgetState extends State<HostedCardInputWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.accentBlue.withValues(alpha: 0.1) : Colors.transparent,
+          color: isSelected ? AppTheme.accentBlue.withOpacity(0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
             color: isSelected ? AppTheme.accentBlue : AppTheme.cardBorder,

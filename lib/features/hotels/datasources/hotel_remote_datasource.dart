@@ -124,6 +124,7 @@ class HotelRemoteDataSourceImpl implements HotelRemoteDataSource {
         starRating: t['stars'] as int,
         userRating: t['rating'] as double,
         reviewCount: t['reviews'] as int,
+        mainImageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         pricePerNight: ratePerNight,
         price: priceBreakdown,
         mealPlan: t['meal'] as String,

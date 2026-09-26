@@ -421,7 +421,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> with SingleTick
                   trailing: b['isPrimary'] == true
                       ? Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(color: AppTheme.successGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+                          decoration: BoxDecoration(color: AppTheme.successGreen.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
                           child: const Text('Primary', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.successGreen)),
                         )
                       : null,
@@ -452,7 +452,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> with SingleTick
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(color: AppTheme.successGreen.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: AppTheme.successGreen.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -772,7 +772,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> with SingleTick
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                        color: AppTheme.accentBlue.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -854,7 +854,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> with SingleTick
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: (isAvail ? AppTheme.successGreen : AppTheme.warningOrange).withValues(alpha: 0.1),
+                        color: (isAvail ? AppTheme.successGreen : AppTheme.warningOrange).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -948,7 +948,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> with SingleTick
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: _getTxTypeColor(tx['type']).withValues(alpha: 0.1),
+                            color: _getTxTypeColor(tx['type']).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -1036,7 +1036,7 @@ class _AdminFinanceScreenState extends State<AdminFinanceScreen> with SingleTick
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: (isCompleted ? AppTheme.successGreen : AppTheme.warningOrange).withValues(alpha: 0.1),
+                        color: (isCompleted ? AppTheme.successGreen : AppTheme.warningOrange).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(

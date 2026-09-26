@@ -44,7 +44,7 @@ class FlightOfferCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                          color: AppTheme.accentBlue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.flight_takeoff, color: AppTheme.accentBlue, size: 20),
@@ -74,7 +74,7 @@ class FlightOfferCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppTheme.electricCyan.withValues(alpha: 0.15),
+                      color: AppTheme.electricCyan.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -137,14 +137,14 @@ class FlightOfferCard extends StatelessWidget {
                             Expanded(
                               child: Container(
                                 height: 2,
-                                color: AppTheme.accentBlue.withValues(alpha: 0.4),
+                                color: AppTheme.accentBlue.withOpacity(0.4),
                               ),
                             ),
                             if (!offer.isDirect) ...[
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.warningOrange.withValues(alpha: 0.2),
+                                  color: AppTheme.warningOrange.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -155,7 +155,7 @@ class FlightOfferCard extends StatelessWidget {
                               Expanded(
                                 child: Container(
                                   height: 2,
-                                  color: AppTheme.accentBlue.withValues(alpha: 0.4),
+                                  color: AppTheme.accentBlue.withOpacity(0.4),
                                 ),
                               ),
                             ],
@@ -163,7 +163,7 @@ class FlightOfferCard extends StatelessWidget {
                             Expanded(
                               child: Container(
                                 height: 2,
-                                color: AppTheme.accentBlue.withValues(alpha: 0.4),
+                                color: AppTheme.accentBlue.withOpacity(0.4),
                               ),
                             ),
                             const Icon(Icons.circle, size: 6, color: AppTheme.accentBlue),
@@ -174,10 +174,10 @@ class FlightOfferCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
                             color: offer.isDirect
-                                ? AppTheme.successGreen.withValues(alpha: 0.12)
+                                ? AppTheme.successGreen.withOpacity(0.12)
                                 : (offer.stopsCount == 1
-                                    ? AppTheme.warningOrange.withValues(alpha: 0.12)
-                                    : Colors.purple.withValues(alpha: 0.12)),
+                                    ? AppTheme.warningOrange.withOpacity(0.12)
+                                    : Colors.purple.withOpacity(0.12)),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -307,9 +307,9 @@ class FlightOfferCard extends StatelessWidget {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Select', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Book on Official Airline Site', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                         SizedBox(width: 4),
-                        Icon(Icons.arrow_forward, size: 16),
+                        Icon(Icons.open_in_new, size: 16),
                       ],
                     ),
                   ),

@@ -192,7 +192,7 @@ class FlightSearchResultsScreen extends StatelessWidget {
       label: Text(label),
       selected: isSelected,
       onSelected: (_) => onTap(),
-      selectedColor: AppTheme.accentBlue.withValues(alpha: 0.15),
+      selectedColor: AppTheme.accentBlue.withOpacity(0.15),
       labelStyle: TextStyle(
         color: isSelected ? AppTheme.accentBlue : AppTheme.textDark,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

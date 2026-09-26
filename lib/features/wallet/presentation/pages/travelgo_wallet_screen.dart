@@ -217,7 +217,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryNavy.withValues(alpha: 0.25),
+                      color: AppTheme.primaryNavy.withOpacity(0.25),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
@@ -234,7 +234,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.12),
+                                color: Colors.white.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(Icons.account_balance_wallet, color: AppTheme.electricCyan, size: 28),
@@ -258,7 +258,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppTheme.electricCyan.withValues(alpha: 0.2),
+                            color: AppTheme.electricCyan.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: AppTheme.electricCyan, width: 1),
                           ),
@@ -297,7 +297,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.1),
+                            color: Colors.white.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -470,7 +470,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.accentBlue.withValues(alpha: 0.1),
+                          color: AppTheme.accentBlue.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(Icons.account_balance, color: AppTheme.accentBlue, size: 28),
@@ -495,7 +495,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.successGreen.withValues(alpha: 0.12),
+                          color: AppTheme.successGreen.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
@@ -531,7 +531,7 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                         child: ChoiceChip(
                           label: Text(filter, style: TextStyle(fontSize: 11, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
                           selected: isSelected,
-                          selectedColor: AppTheme.accentBlue.withValues(alpha: 0.15),
+                          selectedColor: AppTheme.accentBlue.withOpacity(0.15),
                           onSelected: (_) => setState(() => _activeFilter = filter),
                         ),
                       );
@@ -564,8 +564,8 @@ class _TravelGoWalletScreenState extends State<TravelGoWalletScreen> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: isPayout
-                              ? AppTheme.warningOrange.withValues(alpha: 0.15)
-                              : AppTheme.accentBlue.withValues(alpha: 0.1),
+                              ? AppTheme.warningOrange.withOpacity(0.15)
+                              : AppTheme.accentBlue.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(

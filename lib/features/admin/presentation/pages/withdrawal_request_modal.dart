@@ -152,9 +152,9 @@ class _WithdrawalRequestModalState extends State<WithdrawalRequestModal> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentBlue.withValues(alpha: 0.06),
+                    color: AppTheme.accentBlue.withOpacity(0.06),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppTheme.accentBlue.withValues(alpha: 0.2)),
+                    border: Border.all(color: AppTheme.accentBlue.withOpacity(0.2)),
                   ),
                   child: Row(
                     children: [

@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../core/network/api_client.dart';
 import '../../../../core/responsive/responsive_container.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/utils/currency_formatter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../bookings/presentation/widgets/price_summary_card.dart';
-import '../../../checkout/bloc/checkout_bloc.dart';
-import '../../../checkout/presentation/pages/hotel_checkout_screen.dart';
-import '../../../checkout/services/payment_gateway_service.dart';
 import '../../models/hotel_offer.dart';
 
 class HotelOfferDetailsScreen extends StatelessWidget {
@@ -50,7 +46,7 @@ class HotelOfferDetailsScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppTheme.successGreen.withValues(alpha: 0.1),
+                              color: AppTheme.successGreen.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -163,32 +159,47 @@ class HotelOfferDetailsScreen extends StatelessWidget {
               PriceSummaryCard(price: hotel.price),
               const SizedBox(height: 20),
 
+              // Trust Badge
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppTheme.successGreen.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppTheme.successGreen.withOpacity(0.3)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.verified_user, color: AppTheme.successGreen),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'حجز مباشر من الفندق • بدون أي عمولة أو رسوم إضافية\nDirect Official Hotel Booking • 0% Extra Fees',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.successGreen,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Reserve CTA Button
               SizedBox(
                 height: 52,
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    final checkoutBloc = CheckoutBloc(
-                      paymentService: PaymentGatewayServiceImpl(apiClient: ApiClient()),
-                    );
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => HotelCheckoutScreen(
-                          hotel: hotel,
-                          bloc: checkoutBloc,
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed: () => _launchHotelUrl(context, hotel),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.accentBlue,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  icon: const Icon(Icons.lock_outline, fontWeight: FontWeight.bold),
-                  label: Text(
-                    'Reserve Room (${CurrencyFormatter.format(hotel.price.totalAmount, currency: hotel.price.currency)})',
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  icon: const Icon(Icons.open_in_new, fontWeight: FontWeight.bold),
+                  label: const Text(
+                    'Book on Official Hotel Site / حجز مباشر من الفندق',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -196,6 +207,33 @@ class HotelOfferDetailsScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _launchHotelUrl(BuildContext context, HotelOffer hotel) {
+    final query = Uri.encodeComponent('${hotel.name} ${hotel.city} official site');
+    final urlStr = 'https://www.google.com/search?q=$query';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Redirecting to Hotel', style: TextStyle(color: AppTheme.primaryNavy)),
+        content: Text('You will be redirected to search for the official website of ${hotel.name} to complete your booking securely with 0% extra fees.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accentBlue, foregroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pop(ctx);
+              launchUrl(Uri.parse(urlStr), mode: LaunchMode.externalApplication);
+            },
+            child: const Text('Continue'),
+          ),
+        ],
       ),
     );
   }
