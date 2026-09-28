@@ -63,16 +63,16 @@ class UnifiedSearchCard extends ConsumerWidget {
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusMd)),
                 child: CachedNetworkImage(
                   imageUrl: item.imageUrl,
-                  height: 180,
+                  height: 155,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   placeholder: (_, __) => Container(
-                    height: 180,
+                    height: 155,
                     color: isDark ? AppColors.cardDarkElevated : AppColors.primaryContainer,
                     child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                   ),
                   errorWidget: (_, __, ___) => Container(
-                    height: 180,
+                    height: 155,
                     color: AppColors.primaryContainer,
                     child: Icon(
                       Icons.travel_explore_rounded,
@@ -255,60 +255,68 @@ class UnifiedSearchCard extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              AppCurrencyFormatter.format(item.price, currency, locale: isArabic ? 'ar' : 'en'),
-                              style: TextStyle(
-                                fontSize: 19,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -0.3,
-                                color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  AppCurrencyFormatter.format(item.price, currency, locale: isArabic ? 'ar' : 'en'),
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.3,
+                                    color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
-                            Text(
-                              ' / night',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                              Text(
+                                ' / night',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            const Icon(Icons.stars_rounded, size: 12, color: AppColors.accentGold),
-                            const SizedBox(width: 3),
-                            Text(
-                              '+${item.loyaltyPointsEarned} pts',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.accentGold,
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              const Icon(Icons.stars_rounded, size: 12, color: AppColors.accentGold),
+                              const SizedBox(width: 3),
+                              Text(
+                                '+${item.loyaltyPointsEarned} pts',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.accentGold,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
 
-                    // "احجز واكسب نقاط / Book & Earn Points" Button
+                    // "احجز الآن / Book Now" Button
                     ElevatedButton(
                       onPressed: onTap,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isDark ? AppColors.secondary : AppColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                         ),
                       ),
                       child: Text(
-                        isArabic ? 'احجز واكسب نقاط' : 'Book & Earn Points',
+                        isArabic ? 'احجز الآن' : 'Book Now',
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,

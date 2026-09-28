@@ -9,6 +9,7 @@ import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../shared/widgets/badge_chip.dart';
+import '../../../../shared/widgets/custom_card.dart';
 import '../../../bookings/domain/entities/booking_entity.dart';
 import '../../../bookings/presentation/screens/booking_summary_screen.dart';
 import '../../../flights/domain/entities/flight_entity.dart';

@@ -7,6 +7,7 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/language_provider.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../shared/models/currency.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/widgets/badge_chip.dart';
 import '../../../../shared/widgets/custom_card.dart';

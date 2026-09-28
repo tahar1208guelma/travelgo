@@ -46,7 +46,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
 
     final storage = ref.read(storageServiceProvider);
     final hasSeenOnboarding = storage.hasSeenOnboarding();
-    final authState = ref.read(authStateProvider);
 
     if (!hasSeenOnboarding) {
       Navigator.of(context).pushReplacement(

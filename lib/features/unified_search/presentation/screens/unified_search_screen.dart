@@ -369,7 +369,7 @@ class _UnifiedSearchScreenState extends ConsumerState<UnifiedSearchScreen> {
                         crossAxisCount: 2,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
-                        childAspectRatio: 0.85,
+                        childAspectRatio: 0.78,
                       ),
                       itemCount: results.length,
                       itemBuilder: (context, index) {
@@ -386,7 +386,7 @@ class _UnifiedSearchScreenState extends ConsumerState<UnifiedSearchScreen> {
                         crossAxisCount: 3,
                         crossAxisSpacing: 20,
                         mainAxisSpacing: 20,
-                        childAspectRatio: 0.88,
+                        childAspectRatio: 0.80,
                       ),
                       itemCount: results.length,
                       itemBuilder: (context, index) {

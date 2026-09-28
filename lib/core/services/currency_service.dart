@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/models/currency.dart';
+export '../../shared/models/currency.dart';
 
 final currencyProvider = StateNotifierProvider<CurrencyNotifier, Currency>((ref) {
   return CurrencyNotifier();

@@ -66,18 +66,19 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         body: Row(
           children: [
             // Desktop / Tablet Sidebar
-            Container(
-              width: isDesktop ? 260 : 80,
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
-                border: Border(
-                  right: BorderSide(
-                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
-                    width: 1,
+            Material(
+              color: isDark ? AppColors.surfaceDark : Colors.white,
+              child: Container(
+                width: isDesktop ? 260 : 80,
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(
+                      color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                      width: 1,
+                    ),
                   ),
                 ),
-              ),
-              child: Column(
+                child: Column(
                 children: [
                   // App Brand Header
                   Padding(
@@ -222,6 +223,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                 ],
               ),
             ),
+          ),
 
             // Main Content Area
             Expanded(
@@ -335,23 +337,26 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
       ),
-      child: ListTile(
-        leading: Icon(
-          isSelected ? selectedIcon : icon,
-          color: isSelected ? primaryColor : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
-          size: 22,
-        ),
-        title: Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-            color: isSelected
-                ? primaryColor
-                : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+      child: Material(
+        color: Colors.transparent,
+        child: ListTile(
+          leading: Icon(
+            isSelected ? selectedIcon : icon,
+            color: isSelected ? primaryColor : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+            size: 22,
           ),
+          title: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected
+                  ? primaryColor
+                  : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
+            ),
+          ),
+          onTap: () => _onTabSelected(index),
         ),
-        onTap: () => _onTabSelected(index),
       ),
     );
   }
