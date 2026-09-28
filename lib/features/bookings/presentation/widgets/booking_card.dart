@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
-import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/language_provider.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -23,6 +22,7 @@ class BookingCard extends ConsumerWidget {
       case BookingStatus.confirmed:
         return AppColors.success;
       case BookingStatus.pending:
+      case BookingStatus.initiated:
         return AppColors.warning;
       case BookingStatus.cancelled:
       case BookingStatus.failed:
@@ -63,10 +63,15 @@ class BookingCard extends ConsumerWidget {
           children: [
             // Top Header: Type & Reference & Status Badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.cardDark : AppColors.primaryContainer.withOpacity(0.35),
+                color: isDark ? AppColors.cardDarkElevated : AppColors.primary.withValues(alpha: 0.06),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusMd)),
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                  ),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,27 +81,32 @@ class BookingCard extends ConsumerWidget {
                       Icon(
                         _getTypeIcon(booking.bookingType),
                         size: 18,
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.secondaryLight : AppColors.primary,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         booking.typeLabel,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '• ${booking.bookingReference}',
+                        '#${booking.bookingReference}',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? AppColors.secondaryLight : AppColors.primary,
                         ),
                       ),
                     ],
                   ),
                   BadgeChip(
                     label: booking.statusLabel.toUpperCase(),
-                    backgroundColor: statusColor.withOpacity(0.15),
+                    icon: Icons.check_circle_rounded,
+                    backgroundColor: statusColor.withValues(alpha: 0.15),
                     textColor: statusColor,
                     fontSize: 11,
                   ),
@@ -119,9 +129,11 @@ class BookingCard extends ConsumerWidget {
                           children: [
                             Text(
                               booking.itemName,
-                              style: const TextStyle(
-                                fontSize: 15,
+                              style: TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                letterSpacing: -0.2,
+                                color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -151,9 +163,10 @@ class BookingCard extends ConsumerWidget {
                               locale: isArabic ? 'ar' : 'en',
                             ),
                             style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? AppColors.primaryLight : AppColors.primary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.3,
+                              color: isDark ? AppColors.secondaryLight : AppColors.primary,
                             ),
                           ),
                           Text(
@@ -176,9 +189,9 @@ class BookingCard extends ConsumerWidget {
                       Row(
                         children: [
                           Icon(
-                            Icons.calendar_today_outlined,
-                            size: 14,
-                            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                            Icons.calendar_today_rounded,
+                            size: 13,
+                            color: isDark ? AppColors.secondaryLight : AppColors.primary,
                           ),
                           const SizedBox(width: 5),
                           Text(
@@ -202,7 +215,7 @@ class BookingCard extends ConsumerWidget {
                             booking.passengerOrGuestName,
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
                               color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                             ),
                           ),
@@ -211,7 +224,7 @@ class BookingCard extends ConsumerWidget {
                     ],
                   ),
 
-                  const Divider(height: 20),
+                  const Divider(height: 22),
 
                   // Action Buttons Row
                   Row(
@@ -226,8 +239,9 @@ class BookingCard extends ConsumerWidget {
                           );
                         },
                         icon: const Icon(Icons.info_outline_rounded, size: 16),
-                        label: const Text('Trip Details', style: TextStyle(fontSize: 12)),
+                        label: const Text('Trip Details', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         style: TextButton.styleFrom(
+                          foregroundColor: isDark ? AppColors.secondaryLight : AppColors.primary,
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         ),
                       ),
@@ -242,7 +256,7 @@ class BookingCard extends ConsumerWidget {
                         icon: const Icon(Icons.description_outlined, size: 16),
                         label: const Text('View Document', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: isDark ? AppColors.secondary : AppColors.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                           shape: RoundedRectangleBorder(

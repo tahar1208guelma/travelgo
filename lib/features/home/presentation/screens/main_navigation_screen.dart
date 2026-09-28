@@ -6,12 +6,15 @@ import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../ai_agent/presentation/screens/ai_travel_agent_screen.dart';
-import '../../../bookings/presentation/pages/my_bookings_screen.dart';
+import '../../../bookings/presentation/screens/my_bookings_screen.dart';
+import '../../../favorites/presentation/screens/favorites_screen.dart';
 import '../../../flights/presentation/controllers/flight_search_controller.dart';
 import '../../../flights/presentation/screens/flight_search_screen.dart';
 import '../../../hotels/presentation/controllers/hotel_search_controller.dart';
-import '../../../hotels/presentation/screens/hotel_search_screen.dart';
+import '../../../partner_portal/presentation/screens/admin_panel_screen.dart';
+import '../../../partner_portal/presentation/screens/partner_dashboard_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../unified_search/presentation/screens/unified_search_screen.dart';
 import 'home_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
@@ -50,8 +53,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
 
     final List<Widget> screens = [
       HomeScreen(onNavigateTab: _onTabSelected),
+      const UnifiedSearchScreen(),
       const FlightSearchScreen(),
-      const HotelSearchScreen(),
       const MyBookingsScreen(),
       const ProfileScreen(),
     ];
@@ -64,12 +67,12 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           children: [
             // Desktop / Tablet Sidebar
             Container(
-              width: isDesktop ? 240 : 80,
+              width: isDesktop ? 260 : 80,
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surfaceDark : Colors.white,
                 border: Border(
                   right: BorderSide(
-                    color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+                    color: isDark ? AppColors.borderDark : AppColors.borderLight,
                     width: 1,
                   ),
                 ),
@@ -84,15 +87,15 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.flight_takeoff_rounded, color: Colors.white, size: 20),
                         ),
                         if (isDesktop) ...[
                           const SizedBox(width: 12),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -100,14 +103,14 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                                   'TRAVELGO',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w900,
                                     letterSpacing: 1.2,
-                                    color: AppColors.primary,
+                                    color: isDark ? AppColors.textPrimaryDark : AppColors.primary,
                                   ),
                                 ),
-                                Text(
-                                  'Cross-Platform App',
-                                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                                const Text(
+                                  'Unified Travel Engine',
+                                  style: TextStyle(fontSize: 10, color: AppColors.secondary),
                                 ),
                               ],
                             ),
@@ -133,17 +136,17 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                         ),
                         _buildSidebarTile(
                           index: 1,
-                          icon: Icons.flight_outlined,
-                          selectedIcon: Icons.flight_rounded,
-                          label: context.tr('nav_flights'),
+                          icon: Icons.travel_explore_outlined,
+                          selectedIcon: Icons.travel_explore_rounded,
+                          label: 'Unified Search & Map',
                           isDesktop: isDesktop,
                           isDark: isDark,
                         ),
                         _buildSidebarTile(
                           index: 2,
-                          icon: Icons.hotel_outlined,
-                          selectedIcon: Icons.hotel_rounded,
-                          label: context.tr('nav_hotels'),
+                          icon: Icons.flight_outlined,
+                          selectedIcon: Icons.flight_rounded,
+                          label: context.tr('nav_flights'),
                           isDesktop: isDesktop,
                           isDark: isDark,
                         ),
@@ -163,105 +166,50 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                           isDesktop: isDesktop,
                           isDark: isDark,
                         ),
+                        const Divider(height: 16),
+                        // Quick Host / Admin Links
+                        if (isDesktop) ...[
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            child: Text(
+                              'PORTALS & TOOLS',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMutedLight),
+                            ),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.business_center_rounded, size: 20, color: AppColors.secondary),
+                            title: const Text('Partner Portal', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const PartnerDashboardScreen()),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.admin_panel_settings_rounded, size: 20, color: AppColors.primaryLight),
+                            title: const Text('Admin Panel', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const AdminPanelScreen()),
+                              );
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.favorite_rounded, size: 20, color: AppColors.accentCoral),
+                            title: const Text('Wishlist', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+                              );
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   ),
 
                   const Divider(height: 1),
 
-                  // AI Travel Assistant Action
-                  if (isDesktop)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primary, AppColors.secondary],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const AITravelAgentScreen()),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      context.tr('ai_assistant_title'),
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.25),
-                                      borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
-                                    ),
-                                    child: const Text(
-                                      'AI',
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.primary, AppColors.secondary],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 22),
-                          tooltip: context.tr('ai_assistant_title'),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const AITravelAgentScreen()),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                  const Divider(height: 1),
                   // Bottom Quick Settings (Theme toggle)
                   Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -290,7 +238,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
               MaterialPageRoute(builder: (_) => const AITravelAgentScreen()),
             );
           },
-          backgroundColor: AppColors.primary,
+          backgroundColor: isDark ? AppColors.secondary : AppColors.primary,
           foregroundColor: Colors.white,
           icon: const Icon(Icons.auto_awesome_rounded),
           label: Text(context.tr('ai_assistant_title')),
@@ -311,7 +259,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
             MaterialPageRoute(builder: (_) => const AITravelAgentScreen()),
           );
         },
-        backgroundColor: AppColors.primary,
+        backgroundColor: isDark ? AppColors.secondary : AppColors.primary,
         foregroundColor: Colors.white,
         tooltip: context.tr('ai_assistant_title'),
         child: const Icon(Icons.auto_awesome_rounded),
@@ -320,7 +268,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+              color: isDark ? AppColors.borderDark : AppColors.borderLight,
               width: 1,
             ),
           ),
@@ -329,31 +277,31 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
           selectedIndex: _currentIndex,
           onDestinationSelected: _onTabSelected,
           backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-          indicatorColor: isDark ? AppColors.cardDark : AppColors.primaryContainer,
+          indicatorColor: (isDark ? AppColors.secondary : AppColors.primary).withValues(alpha: 0.15),
           destinations: [
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),
-              selectedIcon: const Icon(Icons.home_rounded, color: AppColors.primary),
+              selectedIcon: Icon(Icons.home_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary),
               label: context.tr('nav_home'),
             ),
             NavigationDestination(
+              icon: const Icon(Icons.travel_explore_outlined),
+              selectedIcon: Icon(Icons.travel_explore_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary),
+              label: 'Explore',
+            ),
+            NavigationDestination(
               icon: const Icon(Icons.flight_outlined),
-              selectedIcon: const Icon(Icons.flight_rounded, color: AppColors.primary),
+              selectedIcon: Icon(Icons.flight_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary),
               label: context.tr('nav_flights'),
             ),
             NavigationDestination(
-              icon: const Icon(Icons.hotel_outlined),
-              selectedIcon: const Icon(Icons.hotel_rounded, color: AppColors.primary),
-              label: context.tr('nav_hotels'),
-            ),
-            NavigationDestination(
               icon: const Icon(Icons.confirmation_number_outlined),
-              selectedIcon: const Icon(Icons.confirmation_number_rounded, color: AppColors.primary),
+              selectedIcon: Icon(Icons.confirmation_number_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary),
               label: context.tr('nav_bookings'),
             ),
             NavigationDestination(
               icon: const Icon(Icons.person_outline_rounded),
-              selectedIcon: const Icon(Icons.person_rounded, color: AppColors.primary),
+              selectedIcon: Icon(Icons.person_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary),
               label: context.tr('nav_profile'),
             ),
           ],
@@ -371,60 +319,39 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     required bool isDark,
   }) {
     final isSelected = _currentIndex == index;
+    final primaryColor = isDark ? AppColors.secondaryLight : AppColors.primary;
 
     if (!isDesktop) {
-      // Tablet Icon-only
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        child: IconButton(
-          icon: Icon(isSelected ? selectedIcon : icon),
-          color: isSelected ? AppColors.primary : (isDark ? Colors.white70 : Colors.black87),
-          style: IconButton.styleFrom(
-            backgroundColor: isSelected ? AppColors.primaryContainer.withOpacity(0.5) : null,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusSm)),
-          ),
-          tooltip: label,
-          onPressed: () => _onTabSelected(index),
-        ),
+      return IconButton(
+        icon: Icon(isSelected ? selectedIcon : icon, color: isSelected ? primaryColor : null),
+        tooltip: label,
+        onPressed: () => _onTabSelected(index),
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-      child: Material(
-        color: Colors.transparent,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      decoration: BoxDecoration(
+        color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.transparent,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        child: InkWell(
-          onTap: () => _onTabSelected(index),
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? (isDark ? AppColors.cardDark : AppColors.primaryContainer.withOpacity(0.6))
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  isSelected ? selectedIcon : icon,
-                  size: 22,
-                  color: isSelected ? AppColors.primary : (isDark ? Colors.white70 : Colors.black87),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: isSelected ? AppColors.primary : (isDark ? Colors.white70 : Colors.black87),
-                  ),
-                ),
-              ],
-            ),
+      ),
+      child: ListTile(
+        leading: Icon(
+          isSelected ? selectedIcon : icon,
+          color: isSelected ? primaryColor : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+          size: 22,
+        ),
+        title: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected
+                ? primaryColor
+                : (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight),
           ),
         ),
+        onTap: () => _onTabSelected(index),
       ),
     );
   }

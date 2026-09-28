@@ -36,24 +36,37 @@ class FlightCard extends ConsumerWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         children: [
-          // Airline Row & Channel Badge & Favorite
+          // 1. Airline Header Row, Partner Badge & Wishlist Heart
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    child: CachedNetworkImage(
-                      imageUrl: flight.airlineLogo,
-                      width: 32,
-                      height: 32,
-                      fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(
-                        width: 32,
-                        height: 32,
-                        color: AppColors.primaryContainer,
-                        child: const Icon(Icons.flight, size: 18, color: AppColors.primary),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                      border: Border.all(
+                        color: (isDark ? AppColors.borderDark : AppColors.borderLight),
+                        width: 1,
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                      child: CachedNetworkImage(
+                        imageUrl: flight.airlineLogo,
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                        errorWidget: (_, __, ___) => Container(
+                          width: 36,
+                          height: 36,
+                          color: isDark ? AppColors.cardDarkElevated : AppColors.primaryContainer,
+                          child: Icon(
+                            Icons.flight_rounded,
+                            size: 20,
+                            color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -64,8 +77,9 @@ class FlightCard extends ConsumerWidget {
                       Text(
                         flight.airlineName,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
+                          letterSpacing: -0.2,
                           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                         ),
                       ),
@@ -86,7 +100,7 @@ class FlightCard extends ConsumerWidget {
                     BadgeChip(
                       label: context.tr('affiliate_booking'),
                       icon: Icons.open_in_new_rounded,
-                      backgroundColor: AppColors.warningLight,
+                      backgroundColor: AppColors.warning.withValues(alpha: 0.15),
                       textColor: AppColors.warning,
                       fontSize: 11,
                     )
@@ -94,18 +108,13 @@ class FlightCard extends ConsumerWidget {
                     BadgeChip(
                       label: context.tr('direct_booking'),
                       icon: Icons.verified_rounded,
-                      backgroundColor: AppColors.successLight,
+                      backgroundColor: AppColors.success.withValues(alpha: 0.15),
                       textColor: AppColors.success,
                       fontSize: 11,
                     ),
                   const SizedBox(width: 4),
-                  IconButton(
-                    icon: Icon(
-                      isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      color: isFav ? AppColors.error : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
-                      size: 20,
-                    ),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       ref.read(favoritesControllerProvider.notifier).toggleFavorite(
                         FavoriteItemEntity(
                           id: flight.id,
@@ -119,6 +128,14 @@ class FlightCard extends ConsumerWidget {
                         ),
                       );
                     },
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: Icon(
+                        isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                        color: isFav ? AppColors.accentCoral : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                        size: 20,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -126,7 +143,7 @@ class FlightCard extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Flight Schedule Timeline
+          // 2. Flight Timeline (Departure -> Duration/Stops -> Arrival)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -137,23 +154,24 @@ class FlightCard extends ConsumerWidget {
                   Text(
                     AppDateFormatter.formatTime(flight.departureTime),
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     flight.departureAirportCode,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.primaryLight : AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? AppColors.secondaryLight : AppColors.primary,
                     ),
                   ),
                   Text(
                     flight.departureCity,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
                     ),
                   ),
@@ -170,7 +188,7 @@ class FlightCard extends ConsumerWidget {
                         AppDateFormatter.formatDuration(flight.totalDuration, isArabic: isArabic),
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                         ),
                       ),
@@ -180,43 +198,54 @@ class FlightCard extends ConsumerWidget {
                           Container(
                             width: 6,
                             height: 6,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.secondaryLight : AppColors.primary,
                               shape: BoxShape.circle,
                             ),
                           ),
                           Expanded(
                             child: Container(
-                              height: 1.5,
+                              height: 2,
                               color: isDark ? AppColors.borderDark : AppColors.borderLight,
                             ),
                           ),
-                          const Icon(Icons.flight, size: 16, color: AppColors.primary),
+                          Icon(
+                            Icons.flight_takeoff_rounded,
+                            size: 16,
+                            color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                          ),
                           Expanded(
                             child: Container(
-                              height: 1.5,
+                              height: 2,
                               color: isDark ? AppColors.borderDark : AppColors.borderLight,
                             ),
                           ),
                           Container(
                             width: 6,
                             height: 6,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.secondaryLight : AppColors.primary,
                               shape: BoxShape.circle,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        flight.stops == 0
-                            ? context.tr('flight_stops_direct')
-                            : '${flight.stops} ${context.tr('flight_stops_multiple')}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: flight.stops == 0 ? AppColors.success : AppColors.warning,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: (flight.stops == 0 ? AppColors.success : AppColors.warning).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
+                        ),
+                        child: Text(
+                          flight.stops == 0
+                              ? context.tr('flight_stops_direct')
+                              : '${flight.stops} ${context.tr('flight_stops_multiple')}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: flight.stops == 0 ? AppColors.success : AppColors.warning,
+                          ),
                         ),
                       ),
                     ],
@@ -231,23 +260,24 @@ class FlightCard extends ConsumerWidget {
                   Text(
                     AppDateFormatter.formatTime(flight.arrivalTime),
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     flight.arrivalAirportCode,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? AppColors.primaryLight : AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? AppColors.secondaryLight : AppColors.primary,
                     ),
                   ),
                   Text(
                     flight.arrivalCity,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
                     ),
                   ),
@@ -257,7 +287,7 @@ class FlightCard extends ConsumerWidget {
           ),
           const Divider(height: 24),
 
-          // Price and CTA row
+          // 3. Price & View Flight Button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -267,28 +297,34 @@ class FlightCard extends ConsumerWidget {
                   Text(
                     AppCurrencyFormatter.format(flight.totalUSD, currency, locale: isArabic ? 'ar' : 'en'),
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      color: isDark ? AppColors.primaryLight : AppColors.primary,
+                      letterSpacing: -0.3,
+                      color: isDark ? AppColors.secondaryLight : AppColors.primary,
                     ),
                   ),
                   Text(
-                    flight.baggageIncluded ? context.tr('flight_baggage_included') : '',
-                    style: const TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w500),
+                    flight.baggageIncluded ? '🧳 ${context.tr('flight_baggage_included')}' : 'Total price incl. taxes',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.success,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
               ElevatedButton(
                 onPressed: onTap,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: isDark ? AppColors.secondary : AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusSm)),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusMd)),
                 ),
                 child: Text(
                   context.tr('see_details'),
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
             ],

@@ -13,11 +13,12 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_card.dart';
 import '../../../../shared/widgets/rating_stars.dart';
 import '../../../authentication/presentation/controllers/auth_controller.dart';
-import '../../../booking/domain/entities/booking_entity.dart';
-import '../../../booking/presentation/controllers/booking_controller.dart';
-import '../../../booking/presentation/screens/booking_summary_screen.dart';
+import '../../../bookings/domain/entities/booking_entity.dart';
+import '../../../bookings/presentation/controllers/booking_controller.dart';
+import '../../../bookings/presentation/screens/booking_summary_screen.dart';
 import '../../../favorites/domain/entities/favorite_item_entity.dart';
 import '../../../favorites/presentation/controllers/favorites_controller.dart';
+import '../../../reviews/presentation/widgets/user_reviews_widget.dart';
 import '../../domain/entities/hotel_entity.dart';
 import '../widgets/hotel_amenities_grid.dart';
 
@@ -372,7 +373,15 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 80),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // 5. User Reviews and Ratings System
+                  UserReviewsWidget(
+                    propertyId: hotel.id,
+                    averageRating: hotel.userRating,
+                    totalReviews: 248,
+                  ),
+                  const SizedBox(height: 90),
                 ],
               ),
             ),
@@ -385,7 +394,7 @@ class _HotelDetailsScreenState extends ConsumerState<HotelDetailsScreen> {
           color: isDark ? AppColors.surfaceDark : Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 10,
               offset: const Offset(0, -4),
             ),

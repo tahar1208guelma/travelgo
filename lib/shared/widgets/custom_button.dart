@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 
-enum ButtonType { primary, secondary, outline, text, success }
+enum ButtonType { primary, secondary, outline, text, success, gradient }
 
-class CustomButton extends StatelessWidget {
+class CustomButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
   final ButtonType type;
@@ -29,9 +29,18 @@ class CustomButton extends StatelessWidget {
   });
 
   @override
+  State<CustomButton> createState() => _CustomButtonState();
+}
+
+class _CustomButtonState extends State<CustomButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     Widget content;
-    if (isLoading) {
+    if (widget.isLoading) {
       content = const SizedBox(
         height: 22,
         width: 22,
@@ -45,16 +54,17 @@ class CustomButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 20),
+          if (widget.icon != null) ...[
+            Icon(widget.icon, size: 19, color: _getTextColor(context, isDark)),
             const SizedBox(width: AppSpacing.sm),
           ],
           Text(
-            text,
+            widget.text,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: _getTextColor(context),
+              letterSpacing: 0.2,
+              color: _getTextColor(context, isDark),
             ),
           ),
         ],
@@ -62,100 +72,127 @@ class CustomButton extends StatelessWidget {
     }
 
     Widget button;
-    switch (type) {
-      case ButtonType.primary:
-        button = ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
+    if (widget.type == ButtonType.gradient) {
+      button = Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          boxShadow: widget.onPressed == null ? null : AppColors.floatingButtonShadow,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.isLoading ? null : widget.onPressed,
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            child: Center(child: content),
           ),
-          child: content,
-        );
-        break;
-      case ButtonType.secondary:
-        button = ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.secondary,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          child: content,
-        );
-        break;
-      case ButtonType.success:
-        button = ElevatedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.success,
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          child: content,
-        );
-        break;
-      case ButtonType.outline:
-        button = OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: AppColors.primary,
-            side: const BorderSide(color: AppColors.primary, width: 1.5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          child: content,
-        );
-        break;
-      case ButtonType.text:
-        button = TextButton(
-          onPressed: isLoading ? null : onPressed,
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          child: content,
-        );
-        break;
-    }
-
-    if (isFullWidth) {
-      return SizedBox(
-        width: double.infinity,
-        height: height,
-        child: button,
+        ),
       );
+    } else {
+      switch (widget.type) {
+        case ButtonType.primary:
+          button = ElevatedButton(
+            onPressed: widget.isLoading ? null : widget.onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark ? AppColors.secondary : AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+              ),
+            ),
+            child: content,
+          );
+          break;
+        case ButtonType.secondary:
+          button = ElevatedButton(
+            onPressed: widget.isLoading ? null : widget.onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark ? AppColors.secondaryContainerDark : AppColors.secondary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+              ),
+            ),
+            child: content,
+          );
+          break;
+        case ButtonType.success:
+          button = ElevatedButton(
+            onPressed: widget.isLoading ? null : widget.onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.success,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+              ),
+            ),
+            child: content,
+          );
+          break;
+        case ButtonType.outline:
+          button = OutlinedButton(
+            onPressed: widget.isLoading ? null : widget.onPressed,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: isDark ? AppColors.secondaryLight : AppColors.primary,
+              side: BorderSide(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+                width: 1.5,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+              ),
+            ),
+            child: content,
+          );
+          break;
+        case ButtonType.text:
+          button = TextButton(
+            onPressed: widget.isLoading ? null : widget.onPressed,
+            style: TextButton.styleFrom(
+              foregroundColor: isDark ? AppColors.secondaryLight : AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(widget.borderRadius),
+              ),
+            ),
+            child: content,
+          );
+          break;
+        default:
+          button = Container();
+      }
     }
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: button,
+    final sized = widget.isFullWidth
+        ? SizedBox(width: double.infinity, height: widget.height, child: button)
+        : SizedBox(width: widget.width, height: widget.height, child: button);
+
+    return AnimatedScale(
+      scale: _isPressed ? 0.98 : 1.0,
+      duration: const Duration(milliseconds: 100),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: sized,
+      ),
     );
   }
 
-  Color _getTextColor(BuildContext context) {
-    switch (type) {
+  Color _getTextColor(BuildContext context, bool isDark) {
+    switch (widget.type) {
       case ButtonType.primary:
       case ButtonType.secondary:
       case ButtonType.success:
+      case ButtonType.gradient:
         return Colors.white;
       case ButtonType.outline:
+        return isDark ? AppColors.textPrimaryDark : AppColors.primary;
       case ButtonType.text:
-        return Theme.of(context).colorScheme.primary;
+        return isDark ? AppColors.secondaryLight : AppColors.primary;
     }
   }
 }

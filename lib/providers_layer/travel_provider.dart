@@ -2,8 +2,8 @@ import '../features/flights/domain/entities/flight_entity.dart';
 import '../features/flights/domain/entities/flight_search_params.dart';
 import '../features/hotels/domain/entities/hotel_entity.dart';
 import '../features/hotels/domain/entities/hotel_search_params.dart';
-import '../features/booking/domain/entities/booking_entity.dart';
-import '../features/booking/domain/entities/affiliate_click_entity.dart';
+import '../features/bookings/domain/entities/booking_entity.dart';
+import '../features/bookings/domain/entities/affiliate_click_entity.dart';
 
 class DirectBookingRequest {
   final String userId;

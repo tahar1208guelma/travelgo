@@ -9,9 +9,8 @@ import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/utils/date_formatter.dart';
 import '../../../../shared/widgets/badge_chip.dart';
-import '../../../../shared/widgets/custom_card.dart';
-import '../../../booking/domain/entities/booking_entity.dart';
-import '../../../booking/presentation/screens/booking_summary_screen.dart';
+import '../../../bookings/domain/entities/booking_entity.dart';
+import '../../../bookings/presentation/screens/booking_summary_screen.dart';
 import '../../../flights/domain/entities/flight_entity.dart';
 import '../../../flights/presentation/screens/flight_details_screen.dart';
 

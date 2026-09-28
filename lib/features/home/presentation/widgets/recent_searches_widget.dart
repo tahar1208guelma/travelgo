@@ -14,39 +14,74 @@ class RecentSearchesWidget extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final recentSearches = [
-      {'from': 'ALG', 'to': 'DXB', 'fromCity': 'Algiers', 'toCity': 'Dubai', 'type': 'flight'},
-      {'from': 'ALG', 'to': 'IST', 'fromCity': 'Algiers', 'toCity': 'Istanbul', 'type': 'flight'},
-      {'from': 'DXB', 'to': 'CDG', 'fromCity': 'Dubai', 'toCity': 'Paris', 'type': 'flight'},
+      {'from': 'ALG', 'to': 'DXB', 'fromCity': 'Algiers', 'toCity': 'Dubai'},
+      {'from': 'ALG', 'to': 'IST', 'fromCity': 'Algiers', 'toCity': 'Istanbul'},
+      {'from': 'DXB', 'to': 'CDG', 'fromCity': 'Dubai', 'toCity': 'Paris'},
+      {'from': 'LHR', 'to': 'JFK', 'fromCity': 'London', 'toCity': 'New York'},
     ];
 
     return SizedBox(
-      height: 42,
+      height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
         itemCount: recentSearches.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, index) {
           final item = recentSearches[index];
 
-          return ActionChip(
-            avatar: const Icon(Icons.history_rounded, size: 16, color: AppColors.primary),
-            label: Text('${item['from']} ➔ ${item['to']}'),
-            backgroundColor: isDark ? AppColors.surfaceDark : AppColors.cardLight,
-            onPressed: () {
-              final params = FlightSearchParams(
-                originCode: item['from']!,
-                originCity: item['fromCity']!,
-                destinationCode: item['to']!,
-                destinationCity: item['toCity']!,
-                departureDate: DateTime.now().add(const Duration(days: 7)),
-              );
-              ref.read(flightSearchControllerProvider.notifier).updateSearchParams(params);
-              ref.read(flightSearchControllerProvider.notifier).searchFlights();
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const FlightResultsScreen()),
-              );
-            },
+          return Container(
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.cardDark : Colors.white,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+              border: Border.all(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              ),
+              boxShadow: isDark ? null : AppColors.softCardShadow,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  final params = FlightSearchParams(
+                    originCode: item['from']!,
+                    originCity: item['fromCity']!,
+                    destinationCode: item['to']!,
+                    destinationCity: item['toCity']!,
+                    departureDate: DateTime.now().add(const Duration(days: 7)),
+                  );
+                  ref.read(flightSearchControllerProvider.notifier).updateSearchParams(params);
+                  ref.read(flightSearchControllerProvider.notifier).searchFlights();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const FlightResultsScreen()),
+                  );
+                },
+                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.history_rounded,
+                        size: 16,
+                        color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '${item['fromCity']} ➔ ${item['toCity']}',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           );
         },
       ),

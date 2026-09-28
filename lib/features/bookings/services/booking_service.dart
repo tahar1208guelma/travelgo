@@ -6,6 +6,7 @@ import '../../../core/services/print_service.dart';
 import '../../../core/services/share_service.dart';
 import '../data/booking_repository_impl.dart';
 import '../data/mock_booking_data.dart';
+import '../domain/repositories/booking_repository.dart';
 import '../models/booking_model.dart';
 
 final bookingListProvider = StateNotifierProvider<BookingListNotifier, List<Booking>>((ref) {

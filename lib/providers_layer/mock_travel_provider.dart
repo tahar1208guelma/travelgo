@@ -1,8 +1,11 @@
 import 'dart:math';
 import 'package:uuid/uuid.dart';
 import '../core/constants/app_assets.dart';
-import '../features/booking/domain/entities/affiliate_click_entity.dart';
-import '../features/booking/domain/entities/booking_entity.dart';
+import '../features/bookings/domain/entities/affiliate_click_entity.dart';
+import '../features/bookings/domain/entities/booking_entity.dart';
+import '../features/bookings/models/booking_document.dart';
+import '../features/bookings/models/customer_info.dart';
+import '../features/bookings/models/price_breakdown.dart';
 import '../features/flights/domain/entities/flight_entity.dart';
 import '../features/flights/domain/entities/flight_search_params.dart';
 import '../features/hotels/domain/entities/hotel_entity.dart';
@@ -425,27 +428,34 @@ class MockTravelProvider implements TravelProvider {
     await Future.delayed(const Duration(milliseconds: 1200)); // Simulate payment gateway & PNR creation
 
     final pnr = 'TG${(100000 + Random().nextInt(900000))}';
-    return BookingEntity(
-      id: 'bk_${_uuid.v4().substring(0, 8)}',
-      userId: request.userId,
-      provider: providerName,
+    final id = 'bk_${_uuid.v4().substring(0, 8)}';
+    return Booking(
+      bookingId: id,
+      bookingReference: pnr,
       bookingType: request.bookingType,
       status: BookingStatus.confirmed,
-      externalBookingReference: pnr,
-      itemName: request.itemName,
-      itemSubtitle: request.itemSubtitle,
-      itemImageUrl: request.itemImageUrl,
-      startDate: request.startDate,
-      endDate: request.endDate,
-      basePriceUSD: request.basePriceUSD,
-      taxesUSD: request.taxesUSD,
-      serviceFeeUSD: request.serviceFeeUSD, // $1.00 USD
-      totalAmountUSD: request.totalAmountUSD,
-      passengerOrGuestName: request.passengerOrGuestName,
-      contactEmail: request.contactEmail,
-      contactPhone: request.contactPhone,
+      provider: providerName,
+      providerBookingReference: pnr,
+      customer: CustomerInfo(
+        id: request.userId,
+        fullName: request.passengerOrGuestName,
+        email: request.contactEmail,
+        phone: request.contactPhone,
+      ),
+      priceBreakdown: PriceBreakdown(
+        basePrice: request.basePriceUSD,
+        serviceFee: request.serviceFeeUSD,
+        taxes: request.taxesUSD,
+        totalAmount: request.totalAmountUSD,
+        currency: 'USD',
+      ),
       createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      document: BookingDocument(
+        documentId: 'DOC-$pnr',
+        bookingReference: pnr,
+        issuedAt: DateTime.now(),
+        qrData: 'TRAVELGO:$pnr:${request.passengerOrGuestName}',
+      ),
     );
   }
 

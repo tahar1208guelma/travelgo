@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 
+/// Luxury World-Class Card with Airbnb/Booking soft ambient shadows and rounded contours
 class CustomCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -10,6 +11,7 @@ class CustomCard extends StatelessWidget {
   final double borderRadius;
   final bool hasBorder;
   final BorderSide? customBorder;
+  final List<BoxShadow>? customShadow;
 
   const CustomCard({
     super.key,
@@ -20,29 +22,24 @@ class CustomCard extends StatelessWidget {
     this.borderRadius = AppSpacing.radiusMd,
     this.hasBorder = true,
     this.customBorder,
+    this.customShadow,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultBg = isDark ? AppColors.surfaceDark : AppColors.cardLight;
+    final defaultBg = isDark ? AppColors.cardDark : AppColors.cardLight;
     final defaultBorder = BorderSide(
-      color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+      color: isDark ? AppColors.borderDark : AppColors.borderLight,
       width: 1,
     );
+
+    final shadows = customShadow ?? (isDark ? AppColors.darkCardShadow : AppColors.softCardShadow);
 
     Widget content = Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        boxShadow: shadows,
       ),
       child: Material(
         color: backgroundColor ?? defaultBg,
@@ -54,23 +51,19 @@ class CustomCard extends StatelessWidget {
             : RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(borderRadius),
               ),
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
-      ),
-    );
-
-    if (onTap != null) {
-      return Material(
-        color: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(borderRadius),
-          child: content,
+          splashColor: (isDark ? AppColors.secondary : AppColors.primary).withValues(alpha: 0.08),
+          highlightColor: Colors.transparent,
+          child: Padding(
+            padding: padding,
+            child: child,
+          ),
         ),
-      );
-    }
+      ),
+    );
 
     return content;
   }

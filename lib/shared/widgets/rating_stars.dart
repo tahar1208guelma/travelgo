@@ -10,7 +10,7 @@ class RatingStars extends StatelessWidget {
     super.key,
     required this.rating,
     this.size = 14.0,
-    this.color = AppColors.secondary,
+    this.color = AppColors.accentGold,
   });
 
   @override
@@ -22,11 +22,11 @@ class RatingStars extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(5, (index) {
         if (index < fullStars) {
-          return Icon(Icons.star, size: size, color: color);
+          return Icon(Icons.star_rounded, size: size, color: color);
         } else if (index == fullStars && hasHalf) {
-          return Icon(Icons.star_half, size: size, color: color);
+          return Icon(Icons.star_half_rounded, size: size, color: color);
         } else {
-          return Icon(Icons.star_border, size: size, color: color.withOpacity(0.4));
+          return Icon(Icons.star_outline_rounded, size: size, color: color.withValues(alpha: 0.35));
         }
       }),
     );

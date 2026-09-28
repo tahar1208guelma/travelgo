@@ -37,25 +37,30 @@ class HotelCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hotel Image, Badges & Favorite Heart
+          // 1. Hotel Image, Scrim, Verified Partner Badge & Wishlist Heart
           Stack(
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusMd)),
                 child: CachedNetworkImage(
                   imageUrl: hotel.mainImageUrl,
-                  height: 180,
+                  height: 190,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  placeholder: (_, __) => Container(
+                    height: 190,
+                    color: isDark ? AppColors.cardDarkElevated : AppColors.primaryContainer,
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                  ),
                   errorWidget: (_, __, ___) => Container(
-                    height: 180,
+                    height: 190,
                     color: AppColors.primaryContainer,
-                    child: const Icon(Icons.hotel, size: 48, color: AppColors.primary),
+                    child: Icon(Icons.hotel_rounded, size: 48, color: isDark ? AppColors.secondaryLight : AppColors.primary),
                   ),
                 ),
               ),
 
-              // Booking Channel Badge
+              // Booking Channel & Verified Partner Badge
               Positioned(
                 top: 12,
                 left: isArabic ? null : 12,
@@ -64,66 +69,69 @@ class HotelCard extends ConsumerWidget {
                     ? BadgeChip(
                         label: isArabic ? '🌟 شريك فندقي معتمد' : '🌟 Verified Partner',
                         icon: Icons.verified_rounded,
-                        backgroundColor: const Color(0xFF00897B),
+                        backgroundColor: AppColors.secondary,
                         textColor: Colors.white,
                       )
                     : (hotel.isAffiliate
                         ? BadgeChip(
                             label: context.tr('affiliate_booking'),
                             icon: Icons.open_in_new_rounded,
-                            backgroundColor: Colors.black.withOpacity(0.7),
-                            textColor: AppColors.secondary,
+                            backgroundColor: Colors.black.withValues(alpha: 0.65),
+                            textColor: AppColors.secondaryLight,
                           )
                         : BadgeChip(
                             label: context.tr('direct_booking'),
                             icon: Icons.verified_rounded,
-                            backgroundColor: AppColors.primary.withOpacity(0.85),
+                            backgroundColor: (isDark ? AppColors.secondary : AppColors.primary).withValues(alpha: 0.9),
                             textColor: Colors.white,
                           )),
               ),
 
-              // Favorite Heart Button
+              // Wishlist Heart Button
               Positioned(
-                top: 8,
-                right: isArabic ? null : 8,
-                left: isArabic ? 8 : null,
-                child: Material(
-                  color: Colors.black.withOpacity(0.4),
-                  shape: const CircleBorder(),
-                  child: IconButton(
-                    icon: Icon(
+                top: 10,
+                right: isArabic ? null : 10,
+                left: isArabic ? 10 : null,
+                child: GestureDetector(
+                  onTap: () {
+                    ref.read(favoritesControllerProvider.notifier).toggleFavorite(
+                      FavoriteItemEntity(
+                        id: hotel.id,
+                        title: hotel.getName(isArabic: isArabic),
+                        subtitle: '${hotel.getCity(isArabic: isArabic)}, ${hotel.getCountry(isArabic: isArabic)}',
+                        imageUrl: hotel.mainImageUrl,
+                        priceUSD: hotel.pricePerNightUSD,
+                        type: 'hotel',
+                        rating: hotel.userRating,
+                        createdAt: DateTime.now(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(7),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
                       isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                      color: isFav ? AppColors.error : Colors.white,
+                      color: isFav ? AppColors.accentCoral : Colors.white,
                       size: 20,
                     ),
-                    onPressed: () {
-                      ref.read(favoritesControllerProvider.notifier).toggleFavorite(
-                        FavoriteItemEntity(
-                          id: hotel.id,
-                          title: hotel.getName(isArabic: isArabic),
-                          subtitle: '${hotel.getCity(isArabic: isArabic)}, ${hotel.getCountry(isArabic: isArabic)}',
-                          imageUrl: hotel.mainImageUrl,
-                          priceUSD: hotel.pricePerNightUSD,
-                          type: 'hotel',
-                          rating: hotel.userRating,
-                          createdAt: DateTime.now(),
-                        ),
-                      );
-                    },
                   ),
                 ),
               ),
 
-              // Star Rating overlay
+              // Star Rating & Luxury Score Overlay
               Positioned(
-                bottom: 12,
+                bottom: 10,
                 left: isArabic ? null : 12,
                 right: isArabic ? 12 : null,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.65),
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                    color: Colors.black.withValues(alpha: 0.65),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                   ),
                   child: RatingStars(rating: hotel.starRating.toDouble(), size: 12),
                 ),
@@ -131,13 +139,13 @@ class HotelCard extends ConsumerWidget {
             ],
           ),
 
-          // Hotel Info Body
+          // 2. Hotel Details Body
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title and User Score
+                // Title and Booking.com Score Pill
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -147,22 +155,24 @@ class HotelCard extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          letterSpacing: -0.2,
                           color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.secondaryContainerDark : AppColors.primary,
                         borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.star, size: 12, color: Colors.white),
+                          const Icon(Icons.star_rounded, size: 14, color: AppColors.accentGold),
                           const SizedBox(width: 3),
                           Text(
                             hotel.userRating.toStringAsFixed(1),
@@ -182,7 +192,11 @@ class HotelCard extends ConsumerWidget {
                 // Location & Distance
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: AppColors.textMutedLight),
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 14,
+                      color: isDark ? AppColors.secondaryLight : AppColors.textMutedLight,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
@@ -199,11 +213,11 @@ class HotelCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
 
-                // Free Cancellation & Breakfast Chips
+                // Free Cancellation & Breakfast Badges
                 Row(
                   children: [
                     if (hotel.freeCancellation) ...[
-                      const Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.success),
+                      const Icon(Icons.check_circle_rounded, size: 14, color: AppColors.success),
                       const SizedBox(width: 4),
                       Text(
                         context.tr('hotel_free_cancellation'),
@@ -212,18 +226,22 @@ class HotelCard extends ConsumerWidget {
                       const SizedBox(width: 12),
                     ],
                     if (hotel.breakfastIncluded) ...[
-                      const Icon(Icons.free_breakfast_outlined, size: 14, color: AppColors.primary),
+                      Icon(Icons.free_breakfast_rounded, size: 14, color: isDark ? AppColors.secondaryLight : AppColors.primary),
                       const SizedBox(width: 4),
                       Text(
                         context.tr('hotel_breakfast_included'),
-                        style: const TextStyle(fontSize: 11, color: AppColors.primary, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ],
                 ),
-                const Divider(height: 20),
+                const Divider(height: 22),
 
-                // Price Row
+                // Price Row & View Deal Button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -235,13 +253,14 @@ class HotelCard extends ConsumerWidget {
                             Text(
                               AppCurrencyFormatter.format(hotel.pricePerNightUSD, currency, locale: isArabic ? 'ar' : 'en'),
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 20,
                                 fontWeight: FontWeight.w900,
-                                color: isDark ? AppColors.primaryLight : AppColors.primary,
+                                letterSpacing: -0.3,
+                                color: isDark ? AppColors.secondaryLight : AppColors.primary,
                               ),
                             ),
                             Text(
-                              ' ${context.tr('hotel_per_night')}',
+                              ' / night',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
@@ -254,14 +273,14 @@ class HotelCard extends ConsumerWidget {
                     ElevatedButton(
                       onPressed: onTap,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: isDark ? AppColors.secondary : AppColors.primary,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusSm)),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusMd)),
                       ),
                       child: Text(
                         context.tr('see_details'),
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/constants/app_colors.dart';
 import 'core/localization/app_localizations.dart';
 import 'core/localization/language_provider.dart';
 import 'core/services/storage_service.dart';
@@ -12,7 +10,6 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/authentication/data/repositories/auth_repository_impl.dart';
 import 'features/authentication/presentation/controllers/auth_controller.dart';
-import 'features/favorites/presentation/controllers/favorites_controller.dart';
 import 'features/splash/presentation/screens/splash_screen.dart';
 
 void main() async {

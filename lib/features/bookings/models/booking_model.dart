@@ -11,6 +11,7 @@ enum BookingType {
 }
 
 enum BookingStatus {
+  initiated,
   pending,
   confirmed,
   cancelled,
@@ -118,6 +119,8 @@ class Booking {
 
   String get statusLabel {
     switch (status) {
+      case BookingStatus.initiated:
+        return 'Initiated';
       case BookingStatus.confirmed:
         return 'Confirmed';
       case BookingStatus.pending:

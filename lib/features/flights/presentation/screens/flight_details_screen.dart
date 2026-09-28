@@ -15,9 +15,9 @@ import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../authentication/presentation/controllers/auth_controller.dart';
-import '../../../booking/domain/entities/booking_entity.dart';
-import '../../../booking/presentation/controllers/booking_controller.dart';
-import '../../../booking/presentation/screens/booking_summary_screen.dart';
+import '../../../bookings/domain/entities/booking_entity.dart';
+import '../../../bookings/presentation/controllers/booking_controller.dart';
+import '../../../bookings/presentation/screens/booking_summary_screen.dart';
 import '../../domain/entities/flight_entity.dart';
 
 class FlightDetailsScreen extends ConsumerWidget {

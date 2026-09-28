@@ -1,6 +1,16 @@
 class AppValidators {
   AppValidators._();
 
+  static dynamic requiredField([dynamic arg1, String? arg2]) {
+    if (arg1 is String? && arg2 != null) {
+      return validateRequired(arg1, arg2);
+    }
+    final message = (arg1 is String) ? arg1 : 'This field is required';
+    return (String? val) => validateRequired(val, message);
+  }
+
+  static String? Function(String?) get email => (val) => validateEmail(val);
+
   static String? validateRequired(String? value, String errorMessage) {
     if (value == null || value.trim().isEmpty) {
       return errorMessage;

@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../providers_layer/travel_provider.dart';
 import '../../../flights/presentation/controllers/flight_search_controller.dart';
 import '../../../hotel_partner/data/repositories/hotel_partner_repository.dart';
 import '../../data/repositories/hotel_repository_impl.dart';

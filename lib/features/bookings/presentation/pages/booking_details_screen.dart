@@ -21,6 +21,8 @@ class BookingDetailsScreen extends ConsumerWidget {
 
   Color _getStatusColor(BookingStatus status) {
     switch (status) {
+      case BookingStatus.initiated:
+        return AppColors.primary;
       case BookingStatus.confirmed:
         return AppColors.success;
       case BookingStatus.pending:

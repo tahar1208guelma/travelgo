@@ -10,14 +10,17 @@ class EmptyStateView extends StatelessWidget {
   final String? actionText;
   final VoidCallback? onActionTap;
 
-  const EmptyStateView({
+  EmptyStateView({
     super.key,
     required this.title,
-    required this.description,
+    String? description,
+    String? subtitle,
     this.icon = Icons.search_off_rounded,
     this.actionText,
-    this.onActionTap,
-  });
+    VoidCallback? onActionTap,
+    VoidCallback? onAction,
+  })  : description = description ?? subtitle ?? '',
+        onActionTap = onActionTap ?? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class EmptyStateView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.lg),
               decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : AppColors.primaryContainer.withOpacity(0.5),
+                color: isDark ? AppColors.surfaceDark : AppColors.primaryContainer.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
               child: Icon(
