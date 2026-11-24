@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/language_provider.dart';
 import '../../../flights/domain/entities/flight_search_params.dart';
 import '../../../flights/presentation/controllers/flight_search_controller.dart';
 import '../../../flights/presentation/screens/flight_results_screen.dart';
@@ -12,12 +13,43 @@ class RecentSearchesWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isArabic = ref.watch(languageProvider.notifier).isArabic;
+    final isFrench = ref.watch(languageProvider.notifier).isFrench;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     final recentSearches = [
-      {'from': 'ALG', 'to': 'DXB', 'fromCity': 'Algiers', 'toCity': 'Dubai'},
-      {'from': 'ALG', 'to': 'IST', 'fromCity': 'Algiers', 'toCity': 'Istanbul'},
-      {'from': 'DXB', 'to': 'CDG', 'fromCity': 'Dubai', 'toCity': 'Paris'},
-      {'from': 'LHR', 'to': 'JFK', 'fromCity': 'London', 'toCity': 'New York'},
+      {
+        'from': 'ALG',
+        'to': 'DXB',
+        'fromCity': isArabic ? 'الجزائر' : (isFrench ? 'Alger' : 'Algiers'),
+        'toCity': isArabic ? 'دبي' : (isFrench ? 'Dubaï' : 'Dubai'),
+        'fromCityEn': 'Algiers',
+        'toCityEn': 'Dubai',
+      },
+      {
+        'from': 'ALG',
+        'to': 'IST',
+        'fromCity': isArabic ? 'الجزائر' : (isFrench ? 'Alger' : 'Algiers'),
+        'toCity': isArabic ? 'إسطنبول' : 'Istanbul',
+        'fromCityEn': 'Algiers',
+        'toCityEn': 'Istanbul',
+      },
+      {
+        'from': 'DXB',
+        'to': 'CDG',
+        'fromCity': isArabic ? 'دبي' : (isFrench ? 'Dubaï' : 'Dubai'),
+        'toCity': isArabic ? 'باريس' : 'Paris',
+        'fromCityEn': 'Dubai',
+        'toCityEn': 'Paris',
+      },
+      {
+        'from': 'LHR',
+        'to': 'JFK',
+        'fromCity': isArabic ? 'لندن' : (isFrench ? 'Londres' : 'London'),
+        'toCity': isArabic ? 'نيويورك' : 'New York',
+        'fromCityEn': 'London',
+        'toCityEn': 'New York',
+      },
     ];
 
     return SizedBox(
@@ -46,9 +78,9 @@ class RecentSearchesWidget extends ConsumerWidget {
                 onTap: () {
                   final params = FlightSearchParams(
                     originCode: item['from']!,
-                    originCity: item['fromCity']!,
+                    originCity: item['fromCityEn']!,
                     destinationCode: item['to']!,
-                    destinationCity: item['toCity']!,
+                    destinationCity: item['toCityEn']!,
                     departureDate: DateTime.now().add(const Duration(days: 7)),
                   );
                   ref.read(flightSearchControllerProvider.notifier).updateSearchParams(params);
@@ -70,7 +102,25 @@ class RecentSearchesWidget extends ConsumerWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${item['fromCity']} ➔ ${item['toCity']}',
+                        item['fromCity']!,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Transform.scale(
+                        scaleX: isRtl ? -1 : 1,
+                        child: Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 13,
+                          color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        item['toCity']!,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

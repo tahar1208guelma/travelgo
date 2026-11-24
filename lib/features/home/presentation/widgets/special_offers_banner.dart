@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations.dart';
 
 /// Luxury Promotional Banner inspired by Booking.com Genius & Airbnb Luxe
 class SpecialOffersBanner extends StatelessWidget {
@@ -22,8 +23,8 @@ class SpecialOffersBanner extends StatelessWidget {
       child: Stack(
         children: [
           // Background subtle luxury ring
-          Positioned(
-            right: -20,
+          PositionedDirectional(
+            end: -20,
             bottom: -20,
             child: Container(
               width: 110,
@@ -48,14 +49,14 @@ class SpecialOffersBanner extends StatelessWidget {
                             color: AppColors.secondary,
                             borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.bolt_rounded, size: 12, color: Colors.white),
-                              SizedBox(width: 2),
+                              const Icon(Icons.bolt_rounded, size: 12, color: Colors.white),
+                              const SizedBox(width: 2),
                               Text(
-                                'GENIUS DEAL',
-                                style: TextStyle(
+                                context.tr('deals_genius'),
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 9,
@@ -66,9 +67,9 @@ class SpecialOffersBanner extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        const Text(
-                          'Save 30%',
-                          style: TextStyle(
+                        Text(
+                          context.tr('deals_save_percent'),
+                          style: const TextStyle(
                             color: AppColors.secondaryLight,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -77,9 +78,9 @@ class SpecialOffersBanner extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    const Text(
-                      'Luxury Dubai, Paris & Maldives Stays',
-                      style: TextStyle(
+                    Text(
+                      context.tr('deals_luxury_desc'),
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -91,9 +92,9 @@ class SpecialOffersBanner extends StatelessWidget {
                       onTap: () {
                         Clipboard.setData(const ClipboardData(text: 'TRAVELGO30'));
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Promo code TRAVELGO30 copied to clipboard! ✨'),
-                            duration: Duration(seconds: 2),
+                          SnackBar(
+                            content: Text(context.tr('deals_copied')),
+                            duration: const Duration(seconds: 2),
                           ),
                         );
                       },
@@ -104,20 +105,20 @@ class SpecialOffersBanner extends StatelessWidget {
                           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                           border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Code: TRAVELGO30',
-                              style: TextStyle(
+                              context.tr('deals_promo_code'),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            SizedBox(width: 4),
-                            Icon(Icons.copy_rounded, size: 12, color: Colors.white70),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.copy_rounded, size: 12, color: Colors.white70),
                           ],
                         ),
                       ),

@@ -70,7 +70,6 @@ class EmptyStateView extends StatelessWidget {
                 text: actionText!,
                 onPressed: onActionTap,
                 isFullWidth: false,
-                width: 180,
                 height: 46,
               ),
             ],

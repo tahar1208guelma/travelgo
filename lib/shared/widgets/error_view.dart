@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
+import '../../core/localization/app_localizations.dart';
 import 'custom_button.dart';
 
 class ErrorView extends StatelessWidget {
@@ -48,7 +49,7 @@ class ErrorView extends StatelessWidget {
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.lg),
               CustomButton(
-                text: retryText ?? 'Try Again',
+                text: retryText ?? context.tr('try_again'),
                 onPressed: onRetry,
                 isFullWidth: false,
                 width: 160,

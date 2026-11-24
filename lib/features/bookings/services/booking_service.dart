@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/services/notification_service.dart';
+import '../../../core/search/domain/revalidation_result.dart';
+import '../../../core/search/services/offer_revalidation_service.dart';
 import '../../../core/services/pdf_service.dart';
 import '../../../core/services/print_service.dart';
 import '../../../core/services/share_service.dart';
@@ -9,7 +10,8 @@ import '../data/mock_booking_data.dart';
 import '../domain/repositories/booking_repository.dart';
 import '../models/booking_model.dart';
 
-final bookingListProvider = StateNotifierProvider<BookingListNotifier, List<Booking>>((ref) {
+final bookingListProvider =
+    StateNotifierProvider<BookingListNotifier, List<Booking>>((ref) {
   final repository = ref.watch(bookingRepositoryProvider);
   return BookingListNotifier(repository);
 });
@@ -17,7 +19,8 @@ final bookingListProvider = StateNotifierProvider<BookingListNotifier, List<Book
 class BookingListNotifier extends StateNotifier<List<Booking>> {
   final BookingRepository _repository;
 
-  BookingListNotifier(this._repository) : super(List.from(MockBookingData.defaultBookings));
+  BookingListNotifier(this._repository)
+      : super(List.from(MockBookingData.defaultBookings));
 
   Future<void> loadBookings(String userId) async {
     final list = await _repository.getUserBookings(userId);
@@ -25,25 +28,94 @@ class BookingListNotifier extends StateNotifier<List<Booking>> {
   }
 
   void addBooking(Booking booking) {
-    state = [booking, ...state];
+    // Avoid duplicate booking entries
+    state = [
+      booking,
+      ...state.where((b) =>
+          b.bookingId != booking.bookingId &&
+          b.bookingReference != booking.bookingReference),
+    ];
   }
 
-  Future<void> cancelBooking(String bookingId, {String? reason}) async {
-    await _repository.cancelBooking(bookingId, reason: reason);
+  void updateBooking(Booking updatedBooking) {
     state = state.map((b) {
-      if (b.bookingId == bookingId || b.id == bookingId) {
+      if (b.bookingId == updatedBooking.bookingId ||
+          b.bookingReference == updatedBooking.bookingReference ||
+          b.id == updatedBooking.id) {
+        return updatedBooking;
+      }
+      return b;
+    }).toList();
+  }
+
+  Future<void> cancelBooking(
+    String bookingId, {
+    String? reason,
+    double? refundAmount,
+  }) async {
+    await _repository.cancelBooking(
+      bookingId,
+      reason: reason,
+      refundAmount: refundAmount,
+    );
+
+    final updated = await _repository.getBookingByReference(bookingId);
+
+    state = state.map((b) {
+      if (b.bookingId == bookingId ||
+          b.id == bookingId ||
+          b.bookingReference == bookingId) {
+        if (updated != null) return updated;
+
+        final amount = refundAmount ?? b.priceBreakdown.totalAmount;
         return b.copyWith(
           status: BookingStatus.cancelled,
-          cancellationReason: reason ?? 'Cancelled by user',
+          paymentStatus: PaymentStatus.refunded,
+          cancellationReason: reason ?? 'Cancelled by customer',
+          updatedAt: DateTime.now(),
+          refundDetails: RefundDetails(
+            status: RefundStatus.refunded,
+            refundAmount: amount,
+            currency: b.priceBreakdown.currency,
+            refundTransactionId:
+                'RFND-TRV-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}',
+            reason: reason ?? 'Cancelled by customer',
+            requestedAt: DateTime.now(),
+            processedAt: DateTime.now(),
+            notes: 'Refund processed to original payment method.',
+          ),
         );
       }
       return b;
     }).toList();
   }
 
+  Future<RefundDetails?> requestRefund(
+    String bookingId, {
+    required String reason,
+    double? refundAmount,
+  }) async {
+    final refund = await _repository.requestRefund(
+      bookingId,
+      reason: reason,
+      amount: refundAmount,
+    );
+
+    final updated = await _repository.getBookingByReference(bookingId);
+    if (updated != null) {
+      updateBooking(updated);
+    }
+    return refund;
+  }
+
   Booking? findByReference(String reference) {
     try {
-      return state.firstWhere((b) => b.bookingReference == reference);
+      return state.firstWhere(
+        (b) =>
+            b.bookingReference == reference ||
+            b.bookingId == reference ||
+            b.id == reference,
+      );
     } catch (_) {
       return null;
     }
@@ -90,8 +162,8 @@ class DocumentOperationState {
   }
 }
 
-final documentOperationProvider =
-    StateNotifierProvider.autoDispose.family<DocumentOperationNotifier, DocumentOperationState, String>(
+final documentOperationProvider = StateNotifierProvider.autoDispose
+    .family<DocumentOperationNotifier, DocumentOperationState, String>(
         (ref, bookingRef) {
   final pdfService = ref.watch(pdfServiceProvider);
   final printService = ref.watch(printServiceProvider);
@@ -140,7 +212,8 @@ class DocumentOperationNotifier extends StateNotifier<DocumentOperationState> {
     } catch (e) {
       state = state.copyWith(
         isGenerating: false,
-        errorMessage: 'We could not generate your booking document. Please try again.',
+        errorMessage:
+            'We could not generate your booking document. Please try again.',
       );
       return null;
     }
@@ -157,7 +230,8 @@ class DocumentOperationNotifier extends StateNotifier<DocumentOperationState> {
       }
 
       final fileName = booking.suggestedPdfFileName;
-      final result = await _shareService.savePdfToFile(pdfBytes: bytes, fileName: fileName);
+      final result = await _shareService.savePdfToFile(
+          pdfBytes: bytes, fileName: fileName);
 
       if (result.isSuccess) {
         state = state.copyWith(isSaving: false, savedFilePath: result.filePath);
@@ -189,7 +263,8 @@ class DocumentOperationNotifier extends StateNotifier<DocumentOperationState> {
       }
 
       final docName = 'TRAVELGO_${booking.bookingReference}';
-      final result = await _printService.printDocument(pdfBytes: bytes, documentName: docName);
+      final result = await _printService.printDocument(
+          pdfBytes: bytes, documentName: docName);
 
       state = state.copyWith(
         isPrinting: false,
@@ -220,7 +295,8 @@ class DocumentOperationNotifier extends StateNotifier<DocumentOperationState> {
         pdfBytes: bytes,
         fileName: fileName,
         subject: 'TRAVELGO Confirmation - ${booking.bookingReference}',
-        body: 'Booking confirmation for ${booking.itemName} (Reference: ${booking.bookingReference}).',
+        body:
+            'Booking confirmation for ${booking.itemName} (Reference: ${booking.bookingReference}).',
       );
 
       state = state.copyWith(isSharing: false);

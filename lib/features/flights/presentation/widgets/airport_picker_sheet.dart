@@ -33,19 +33,8 @@ class _AirportPickerSheetState extends State<AirportPickerSheet> {
   List<Airport> _filtered = Airport.majorAirports;
 
   void _filter(String query) {
-    if (query.trim().isEmpty) {
-      setState(() => _filtered = Airport.majorAirports);
-      return;
-    }
-    final q = query.toLowerCase();
     setState(() {
-      _filtered = Airport.majorAirports.where((a) {
-        return a.code.toLowerCase().contains(q) ||
-            a.cityEn.toLowerCase().contains(q) ||
-            a.cityAr.contains(q) ||
-            a.nameEn.toLowerCase().contains(q) ||
-            a.nameAr.contains(q);
-      }).toList();
+      _filtered = Airport.findAirports(query);
     });
   }
 

@@ -36,7 +36,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isArabic = ref.watch(languageProvider.notifier).isArabic;
+    final currentLocale = ref.watch(languageProvider);
     final user = ref.watch(authStateProvider).value;
     final hotelState = ref.watch(hotelSearchControllerProvider);
 
@@ -88,7 +88,7 @@ class HomeScreen extends ConsumerWidget {
                                 ),
                               ),
                               Text(
-                                user?.name ?? 'Traveler',
+                                user?.name ?? context.tr('traveler'),
                                 style: TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w800,
@@ -112,13 +112,27 @@ class HomeScreen extends ConsumerWidget {
                               color: isDark ? AppColors.accentGold : AppColors.primary,
                               size: 22,
                             ),
-                            tooltip: isDark ? 'Light Mode' : 'Dark Mode',
+                            tooltip: isDark ? context.tr('theme_light') : context.tr('theme_dark'),
                           ),
 
-                          // Language Switcher Pill
-                          InkWell(
-                            onTap: () => ref.read(languageProvider.notifier).toggleLanguage(),
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                          // Language Switcher Menu Pill (English, العربية, Français)
+                          PopupMenuButton<String>(
+                            tooltip: context.tr('select_language'),
+                            onSelected: (code) => ref.read(languageProvider.notifier).setLanguage(code),
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'en',
+                                child: Text(context.tr('language_en')),
+                              ),
+                              PopupMenuItem(
+                                value: 'ar',
+                                child: Text(context.tr('language_ar')),
+                              ),
+                              PopupMenuItem(
+                                value: 'fr',
+                                child: Text(context.tr('language_fr')),
+                              ),
+                            ],
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
@@ -138,7 +152,11 @@ class HomeScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    isArabic ? 'English' : 'العربية',
+                                    switch (currentLocale.languageCode) {
+                                      'ar' => 'العربية',
+                                      'fr' => 'Français',
+                                      _ => 'English',
+                                    },
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
@@ -200,7 +218,7 @@ class HomeScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'Anywhere • Any week • Add guests',
+                                      context.tr('home_where_to_sub'),
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
@@ -307,7 +325,10 @@ class HomeScreen extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 16),
+                              Transform.scale(
+                                scaleX: Directionality.of(context) == TextDirection.rtl ? -1 : 1,
+                                child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 16),
+                              ),
                             ],
                           ),
                         ),
@@ -355,7 +376,7 @@ class HomeScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     Text(
-                                      '500+ Airlines',
+                                      context.tr('home_airlines_count'),
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
@@ -402,7 +423,7 @@ class HomeScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     Text(
-                                      'Luxury Stays',
+                                      context.tr('home_luxury_stays'),
                                       style: TextStyle(
                                         fontSize: 11,
                                         color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
@@ -442,7 +463,7 @@ class HomeScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                   child: SectionHeader(
                     title: context.tr('home_popular_destinations'),
-                    actionTitle: 'Explore All',
+                    actionTitle: context.tr('home_explore_all'),
                     onActionTap: () => onNavigateTab(1),
                   ),
                 ),
@@ -459,7 +480,7 @@ class HomeScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                   child: SectionHeader(
                     title: context.tr('home_featured_hotels'),
-                    actionTitle: 'View All',
+                    actionTitle: context.tr('view_all'),
                     onActionTap: () => onNavigateTab(2),
                   ),
                 ),
@@ -470,7 +491,15 @@ class HomeScreen extends ConsumerWidget {
                     child: Center(child: CircularProgressIndicator()),
                   )
                 else if (hotelState.errorMessage != null)
-                  Center(child: Text('Error: ${hotelState.errorMessage}'))
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Center(
+                      child: Text(
+                        hotelState.errorMessage!,
+                        style: const TextStyle(color: AppColors.error, fontSize: 14),
+                      ),
+                    ),
+                  )
                 else ...[
                   Builder(
                     builder: (context) {
@@ -521,20 +550,20 @@ class HomeScreen extends ConsumerWidget {
                           children: [
                             _buildTrustItem(
                               icon: Icons.lock_outline_rounded,
-                              title: '256-Bit SSL',
-                              subtitle: 'Secure Payments',
+                              title: context.tr('home_trust_ssl'),
+                              subtitle: context.tr('home_trust_ssl_sub'),
                               isDark: isDark,
                             ),
                             _buildTrustItem(
                               icon: Icons.verified_user_outlined,
-                              title: '100% Verified',
-                              subtitle: 'Real Reviews',
+                              title: context.tr('home_trust_verified'),
+                              subtitle: context.tr('home_trust_verified_sub'),
                               isDark: isDark,
                             ),
                             _buildTrustItem(
                               icon: Icons.support_agent_rounded,
-                              title: '24/7 Support',
-                              subtitle: 'Instant Help',
+                              title: context.tr('home_trust_support'),
+                              subtitle: context.tr('home_trust_support_sub'),
                               isDark: isDark,
                             ),
                           ],

@@ -17,8 +17,11 @@ class MyBookingsScreen extends ConsumerStatefulWidget {
   ConsumerState<MyBookingsScreen> createState() => _MyBookingsScreenState();
 }
 
-class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen> with SingleTickerProviderStateMixin {
+class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -29,7 +32,22 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen> with Single
   @override
   void dispose() {
     _tabController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  List<Booking> _filterByQuery(List<Booking> list) {
+    if (_searchQuery.trim().isEmpty) return list;
+    final q = _searchQuery.toLowerCase();
+    return list.where((b) {
+      final refMatch = b.bookingReference.toLowerCase().contains(q);
+      final itemMatch = b.itemName.toLowerCase().contains(q);
+      final subMatch = b.itemSubtitle?.toLowerCase().contains(q) ?? false;
+      final nameMatch = b.passengerOrGuestName.toLowerCase().contains(q);
+      final pnrMatch =
+          b.providerBookingReference?.toLowerCase().contains(q) ?? false;
+      return refMatch || itemMatch || subMatch || nameMatch || pnrMatch;
+    }).toList();
   }
 
   @override
@@ -37,33 +55,45 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen> with Single
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final allBookings = ref.watch(bookingListProvider);
 
-    final upcoming = allBookings
-        .where((b) => b.status == BookingStatus.confirmed || b.status == BookingStatus.pending)
-        .where((b) => b.startDate.isAfter(DateTime.now().subtract(const Duration(days: 1))))
+    final filteredAll = _filterByQuery(allBookings);
+
+    final upcoming = filteredAll
+        .where((b) =>
+            b.status == BookingStatus.confirmed ||
+            b.status == BookingStatus.pending)
+        .where((b) =>
+            b.startDate.isAfter(DateTime.now().subtract(const Duration(days: 1))))
         .toList();
 
-    final completed = allBookings
-        .where((b) => b.status == BookingStatus.confirmed && b.startDate.isBefore(DateTime.now()))
+    final completed = filteredAll
+        .where((b) =>
+            b.status == BookingStatus.confirmed &&
+            b.startDate.isBefore(DateTime.now()))
         .toList();
 
-    final cancelled = allBookings
-        .where((b) => b.status == BookingStatus.cancelled || b.status == BookingStatus.failed)
+    final cancelled = filteredAll
+        .where((b) =>
+            b.status == BookingStatus.cancelled ||
+            b.status == BookingStatus.failed)
         .toList();
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor:
+          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
         title: Text(
           context.tr('my_bookings_title'),
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            color:
+                isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
           ),
         ),
         bottom: TabBar(
           controller: _tabController,
           labelColor: isDark ? AppColors.primaryLight : AppColors.primary,
-          unselectedLabelColor: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+          unselectedLabelColor:
+              isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
           indicatorColor: AppColors.primary,
           indicatorWeight: 3,
           tabs: [
@@ -75,14 +105,21 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen> with Single
                   if (upcoming.isNotEmpty) ...[
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         '${upcoming.length}',
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.primary),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ],
@@ -90,35 +127,119 @@ class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen> with Single
               ),
             ),
             Tab(text: context.tr('my_bookings_completed')),
-            Tab(text: context.tr('my_bookings_cancelled')),
+            Tab(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(context.tr('my_bookings_cancelled')),
+                  if (cancelled.isNotEmpty) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${cancelled.length}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          // 1. Upcoming Tab
-          _buildBookingList(
-            context,
-            upcoming,
-            emptyTitle: context.tr('my_bookings_empty_title'),
-            emptyDesc: context.tr('my_bookings_empty_desc'),
+          // Search & Filter input
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.md,
+              AppSpacing.md,
+              0,
+            ),
+            child: ResponsiveWrapper(
+              maxWidth: 900,
+              child: TextField(
+                controller: _searchController,
+                onChanged: (v) => setState(() => _searchQuery = v),
+                decoration: InputDecoration(
+                  hintText: 'Search by booking reference, traveler or route...',
+                  hintStyle: TextStyle(
+                    fontSize: 13,
+                    color: isDark
+                        ? AppColors.textMutedDark
+                        : AppColors.textMutedLight,
+                  ),
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = '');
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor:
+                      isDark ? AppColors.surfaceDark : Colors.grey.shade100,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ),
           ),
 
-          // 2. Completed Tab
-          _buildBookingList(
-            context,
-            completed,
-            emptyTitle: 'No Completed Trips',
-            emptyDesc: 'Your past trips and completed journeys will appear here.',
-          ),
+          // Tabs content
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // 1. Upcoming Tab
+                _buildBookingList(
+                  context,
+                  upcoming,
+                  emptyTitle: context.tr('my_bookings_empty_title'),
+                  emptyDesc: context.tr('my_bookings_empty_desc'),
+                ),
 
-          // 3. Cancelled Tab
-          _buildBookingList(
-            context,
-            cancelled,
-            emptyTitle: 'No Cancelled Bookings',
-            emptyDesc: 'Cancelled or failed reservations will be archived here.',
+                // 2. Completed Tab
+                _buildBookingList(
+                  context,
+                  completed,
+                  emptyTitle: 'No Completed Trips',
+                  emptyDesc:
+                      'Your past trips and completed journeys will appear here.',
+                ),
+
+                // 3. Cancelled Tab
+                _buildBookingList(
+                  context,
+                  cancelled,
+                  emptyTitle: 'No Cancelled Bookings',
+                  emptyDesc:
+                      'Cancelled reservations and refund records will be archived here.',
+                ),
+              ],
+            ),
           ),
         ],
       ),

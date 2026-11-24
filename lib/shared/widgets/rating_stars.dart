@@ -15,6 +15,7 @@ class RatingStars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     final fullStars = rating.floor();
     final hasHalf = (rating - fullStars) >= 0.5;
 
@@ -24,7 +25,12 @@ class RatingStars extends StatelessWidget {
         if (index < fullStars) {
           return Icon(Icons.star_rounded, size: size, color: color);
         } else if (index == fullStars && hasHalf) {
-          return Icon(Icons.star_half_rounded, size: size, color: color);
+          return isRtl
+              ? Transform.scale(
+                  scaleX: -1,
+                  child: Icon(Icons.star_half_rounded, size: size, color: color),
+                )
+              : Icon(Icons.star_half_rounded, size: size, color: color);
         } else {
           return Icon(Icons.star_outline_rounded, size: size, color: color.withValues(alpha: 0.35));
         }

@@ -105,7 +105,11 @@ class BookingCard extends ConsumerWidget {
                   ),
                   BadgeChip(
                     label: booking.statusLabel.toUpperCase(),
-                    icon: Icons.check_circle_rounded,
+                    icon: booking.isCancelled
+                        ? Icons.cancel_outlined
+                        : (booking.status == BookingStatus.confirmed
+                            ? Icons.check_circle_rounded
+                            : Icons.access_time_rounded),
                     backgroundColor: statusColor.withValues(alpha: 0.15),
                     textColor: statusColor,
                     fontSize: 11,

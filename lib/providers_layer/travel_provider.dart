@@ -4,6 +4,9 @@ import '../features/hotels/domain/entities/hotel_entity.dart';
 import '../features/hotels/domain/entities/hotel_search_params.dart';
 import '../features/bookings/domain/entities/booking_entity.dart';
 import '../features/bookings/domain/entities/affiliate_click_entity.dart';
+import '../features/bookings/models/customer_info.dart';
+import '../features/bookings/models/flight_booking_details.dart';
+import '../features/bookings/models/hotel_booking_details.dart';
 
 class DirectBookingRequest {
   final String userId;
@@ -16,12 +19,16 @@ class DirectBookingRequest {
   final DateTime? endDate;
   final double basePriceUSD;
   final double taxesUSD;
-  final double serviceFeeUSD; // $1.00 USD
+  final double serviceFeeUSD; // $1.00 USD standard platform fee
   final double totalAmountUSD;
   final String passengerOrGuestName;
   final String contactEmail;
   final String contactPhone;
   final String paymentMethod;
+  final List<PassengerInfo>? passengers;
+  final FlightBookingDetails? flightDetails;
+  final HotelBookingDetails? hotelDetails;
+  final String? specialRequests;
 
   const DirectBookingRequest({
     required this.userId,
@@ -40,6 +47,10 @@ class DirectBookingRequest {
     required this.contactEmail,
     required this.contactPhone,
     required this.paymentMethod,
+    this.passengers,
+    this.flightDetails,
+    this.hotelDetails,
+    this.specialRequests,
   });
 }
 

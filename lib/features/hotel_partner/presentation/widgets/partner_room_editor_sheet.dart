@@ -28,8 +28,10 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
   late TextEditingController _bedTypeCtrl;
   late TextEditingController _perksCtrl;
 
+  PartnerRoomCategory _selectedCategory = PartnerRoomCategory.standard;
   int _maxGuests = 2;
   int _totalUnits = 5;
+  int _bookedUnits = 0;
   bool _breakfastIncluded = true;
   bool _freeCancellation = true;
 
@@ -40,10 +42,12 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
     _nameEnCtrl = TextEditingController(text: r?.nameEn ?? '');
     _nameArCtrl = TextEditingController(text: r?.nameAr ?? '');
     _priceCtrl = TextEditingController(text: r != null ? r.pricePerNightUSD.toStringAsFixed(0) : '120');
-    _bedTypeCtrl = TextEditingController(text: r?.bedType ?? '1 King Bed');
+    _bedTypeCtrl = TextEditingController(text: r?.bedType ?? PartnerBedTypeCatalog.standardBedTypes.first);
     _perksCtrl = TextEditingController(text: r?.perks.join(', ') ?? 'City View, Free WiFi, Balcony');
+    _selectedCategory = r?.category ?? PartnerRoomCategory.standard;
     _maxGuests = r?.maxGuests ?? 2;
     _totalUnits = r?.totalUnits ?? 5;
+    _bookedUnits = r?.bookedUnits ?? 0;
     _breakfastIncluded = r?.breakfastIncluded ?? true;
     _freeCancellation = r?.freeCancellation ?? true;
   }
@@ -72,13 +76,15 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
       hotelId: widget.hotelId,
       nameEn: _nameEnCtrl.text.trim(),
       nameAr: _nameArCtrl.text.trim().isNotEmpty ? _nameArCtrl.text.trim() : _nameEnCtrl.text.trim(),
+      category: _selectedCategory,
       pricePerNightUSD: double.tryParse(_priceCtrl.text) ?? 100.0,
       maxGuests: _maxGuests,
       bedType: _bedTypeCtrl.text.trim(),
       breakfastIncluded: _breakfastIncluded,
       freeCancellation: _freeCancellation,
       totalUnits: _totalUnits,
-      availableUnits: _totalUnits,
+      availableUnits: (_totalUnits - _bookedUnits).clamp(0, _totalUnits),
+      bookedUnits: _bookedUnits,
       perks: perks,
       photos: widget.initialRoom?.photos ?? const [],
     );
@@ -90,6 +96,7 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.initialRoom != null;
+    final isArabic = Directionality.of(context) == TextDirection.rtl;
 
     return Container(
       decoration: const BoxDecoration(
@@ -144,6 +151,26 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
               ),
               const SizedBox(height: 20),
 
+              // Room Category Dropdown
+              DropdownButtonFormField<PartnerRoomCategory>(
+                value: _selectedCategory,
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.room_category'),
+                  prefixIcon: const Icon(Icons.category_outlined),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                items: PartnerRoomCategory.values.map((cat) {
+                  return DropdownMenuItem(
+                    value: cat,
+                    child: Text(cat.getDisplayName(isArabic: isArabic)),
+                  );
+                }).toList(),
+                onChanged: (cat) {
+                  if (cat != null) setState(() => _selectedCategory = cat);
+                },
+              ),
+              const SizedBox(height: 14),
+
               // Room Name English
               TextFormField(
                 controller: _nameEnCtrl,
@@ -169,7 +196,7 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
               ),
               const SizedBox(height: 14),
 
-              // Price & Bed Type in Row
+              // Price & Bed Type
               Row(
                 children: [
                   Expanded(
@@ -189,14 +216,23 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: TextFormField(
-                      controller: _bedTypeCtrl,
+                    child: DropdownButtonFormField<String>(
+                      value: PartnerBedTypeCatalog.standardBedTypes.contains(_bedTypeCtrl.text)
+                          ? _bedTypeCtrl.text
+                          : PartnerBedTypeCatalog.standardBedTypes.first,
                       decoration: InputDecoration(
                         labelText: context.tr('partner.bed_type'),
-                        hintText: '1 King Bed',
                         prefixIcon: const Icon(Icons.bed_outlined),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
+                      items: PartnerBedTypeCatalog.standardBedTypes.map((bed) {
+                        return DropdownMenuItem(value: bed, child: Text(bed, style: const TextStyle(fontSize: 13)));
+                      }).toList(),
+                      onChanged: (bed) {
+                        if (bed != null) {
+                          setState(() => _bedTypeCtrl.text = bed);
+                        }
+                      },
                     ),
                   ),
                 ],
@@ -266,7 +302,7 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
                               IconButton(
                                 visualDensity: VisualDensity.compact,
                                 icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
-                                onPressed: _totalUnits < 50 ? () => setState(() => _totalUnits++) : null,
+                                onPressed: _totalUnits < 100 ? () => setState(() => _totalUnits++) : null,
                               ),
                             ],
                           ),

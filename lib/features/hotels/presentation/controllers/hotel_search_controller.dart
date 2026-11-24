@@ -1,4 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/search/adapters/partner_direct_hotel_provider.dart';
+import '../../../../core/search/adapters/sandbox_travel_provider.dart';
+import '../../../../core/search/adapters/travelpayouts_hotel_provider.dart';
+import '../../../../core/search/services/hotel_search_aggregator.dart';
 import '../../../flights/presentation/controllers/flight_search_controller.dart';
 import '../../../hotel_partner/data/repositories/hotel_partner_repository.dart';
 import '../../data/repositories/hotel_repository_impl.dart';
@@ -12,6 +16,7 @@ class HotelFilterState {
   final int? minStarRating;
   final bool freeCancellationOnly;
   final bool breakfastIncludedOnly;
+  final double? minPriceUSD;
   final double? maxPriceUSD;
 
   const HotelFilterState({
@@ -19,6 +24,7 @@ class HotelFilterState {
     this.minStarRating,
     this.freeCancellationOnly = false,
     this.breakfastIncludedOnly = false,
+    this.minPriceUSD,
     this.maxPriceUSD,
   });
 
@@ -28,6 +34,7 @@ class HotelFilterState {
     bool clearStarRating = false,
     bool? freeCancellationOnly,
     bool? breakfastIncludedOnly,
+    double? minPriceUSD,
     double? maxPriceUSD,
   }) {
     return HotelFilterState(
@@ -35,6 +42,7 @@ class HotelFilterState {
       minStarRating: clearStarRating ? null : (minStarRating ?? this.minStarRating),
       freeCancellationOnly: freeCancellationOnly ?? this.freeCancellationOnly,
       breakfastIncludedOnly: breakfastIncludedOnly ?? this.breakfastIncludedOnly,
+      minPriceUSD: minPriceUSD ?? this.minPriceUSD,
       maxPriceUSD: maxPriceUSD ?? this.maxPriceUSD,
     );
   }
@@ -68,6 +76,10 @@ class HotelSearchResultState {
 
     if (filterState.breakfastIncludedOnly) {
       list = list.where((h) => h.breakfastIncluded).toList();
+    }
+
+    if (filterState.minPriceUSD != null) {
+      list = list.where((h) => h.pricePerNightUSD >= filterState.minPriceUSD!).toList();
     }
 
     if (filterState.maxPriceUSD != null) {
@@ -106,9 +118,21 @@ class HotelSearchResultState {
   }
 }
 
+final hotelSearchAggregatorProvider = Provider<HotelSearchAggregator>((ref) {
+  final partnerRepo = ref.watch(hotelPartnerRepositoryProvider);
+  return HotelSearchAggregator(
+    providers: [
+      PartnerDirectHotelProvider(partnerRepo),
+      TravelpayoutsHotelProvider(),
+      SandboxTravelProvider(),
+    ],
+  );
+});
+
 final hotelRepositoryProvider = Provider<HotelRepositoryImpl>((ref) {
   final provider = ref.watch(travelProviderRef);
-  return HotelRepositoryImpl(provider);
+  final aggregator = ref.watch(hotelSearchAggregatorProvider);
+  return HotelRepositoryImpl(provider, aggregator);
 });
 
 final hotelSearchControllerProvider = StateNotifierProvider<HotelSearchController, HotelSearchResultState>((ref) {

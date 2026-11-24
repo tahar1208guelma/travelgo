@@ -58,13 +58,17 @@ class _CustomButtonState extends State<CustomButton> {
             Icon(widget.icon, size: 19, color: _getTextColor(context, isDark)),
             const SizedBox(width: AppSpacing.sm),
           ],
-          Text(
-            widget.text,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-              color: _getTextColor(context, isDark),
+          Flexible(
+            child: Text(
+              widget.text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.2,
+                color: _getTextColor(context, isDark),
+              ),
             ),
           ),
         ],

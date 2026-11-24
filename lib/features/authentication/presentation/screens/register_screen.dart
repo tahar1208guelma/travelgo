@@ -7,6 +7,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/custom_button.dart';
 import '../../../../shared/widgets/custom_text_field.dart';
 import '../../../home/presentation/screens/main_navigation_screen.dart';
+import '../../domain/entities/user_entity.dart';
 import '../controllers/auth_controller.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -22,6 +23,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  UserRole _selectedRole = UserRole.user;
   bool _obscurePassword = true;
   bool _isLoading = false;
 
@@ -38,12 +40,42 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
+    // Enforce role safety: public registration only allows user or partner (never admin)
+    final safeRole = (_selectedRole == UserRole.admin) ? UserRole.user : _selectedRole;
+
     final success = await ref.read(authStateProvider.notifier).register(
       _nameController.text.trim(),
       _emailController.text.trim(),
       _passwordController.text,
+      role: safeRole,
     );
 
+    setState(() => _isLoading = false);
+
+    if (success && mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        (route) => false,
+      );
+    }
+  }
+
+  void _handleGoogleRegister() async {
+    setState(() => _isLoading = true);
+    final success = await ref.read(authStateProvider.notifier).loginWithGoogle();
+    setState(() => _isLoading = false);
+
+    if (success && mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainNavigationScreen()),
+        (route) => false,
+      );
+    }
+  }
+
+  void _handleAppleRegister() async {
+    setState(() => _isLoading = true);
+    final success = await ref.read(authStateProvider.notifier).loginWithApple();
     setState(() => _isLoading = false);
 
     if (success && mounted) {
@@ -90,7 +122,42 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.lg),
+
+                // Account Type Selector (Customer vs Hotel Partner)
+                Text(
+                  context.tr('auth_account_type'),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        label: Text(context.tr('auth_role_traveler')),
+                        selected: _selectedRole == UserRole.user,
+                        onSelected: (selected) {
+                          if (selected) setState(() => _selectedRole = UserRole.user);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: ChoiceChip(
+                        label: Text(context.tr('auth_role_partner')),
+                        selected: _selectedRole == UserRole.partner,
+                        onSelected: (selected) {
+                          if (selected) setState(() => _selectedRole = UserRole.partner);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
 
                 // Name field
                 CustomTextField(
@@ -163,6 +230,56 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   onPressed: _handleRegister,
                   isLoading: _isLoading,
                   type: ButtonType.primary,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // Social registration section
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: isDark ? AppColors.dividerDark : AppColors.dividerLight)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                      child: Text(
+                        context.tr('auth_or_continue_with'),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                        ),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: isDark ? AppColors.dividerDark : AppColors.dividerLight)),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+
+                // Google Sign Up Button
+                CustomButton(
+                  text: context.tr('auth_google_register'),
+                  onPressed: _handleGoogleRegister,
+                  type: ButtonType.outline,
+                  icon: Icons.g_mobiledata_rounded,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+
+                // Apple Sign Up Button
+                CustomButton(
+                  text: context.tr('auth_apple_register'),
+                  onPressed: _handleAppleRegister,
+                  type: ButtonType.outline,
+                  icon: Icons.apple_rounded,
+                ),
+                const SizedBox(height: AppSpacing.md),
+
+                // Terms disclaimer
+                Center(
+                  child: Text(
+                    context.tr('auth_terms_agreement'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
 

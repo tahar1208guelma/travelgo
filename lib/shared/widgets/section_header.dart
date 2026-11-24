@@ -21,15 +21,20 @@ class SectionHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+            ),
           ),
         ),
-        if (actionTitle != null && onActionTap != null)
+        if (actionTitle != null && onActionTap != null) ...[
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: onActionTap,
             child: Text(
@@ -37,10 +42,11 @@ class SectionHeader extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.primaryLight : AppColors.primary,
+                color: isDark ? AppColors.secondaryLight : AppColors.primary,
               ),
             ),
           ),
+        ],
       ],
     );
   }

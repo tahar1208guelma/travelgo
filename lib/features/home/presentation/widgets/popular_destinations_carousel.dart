@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/language_provider.dart';
 import '../../../../core/services/currency_service.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -20,7 +21,9 @@ class PopularDestinationsCarousel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isArabic = ref.watch(languageProvider.notifier).isArabic;
+    final locale = ref.watch(languageProvider);
+    final isArabic = locale.languageCode == 'ar';
+    final langCode = locale.languageCode;
     final currency = ref.watch(currencyProvider);
     final favorites = ref.watch(favoritesControllerProvider);
     final destinations = Destination.popularDestinations;
@@ -127,8 +130,8 @@ class PopularDestinationsCarousel extends ConsumerWidget {
                                 ref.read(favoritesControllerProvider.notifier).toggleFavorite(
                                       FavoriteItemEntity(
                                         id: 'dest_${dest.cityEn}',
-                                        title: dest.getCity(isArabic: isArabic),
-                                        subtitle: dest.getCountry(isArabic: isArabic),
+                                        title: dest.getCity(isArabic: isArabic, langCode: langCode),
+                                        subtitle: dest.getCountry(isArabic: isArabic, langCode: langCode),
                                         type: 'flight',
                                         priceUSD: dest.startingPriceUSD,
                                         imageUrl: dest.imageUrl,
@@ -175,20 +178,23 @@ class PopularDestinationsCarousel extends ConsumerWidget {
                                   ),
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  '• ${dest.getCountry(isArabic: isArabic)}',
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
+                                Flexible(
+                                  child: Text(
+                                    '• ${dest.getCountry(isArabic: isArabic, langCode: langCode)}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.8),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              dest.getCity(isArabic: isArabic),
+                              dest.getCity(isArabic: isArabic, langCode: langCode),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 17,
@@ -206,7 +212,7 @@ class PopularDestinationsCarousel extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                               ),
                               child: Text(
-                                'from ${AppCurrencyFormatter.format(dest.startingPriceUSD, currency, locale: isArabic ? 'ar' : 'en')}',
+                                '${context.tr('from_price')} ${AppCurrencyFormatter.format(dest.startingPriceUSD, currency, locale: langCode)}',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,

@@ -11,8 +11,9 @@ import '../../../../core/utils/date_formatter.dart';
 import '../../../../shared/widgets/badge_chip.dart';
 import '../../../../shared/widgets/custom_card.dart';
 import '../../models/booking_model.dart';
+import 'qr_code_widget.dart';
 
-/// Boarding-pass luxury ticket widget with perforated cutouts & PNR code
+/// Boarding-pass luxury ticket widget with perforated cutouts, QR code & PNR code
 class BookingTicketWidget extends ConsumerWidget {
   final Booking booking;
 
@@ -44,10 +45,17 @@ class BookingTicketWidget extends ConsumerWidget {
         children: [
           // 1. Top Header Banner (Provider & Confirmed Status Pill)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: 12,
+            ),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.cardDarkElevated : (AppColors.primary).withValues(alpha: 0.08),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusMd)),
+              color: isDark
+                  ? AppColors.cardDarkElevated
+                  : (AppColors.primary).withValues(alpha: 0.08),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppSpacing.radiusMd),
+              ),
               border: Border(
                 bottom: BorderSide(
                   color: isDark ? AppColors.borderDark : AppColors.borderLight,
@@ -66,7 +74,8 @@ class BookingTicketWidget extends ConsumerWidget {
                               ? Icons.hotel_rounded
                               : Icons.travel_explore_rounded),
                       size: 20,
-                      color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                      color:
+                          isDark ? AppColors.secondaryLight : AppColors.primary,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -74,17 +83,27 @@ class BookingTicketWidget extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
-                        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                        color: isDark
+                            ? AppColors.textPrimaryDark
+                            : AppColors.textPrimaryLight,
                       ),
                     ),
                   ],
                 ),
-                BadgeChip(
-                  label: booking.status.name.toUpperCase(),
-                  icon: Icons.check_circle_rounded,
-                  backgroundColor: statusColor.withValues(alpha: 0.15),
-                  textColor: statusColor,
-                  fontSize: 11,
+                Row(
+                  children: [
+                    BadgeChip(
+                      label: booking.status.name.toUpperCase(),
+                      icon: booking.status == BookingStatus.confirmed
+                          ? Icons.check_circle_rounded
+                          : (booking.status == BookingStatus.cancelled
+                              ? Icons.cancel_outlined
+                              : Icons.access_time_rounded),
+                      backgroundColor: statusColor.withValues(alpha: 0.15),
+                      textColor: statusColor,
+                      fontSize: 11,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -100,7 +119,8 @@ class BookingTicketWidget extends ConsumerWidget {
                   children: [
                     if (booking.itemImageUrl != null) ...[
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                        borderRadius:
+                            BorderRadius.circular(AppSpacing.radiusSm),
                         child: CachedNetworkImage(
                           imageUrl: booking.itemImageUrl!,
                           width: 48,
@@ -109,10 +129,14 @@ class BookingTicketWidget extends ConsumerWidget {
                           errorWidget: (_, __, ___) => Container(
                             width: 48,
                             height: 48,
-                            color: isDark ? AppColors.cardDarkElevated : AppColors.primaryContainer,
+                            color: isDark
+                                ? AppColors.cardDarkElevated
+                                : AppColors.primaryContainer,
                             child: Icon(
                               Icons.flight_rounded,
-                              color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                              color: isDark
+                                  ? AppColors.secondaryLight
+                                  : AppColors.primary,
                             ),
                           ),
                         ),
@@ -129,7 +153,9 @@ class BookingTicketWidget extends ConsumerWidget {
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                               letterSpacing: -0.2,
-                              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                              color: isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimaryLight,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -139,7 +165,9 @@ class BookingTicketWidget extends ConsumerWidget {
                               booking.itemSubtitle!,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                color: isDark
+                                    ? AppColors.textMutedDark
+                                    : AppColors.textMutedLight,
                               ),
                             ),
                         ],
@@ -157,7 +185,9 @@ class BookingTicketWidget extends ConsumerWidget {
                       child: Container(
                         height: 1.5,
                         color: index % 2 == 0
-                            ? (isDark ? AppColors.borderDark : AppColors.dividerLight)
+                            ? (isDark
+                                ? AppColors.borderDark
+                                : AppColors.dividerLight)
                             : Colors.transparent,
                       ),
                     ),
@@ -176,17 +206,21 @@ class BookingTicketWidget extends ConsumerWidget {
                           context.tr('booking_reference_number'),
                           style: TextStyle(
                             fontSize: 11,
-                            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMutedLight,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           booking.externalBookingReference,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 1.4,
-                            color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                            letterSpacing: 1.2,
+                            color: isDark
+                                ? AppColors.secondaryLight
+                                : AppColors.primary,
                           ),
                         ),
                       ],
@@ -198,19 +232,24 @@ class BookingTicketWidget extends ConsumerWidget {
                           'Passenger / Guest',
                           style: TextStyle(
                             fontSize: 11,
-                            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMutedLight,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           booking.passengerOrGuestName,
-                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                const Divider(height: 24),
+                const Divider(height: 20),
 
                 // Date & Amount
                 Row(
@@ -221,27 +260,77 @@ class BookingTicketWidget extends ConsumerWidget {
                         Icon(
                           Icons.calendar_today_rounded,
                           size: 14,
-                          color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                          color: isDark
+                              ? AppColors.secondaryLight
+                              : AppColors.primary,
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          AppDateFormatter.formatDate(booking.startDate, locale: isArabic ? 'ar' : 'en'),
+                          AppDateFormatter.formatDate(booking.startDate,
+                              locale: isArabic ? 'ar' : 'en'),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                            color: isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight,
                           ),
                         ),
                       ],
                     ),
                     Text(
-                      AppCurrencyFormatter.format(booking.totalAmountUSD, currency, locale: isArabic ? 'ar' : 'en'),
+                      AppCurrencyFormatter.format(
+                        booking.totalAmountUSD,
+                        currency,
+                        locale: isArabic ? 'ar' : 'en',
+                      ),
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.w900,
                         letterSpacing: -0.3,
-                        color: isDark ? AppColors.secondaryLight : AppColors.primary,
+                        color: isDark
+                            ? AppColors.secondaryLight
+                            : AppColors.primary,
                       ),
+                    ),
+                  ],
+                ),
+                const Divider(height: 20),
+
+                // Digital Verification QR Code
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Digital Verification Pass',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark
+                                ? AppColors.textMutedDark
+                                : AppColors.textMutedLight,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          booking.isCancelled
+                              ? 'CANCELLED / VOID'
+                              : 'SCAN AT AIRPORT / HOTEL',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: booking.isCancelled
+                                ? AppColors.error
+                                : AppColors.success,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SafeQrCodeWidget(
+                      qrData: booking.document.qrData,
+                      size: 72,
                     ),
                   ],
                 ),

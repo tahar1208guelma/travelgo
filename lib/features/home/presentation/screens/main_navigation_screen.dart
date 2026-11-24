@@ -71,8 +71,8 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
               child: Container(
                 width: isDesktop ? 260 : 80,
                 decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(
+                  border: BorderDirectional(
+                    end: BorderSide(
                       color: isDark ? AppColors.borderDark : AppColors.borderLight,
                       width: 1,
                     ),
@@ -139,7 +139,9 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                           index: 1,
                           icon: Icons.travel_explore_outlined,
                           selectedIcon: Icons.travel_explore_rounded,
-                          label: 'Unified Search & Map',
+                          label: (AppLocalizations.of(context)?.locale.languageCode == 'en')
+                              ? 'Unified Search & Map'
+                              : context.tr('nav_explore'),
                           isDesktop: isDesktop,
                           isDark: isDark,
                         ),
@@ -170,16 +172,16 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                         const Divider(height: 16),
                         // Quick Host / Admin Links
                         if (isDesktop) ...[
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                             child: Text(
-                              'PORTALS & TOOLS',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMutedLight),
+                              context.tr('portals_and_tools'),
+                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.textMutedLight),
                             ),
                           ),
                           ListTile(
                             leading: const Icon(Icons.business_center_rounded, size: 20, color: AppColors.secondary),
-                            title: const Text('Partner Portal', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            title: Text(context.tr('nav_partner_portal'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const PartnerDashboardScreen()),
@@ -188,7 +190,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                           ),
                           ListTile(
                             leading: const Icon(Icons.admin_panel_settings_rounded, size: 20, color: AppColors.primaryLight),
-                            title: const Text('Admin Panel', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            title: Text(context.tr('nav_admin_panel'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const AdminPanelScreen()),
@@ -197,7 +199,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                           ),
                           ListTile(
                             leading: const Icon(Icons.favorite_rounded, size: 20, color: AppColors.accentCoral),
-                            title: const Text('Wishlist', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                            title: Text(context.tr('nav_wishlist'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const FavoritesScreen()),
@@ -216,7 +218,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                     padding: const EdgeInsets.all(12.0),
                     child: IconButton(
                       icon: Icon(isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
-                      tooltip: 'Toggle Theme',
+                      tooltip: isDark ? context.tr('theme_light') : context.tr('theme_dark'),
                       onPressed: () => ref.read(themeModeProvider.notifier).toggleTheme(),
                     ),
                   ),
@@ -289,7 +291,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
             NavigationDestination(
               icon: const Icon(Icons.travel_explore_outlined),
               selectedIcon: Icon(Icons.travel_explore_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary),
-              label: 'Explore',
+              label: context.tr('nav_explore'),
             ),
             NavigationDestination(
               icon: const Icon(Icons.flight_outlined),
@@ -324,10 +326,22 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     final primaryColor = isDark ? AppColors.secondaryLight : AppColors.primary;
 
     if (!isDesktop) {
-      return IconButton(
-        icon: Icon(isSelected ? selectedIcon : icon, color: isSelected ? primaryColor : null),
-        tooltip: label,
-        onPressed: () => _onTabSelected(index),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Material(
+            color: isSelected ? primaryColor.withValues(alpha: 0.15) : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            child: IconButton(
+              icon: Icon(
+                isSelected ? selectedIcon : icon,
+                color: isSelected ? primaryColor : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+              ),
+              tooltip: label,
+              onPressed: () => _onTabSelected(index),
+            ),
+          ),
+        ),
       );
     }
 

@@ -12,12 +12,13 @@ abstract class PartnerRepository {
   Future<List<PartnerListingEntity>> getPartnerListings(String partnerId);
   Future<PartnerListingEntity> addListing(PartnerListingEntity listing);
   Future<List<PartnerBookingRequest>> getPartnerBookings(String partnerId);
-  Future<void> updateBookingStatus(String bookingId, PartnerBookingStatus status);
+  Future<void> updateBookingStatus(String bookingId, PartnerBookingStatus status, {String? rejectionReason});
 
   // Admin Panel Operations
   Future<List<PartnerListingEntity>> getAllPendingAdminListings();
+  Future<List<PartnerListingEntity>> getAllListings();
   Future<void> approveListing(String listingId);
-  Future<void> rejectListing(String listingId);
+  Future<void> rejectListing(String listingId, {String? reason});
 }
 
 class PartnerRepositoryImpl implements PartnerRepository {
@@ -46,6 +47,7 @@ class PartnerRepositoryImpl implements PartnerRepository {
       longitude: 9.7500,
       address: 'Djanet, Tassili n\'Ajjer, Algeria',
       amenities: ['Private Berber Tent', 'Full Board Gourmet Meals', 'Solar Powered AC', 'Stargazing Guide'],
+      documents: ['Commercial Registry (CNRC)', 'Tourism Ministry License', 'Tax ID (NIF)'],
       status: ListingStatus.approved,
       createdAt: DateTime(2026, 3, 1),
     ),
@@ -62,6 +64,7 @@ class PartnerRepositoryImpl implements PartnerRepository {
       longitude: 5.5333,
       address: 'Tamanrasset, Algeria',
       amenities: ['Fireplace', 'Heated Rooms', 'Mountain Hiking Guide', 'Breakfast Included'],
+      documents: ['Trade License (CR)', 'Tax ID Card'],
       status: ListingStatus.pendingApproval,
       createdAt: DateTime.now(),
     ),
@@ -98,7 +101,7 @@ class PartnerRepositoryImpl implements PartnerRepository {
 
   @override
   Future<PartnerUser?> loginPartner(String email, String password) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(const Duration(milliseconds: 100));
     return _currentPartner;
   }
 
@@ -110,7 +113,7 @@ class PartnerRepositoryImpl implements PartnerRepository {
     required String phone,
     required PartnerType type,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future.delayed(const Duration(milliseconds: 150));
     _currentPartner = PartnerUser(
       id: 'prt_${DateTime.now().millisecondsSinceEpoch}',
       businessName: businessName,
@@ -141,10 +144,17 @@ class PartnerRepositoryImpl implements PartnerRepository {
   }
 
   @override
-  Future<void> updateBookingStatus(String bookingId, PartnerBookingStatus status) async {
+  Future<void> updateBookingStatus(
+    String bookingId,
+    PartnerBookingStatus status, {
+    String? rejectionReason,
+  }) async {
     final index = _bookings.indexWhere((b) => b.id == bookingId);
     if (index != -1) {
-      _bookings[index] = _bookings[index].copyWith(status: status);
+      _bookings[index] = _bookings[index].copyWith(
+        status: status,
+        rejectionReason: rejectionReason,
+      );
     }
   }
 
@@ -154,18 +164,29 @@ class PartnerRepositoryImpl implements PartnerRepository {
   }
 
   @override
+  Future<List<PartnerListingEntity>> getAllListings() async {
+    return List.unmodifiable(_listings);
+  }
+
+  @override
   Future<void> approveListing(String listingId) async {
     final index = _listings.indexWhere((l) => l.id == listingId);
     if (index != -1) {
-      _listings[index] = _listings[index].copyWith(status: ListingStatus.approved);
+      _listings[index] = _listings[index].copyWith(
+        status: ListingStatus.approved,
+        adminFeedback: null,
+      );
     }
   }
 
   @override
-  Future<void> rejectListing(String listingId) async {
+  Future<void> rejectListing(String listingId, {String? reason}) async {
     final index = _listings.indexWhere((l) => l.id == listingId);
     if (index != -1) {
-      _listings[index] = _listings[index].copyWith(status: ListingStatus.rejected);
+      _listings[index] = _listings[index].copyWith(
+        status: ListingStatus.rejected,
+        adminFeedback: reason ?? 'Did not meet TravelGo quality guidelines.',
+      );
     }
   }
 }

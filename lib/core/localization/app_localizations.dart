@@ -9,6 +9,8 @@ class AppLocalizations {
   AppLocalizations(this.locale) {
     if (locale.languageCode == 'en') {
       _localizedStrings = Map.from(_fallbackEn);
+    } else if (locale.languageCode == 'fr') {
+      _localizedStrings = Map.from(_fallbackFr);
     }
   }
 
@@ -21,6 +23,7 @@ class AppLocalizations {
   static const List<Locale> supportedLocales = [
     Locale('en', ''),
     Locale('ar', ''),
+    Locale('fr', ''),
   ];
 
   static const Map<String, String> _fallbackEn = {
@@ -128,6 +131,106 @@ class AppLocalizations {
     'ai_thinking': 'AI is searching & crafting your plan...',
   };
 
+  static const Map<String, String> _fallbackFr = {
+    'app_name': 'TRAVELGO',
+    'app_tagline': 'Votre porte d\'entrée vers le monde',
+    'skip': 'Passer',
+    'next': 'Suivant',
+    'get_started': 'Commencer',
+    'continue_btn': 'Continuer',
+    'save': 'Enregistrer',
+    'cancel': 'Annuler',
+    'confirm': 'Confirmer',
+    'search': 'Rechercher',
+    'apply': 'Appliquer',
+    'reset': 'Réinitialiser',
+    'close': 'Fermer',
+    'back': 'Retour',
+    'view_all': 'Voir tout',
+    'see_details': 'Voir les détails',
+    'book_now': 'Réserver',
+    'direct_booking': 'Réservation directe',
+    'affiliate_booking': 'Réserver avec partenaire',
+    'nav_home': 'Accueil',
+    'nav_flights': 'Vols',
+    'nav_hotels': 'Hôtels',
+    'nav_bookings': 'Mes voyages',
+    'nav_profile': 'Profil',
+    'nav_explore': 'Explorer',
+    'home_greeting_morning': 'Bonjour',
+    'home_greeting_afternoon': 'Bon après-midi',
+    'home_greeting_evening': 'Bonsoir',
+    'home_where_to': 'Où souhaitez-vous aller ?',
+    'home_tab_flights': 'Vols',
+    'home_tab_hotels': 'Hôtels',
+    'home_popular_destinations': 'Destinations populaires',
+    'home_recommended_hotels': 'Hôtels en vedette',
+    'home_recent_searches': 'Recherches récentes',
+    'home_special_offers': 'Offres spéciales',
+    'flight_search_title': 'Rechercher des vols',
+    'flight_trip_type_round': 'Aller-retour',
+    'flight_trip_type_one': 'Aller simple',
+    'flight_from': 'De',
+    'flight_to': 'Vers',
+    'flight_departure_date': 'Départ',
+    'flight_return_date': 'Retour',
+    'flight_passengers': 'Passagers',
+    'flight_cabin_class': 'Classe de cabine',
+    'flight_search_action': 'Rechercher des vols',
+    'flight_results_title': 'Résultats des vols',
+    'flight_found_count': 'vols trouvés',
+    'hotel_search_title': 'Rechercher des hôtels',
+    'hotel_destination': 'Destination / Ville',
+    'hotel_check_in': 'Arrivée',
+    'hotel_check_out': 'Départ',
+    'hotel_guests': 'Voyageurs',
+    'hotel_rooms': 'Chambres',
+    'hotel_night_count': 'nuit(s)',
+    'hotel_search_action': 'Rechercher des hôtels',
+    'hotel_results_title': 'Résultats des hôtels',
+    'hotel_found_count': 'hôtels trouvés',
+    'hotel_per_night': '/ nuit',
+    'hotel_total_price': 'Total pour',
+    'hotel_free_cancellation': 'Annulation gratuite',
+    'hotel_breakfast_included': 'Petit-déjeuner inclus',
+    'booking_summary_title': 'Récapitulatif de la réservation',
+    'booking_trip_details': 'Détails du voyage',
+    'booking_guest_details': 'Détails des passagers',
+    'booking_payment_details': 'Détail du prix',
+    'booking_base_fare': 'Tarif de base',
+    'booking_taxes': 'Taxes et frais d\'aéroport',
+    'booking_service_fee': 'Frais de service plateforme',
+    'booking_total': 'Montant total',
+    'booking_service_fee_note': 'Comprend 1,00 \$ USD de garantie de réservation standard et support.',
+    'booking_pay_and_confirm': 'Payer et confirmer la réservation',
+    'booking_confirmation_title': 'Réservation confirmée !',
+    'booking_reference_number': 'Numéro de référence (PNR)',
+    'booking_view_my_bookings': 'Voir dans mes voyages',
+    'booking_back_home': 'Retour à l\'accueil',
+    'booking_view_document': 'Voir le document',
+    'booking_view_pdf': 'Voir le PDF',
+    'booking_save_pdf': 'Enregistrer le PDF',
+    'booking_print': 'Imprimer',
+    'booking_share': 'Partager',
+    'booking_document_title': 'Document de réservation',
+    'booking_trip_details_title': 'Détails du voyage',
+    'booking_demo_badge': 'RÉSERVATION TEST / DÉMO',
+    'my_bookings_title': 'Mes voyages',
+    'my_bookings_upcoming': 'À venir',
+    'my_bookings_completed': 'Terminés',
+    'my_bookings_cancelled': 'Annulés',
+    'my_bookings_empty_title': 'Aucune réservation',
+    'ai_assistant_title': 'Assistant de voyage IA',
+    'ai_assistant_subtitle': 'Planification intelligente et optimisation budgétaire',
+    'ai_search_title': 'Recherche intelligente IA',
+    'ai_search_banner_flight': 'Rechercher des vols avec l\'IA',
+    'ai_search_banner_hotel': 'Rechercher des hôtels avec l\'IA',
+    'ai_search_banner_desc': 'Décrivez votre voyage naturellement avec vos propres mots',
+    'ai_budget_title': 'Répartition du budget de voyage',
+    'ai_badge_verified': 'Tarif en direct vérifié',
+    'ai_thinking': 'L\'IA recherche et prépare votre itinéraire...',
+  };
+
   static Map<String, String> _flattenJson(Map<String, dynamic> json, [String prefix = '']) {
     final result = <String, String>{};
     json.forEach((key, value) {
@@ -151,7 +254,13 @@ class AppLocalizations {
       return true;
     } catch (e) {
       // Fallback to embedded default map if asset loading fails in headless tests
-      _localizedStrings = locale.languageCode == 'en' ? Map.from(_fallbackEn) : {};
+      if (locale.languageCode == 'fr') {
+        _localizedStrings = Map.from(_fallbackFr);
+      } else if (locale.languageCode == 'en') {
+        _localizedStrings = Map.from(_fallbackEn);
+      } else {
+        _localizedStrings = {};
+      }
       return false;
     }
   }
@@ -159,6 +268,9 @@ class AppLocalizations {
   String translate(String key) {
     if (_localizedStrings.containsKey(key)) {
       return _localizedStrings[key]!;
+    }
+    if (locale.languageCode == 'fr') {
+      return _fallbackFr[key] ?? _fallbackEn[key] ?? key;
     }
     return _fallbackEn[key] ?? key;
   }
@@ -171,7 +283,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
 
   @override
   bool isSupported(Locale locale) {
-    return ['en', 'ar'].contains(locale.languageCode);
+    return ['en', 'ar', 'fr'].contains(locale.languageCode);
   }
 
   @override

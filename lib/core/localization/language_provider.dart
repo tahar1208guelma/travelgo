@@ -17,14 +17,14 @@ class LanguageNotifier extends StateNotifier<Locale> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final langCode = prefs.getString(_key);
-      if (langCode != null && (langCode == 'ar' || langCode == 'en')) {
+      if (langCode != null && (langCode == 'ar' || langCode == 'en' || langCode == 'fr')) {
         state = Locale(langCode, '');
       }
     } catch (_) {}
   }
 
   Future<void> setLanguage(String languageCode) async {
-    if (languageCode != 'ar' && languageCode != 'en') return;
+    if (languageCode != 'ar' && languageCode != 'en' && languageCode != 'fr') return;
     state = Locale(languageCode, '');
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -33,9 +33,15 @@ class LanguageNotifier extends StateNotifier<Locale> {
   }
 
   Future<void> toggleLanguage() async {
-    final newCode = state.languageCode == 'en' ? 'ar' : 'en';
-    await setLanguage(newCode);
+    final next = switch (state.languageCode) {
+      'en' => 'ar',
+      'ar' => 'fr',
+      _ => 'en',
+    };
+    await setLanguage(next);
   }
 
   bool get isArabic => state.languageCode == 'ar';
+  bool get isFrench => state.languageCode == 'fr';
+  bool get isEnglish => state.languageCode == 'en';
 }

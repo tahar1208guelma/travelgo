@@ -16,6 +16,8 @@ class PartnerListingEntity {
   final double longitude;
   final String address;
   final List<String> amenities;
+  final List<String> documents; // verification document labels
+  final String? adminFeedback;
   final ListingStatus status;
   final DateTime createdAt;
 
@@ -33,11 +35,17 @@ class PartnerListingEntity {
     required this.longitude,
     required this.address,
     this.amenities = const [],
+    this.documents = const [],
+    this.adminFeedback,
     this.status = ListingStatus.pendingApproval,
     required this.createdAt,
   });
 
-  PartnerListingEntity copyWith({ListingStatus? status}) {
+  PartnerListingEntity copyWith({
+    ListingStatus? status,
+    String? adminFeedback,
+    List<String>? documents,
+  }) {
     return PartnerListingEntity(
       id: id,
       partnerId: partnerId,
@@ -52,6 +60,8 @@ class PartnerListingEntity {
       longitude: longitude,
       address: address,
       amenities: amenities,
+      documents: documents ?? this.documents,
+      adminFeedback: adminFeedback ?? this.adminFeedback,
       status: status ?? this.status,
       createdAt: createdAt,
     );
@@ -69,6 +79,7 @@ class PartnerBookingRequest {
   final DateTime checkOut;
   final double grossTotalUSD;
   final PartnerBookingStatus status;
+  final String? rejectionReason;
   final DateTime createdAt;
 
   const PartnerBookingRequest({
@@ -82,6 +93,7 @@ class PartnerBookingRequest {
     required this.checkOut,
     required this.grossTotalUSD,
     this.status = PartnerBookingStatus.pending,
+    this.rejectionReason,
     required this.createdAt,
   });
 
@@ -89,7 +101,10 @@ class PartnerBookingRequest {
   double get travelgoCommissionUSD => grossTotalUSD * 0.12;
   double get partnerNetEarningsUSD => grossTotalUSD * 0.88;
 
-  PartnerBookingRequest copyWith({PartnerBookingStatus? status}) {
+  PartnerBookingRequest copyWith({
+    PartnerBookingStatus? status,
+    String? rejectionReason,
+  }) {
     return PartnerBookingRequest(
       id: id,
       listingId: listingId,
@@ -101,6 +116,7 @@ class PartnerBookingRequest {
       checkOut: checkOut,
       grossTotalUSD: grossTotalUSD,
       status: status ?? this.status,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
       createdAt: createdAt,
     );
   }

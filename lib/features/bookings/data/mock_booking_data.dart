@@ -12,6 +12,9 @@ class MockBookingData {
     bookingReference: 'TRV-2026-000001',
     bookingType: BookingType.flight,
     status: BookingStatus.confirmed,
+    paymentStatus: PaymentStatus.paid,
+    paymentMethod: 'Visa •••• 4242',
+    paymentTransactionId: 'TXN-ALG-2026-001',
     customer: const CustomerInfo(
       id: 'USR-TAHAR-01',
       fullName: 'Tahar Braknia',
@@ -97,6 +100,9 @@ class MockBookingData {
     bookingReference: 'TRV-2026-000002',
     bookingType: BookingType.hotel,
     status: BookingStatus.confirmed,
+    paymentStatus: PaymentStatus.paid,
+    paymentMethod: 'Mastercard •••• 8821',
+    paymentTransactionId: 'TXN-HTL-2026-002',
     customer: const CustomerInfo(
       id: 'USR-TAHAR-01',
       fullName: 'Tahar Braknia',
@@ -137,14 +143,16 @@ class MockBookingData {
       numberOfRooms: 1,
       roomType: 'Deluxe King Sea View Suite',
       mealPlan: 'Full Turkish Breakfast Included',
-      cancellationPolicy: 'Free cancellation until 14 September 2026, 14:00 (24h before check-in)',
+      cancellationPolicy:
+          'Free cancellation until 14 September 2026, 14:00 (24h before check-in)',
       rooms: const [
         HotelRoomDetails(
           roomType: 'Deluxe King Sea View Suite',
           numberOfGuests: 2,
           bedType: '1 King Bed',
           mealPlan: 'Full Turkish Breakfast Included',
-          description: 'Spacious 45m² room with panoramic Bosphorus views, marble bathroom, and espresso machine.',
+          description:
+              'Spacious 45m² room with panoramic Bosphorus views, marble bathroom, and espresso machine.',
           pricePerNightUSD: 130.00,
         ),
       ],
@@ -172,6 +180,9 @@ class MockBookingData {
     bookingReference: 'TRV-2026-000003',
     bookingType: BookingType.flightAndHotel,
     status: BookingStatus.confirmed,
+    paymentStatus: PaymentStatus.paid,
+    paymentMethod: 'Apple Pay',
+    paymentTransactionId: 'TXN-PKG-2026-003',
     customer: const CustomerInfo(
       id: 'USR-TAHAR-01',
       fullName: 'Tahar Braknia',
@@ -257,6 +268,19 @@ class MockBookingData {
     bookingReference: 'TRV-2026-000004',
     bookingType: BookingType.flight,
     status: BookingStatus.cancelled,
+    paymentStatus: PaymentStatus.refunded,
+    paymentMethod: 'Visa •••• 4242',
+    paymentTransactionId: 'TXN-AF-2026-004',
+    refundDetails: RefundDetails(
+      status: RefundStatus.refunded,
+      refundAmount: 321.00,
+      currency: 'USD',
+      refundTransactionId: 'RFND-TRV-991204',
+      reason: 'Trip cancelled by customer request on June 15, 2026.',
+      requestedAt: DateTime(2026, 6, 15, 14, 30),
+      processedAt: DateTime(2026, 6, 16, 10, 0),
+      notes: 'Full refund credited to Visa ending in 4242.',
+    ),
     customer: const CustomerInfo(
       id: 'USR-TAHAR-01',
       fullName: 'Tahar Braknia',
@@ -305,6 +329,9 @@ class MockBookingData {
     bookingReference: 'TRV-2026-000005',
     bookingType: BookingType.flight,
     status: BookingStatus.confirmed,
+    paymentStatus: PaymentStatus.paid,
+    paymentMethod: 'Amex •••• 1004',
+    paymentTransactionId: 'TXN-GLB-2026-005',
     customer: const CustomerInfo(
       id: 'USR-TAHAR-01',
       fullName: 'Tahar Braknia',
@@ -318,7 +345,8 @@ class MockBookingData {
           ticketNumber: '082-9988112233',
         ),
         PassengerInfo(
-          fullName: 'Amira Braknia (Very Long Family Member Name For Testing Robustness)',
+          fullName:
+              'Amira Braknia (Very Long Family Member Name For Testing Robustness)',
           passengerType: PassengerType.adult,
           seatNumber: '12C',
           ticketNumber: '082-9988112234',
@@ -345,7 +373,8 @@ class MockBookingData {
           seatNumber: '12B',
         ),
         PassengerInfo(
-          fullName: 'Amira Braknia (Very Long Family Member Name For Testing Robustness)',
+          fullName:
+              'Amira Braknia (Very Long Family Member Name For Testing Robustness)',
           passengerType: PassengerType.adult,
           seatNumber: '12C',
         ),

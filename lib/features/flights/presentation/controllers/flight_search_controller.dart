@@ -1,4 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/search/adapters/amadeus_flight_provider.dart';
+import '../../../../core/search/adapters/duffel_flight_provider.dart';
+import '../../../../core/search/adapters/sandbox_travel_provider.dart';
+import '../../../../core/search/adapters/travelpayouts_affiliate_provider.dart';
+import '../../../../core/search/services/flight_search_aggregator.dart';
 import '../../../../providers_layer/mock_travel_provider.dart';
 import '../../../../providers_layer/travel_provider.dart';
 import '../../data/repositories/flight_repository_impl.dart';
@@ -11,13 +16,19 @@ class FlightFilterState {
   final FlightSortOption sortOption;
   final int? maxStops; // null = any, 0 = direct, 1 = 1 stop
   final String? airlineFilter;
+  final double? minPriceUSD;
   final double? maxPriceUSD;
+  final CabinClass? cabinClass;
+  final bool baggageOnly;
 
   const FlightFilterState({
     this.sortOption = FlightSortOption.cheapest,
     this.maxStops,
     this.airlineFilter,
+    this.minPriceUSD,
     this.maxPriceUSD,
+    this.cabinClass,
+    this.baggageOnly = false,
   });
 
   FlightFilterState copyWith({
@@ -26,13 +37,19 @@ class FlightFilterState {
     bool clearMaxStops = false,
     String? airlineFilter,
     bool clearAirline = false,
+    double? minPriceUSD,
     double? maxPriceUSD,
+    CabinClass? cabinClass,
+    bool? baggageOnly,
   }) {
     return FlightFilterState(
       sortOption: sortOption ?? this.sortOption,
       maxStops: clearMaxStops ? null : (maxStops ?? this.maxStops),
       airlineFilter: clearAirline ? null : (airlineFilter ?? this.airlineFilter),
+      minPriceUSD: minPriceUSD ?? this.minPriceUSD,
       maxPriceUSD: maxPriceUSD ?? this.maxPriceUSD,
+      cabinClass: cabinClass ?? this.cabinClass,
+      baggageOnly: baggageOnly ?? this.baggageOnly,
     );
   }
 }
@@ -63,8 +80,22 @@ class FlightSearchResultState {
       list = list.where((f) => f.airlineName.toLowerCase().contains(filterState.airlineFilter!.toLowerCase())).toList();
     }
 
+    if (filterState.minPriceUSD != null) {
+      list = list.where((f) => f.totalUSD >= filterState.minPriceUSD!).toList();
+    }
+
     if (filterState.maxPriceUSD != null) {
       list = list.where((f) => f.totalUSD <= filterState.maxPriceUSD!).toList();
+    }
+
+    if (filterState.cabinClass != null) {
+      list = list.where((f) =>
+          f.segments.isEmpty ||
+          f.segments.any((s) => s.cabinClass.toLowerCase() == filterState.cabinClass!.name.toLowerCase())).toList();
+    }
+
+    if (filterState.baggageOnly) {
+      list = list.where((f) => f.baggageIncluded).toList();
     }
 
     switch (filterState.sortOption) {
@@ -107,9 +138,21 @@ final travelProviderRef = Provider<TravelProvider>((ref) {
   return MockTravelProvider();
 });
 
+final flightSearchAggregatorProvider = Provider<FlightSearchAggregator>((ref) {
+  return FlightSearchAggregator(
+    providers: [
+      AmadeusFlightProvider(),
+      DuffelFlightProvider(),
+      TravelpayoutsAffiliateProvider(),
+      SandboxTravelProvider(),
+    ],
+  );
+});
+
 final flightRepositoryProvider = Provider<FlightRepositoryImpl>((ref) {
   final provider = ref.watch(travelProviderRef);
-  return FlightRepositoryImpl(provider);
+  final aggregator = ref.watch(flightSearchAggregatorProvider);
+  return FlightRepositoryImpl(provider, aggregator);
 });
 
 final flightSearchControllerProvider = StateNotifierProvider<FlightSearchController, FlightSearchResultState>((ref) {

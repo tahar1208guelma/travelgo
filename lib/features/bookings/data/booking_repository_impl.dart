@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers_layer/mock_travel_provider.dart';
 import '../../../../providers_layer/travel_provider.dart';
@@ -22,16 +23,35 @@ class BookingRepositoryImpl implements BookingRepository {
 
   BookingRepositoryImpl([this._travelProvider]);
 
+  String _generateReference(BookingType type) {
+    final prefix = type == BookingType.flight
+        ? 'FLT'
+        : (type == BookingType.hotel ? 'HTL' : 'PKG');
+    final year = DateTime.now().year;
+    final randomSuffix = (Random().nextInt(900000) + 100000).toString();
+    return 'TRV-$prefix-$year-$randomSuffix';
+  }
+
+  String _generatePnr() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rnd = Random();
+    return List.generate(6, (_) => chars[rnd.nextInt(chars.length)]).join();
+  }
+
   @override
   Future<List<Booking>> getUserBookings(String userId) async {
-    // Return all mock bookings in order (newest first)
     return List.unmodifiable(_bookings);
   }
 
   @override
   Future<Booking?> getBookingByReference(String reference) async {
     try {
-      return _bookings.firstWhere((b) => b.bookingReference == reference);
+      return _bookings.firstWhere(
+        (b) =>
+            b.bookingReference == reference ||
+            b.bookingId == reference ||
+            b.id == reference,
+      );
     } catch (_) {
       return null;
     }
@@ -45,68 +65,67 @@ class BookingRepositoryImpl implements BookingRepository {
 
   @override
   Future<Booking> createDirectBooking(DirectBookingRequest request) async {
-    if (_travelProvider != null) {
-      final bookingEntity = await _travelProvider!.createDirectBooking(request);
-      final booking = Booking(
-        bookingId: bookingEntity.id,
-        bookingReference: bookingEntity.externalBookingReference,
-        bookingType: bookingEntity.bookingType == BookingType.flight
-            ? BookingType.flight
-            : BookingType.hotel,
-        status: BookingStatus.confirmed,
-        customer: CustomerInfo(
-          id: bookingEntity.userId,
-          fullName: bookingEntity.passengerOrGuestName,
-          email: bookingEntity.contactEmail,
-          phone: bookingEntity.contactPhone,
-        ),
-        provider: bookingEntity.provider,
-        priceBreakdown: PriceBreakdown(
-          basePrice: bookingEntity.basePriceUSD,
-          taxes: bookingEntity.taxesUSD,
-          serviceFee: bookingEntity.serviceFeeUSD,
-          totalAmount: bookingEntity.totalAmountUSD,
-          currency: bookingEntity.currency,
-        ),
-        createdAt: bookingEntity.createdAt,
-        document: BookingDocument(
-          documentId: 'DOC-${bookingEntity.externalBookingReference}',
-          bookingReference: bookingEntity.externalBookingReference,
-          issuedAt: bookingEntity.createdAt,
-          qrData: bookingEntity.externalBookingReference,
-        ),
-      );
-      _bookings.insert(0, booking);
-      return booking;
-    }
+    final reference = _generateReference(request.bookingType);
+    final pnr = _generatePnr();
+    final now = DateTime.now();
+
+    final passengers = request.passengers != null && request.passengers!.isNotEmpty
+        ? request.passengers!
+        : [
+            PassengerInfo(
+              fullName: request.passengerOrGuestName,
+              passengerType: PassengerType.adult,
+              specialRequests: request.specialRequests,
+            ),
+          ];
+
+    final customer = CustomerInfo(
+      id: request.userId,
+      fullName: request.passengerOrGuestName,
+      email: request.contactEmail,
+      phone: request.contactPhone,
+      passengers: passengers,
+    );
 
     final newBooking = Booking(
-      bookingId: 'BK-${DateTime.now().millisecondsSinceEpoch}',
-      bookingReference: 'TRV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+      bookingId: 'BK-${now.millisecondsSinceEpoch}',
+      bookingReference: reference,
+      providerBookingReference: pnr,
       bookingType: request.bookingType,
       status: BookingStatus.confirmed,
-      customer: CustomerInfo(
-        id: request.userId,
-        fullName: request.passengerOrGuestName,
-        email: request.contactEmail,
-        phone: request.contactPhone,
-      ),
-      provider: 'TRAVELGO Direct',
+      paymentStatus: PaymentStatus.paid,
+      customer: customer,
+      provider: request.bookingType == BookingType.flight
+          ? (request.itemSubtitle?.split('•').first.trim().isNotEmpty == true
+              ? request.itemSubtitle!.split('•').first.trim()
+              : 'TRAVELGO Flights Direct')
+          : (request.bookingType == BookingType.hotel
+              ? request.itemName
+              : 'TRAVELGO Vacations Package'),
       priceBreakdown: PriceBreakdown(
         basePrice: request.basePriceUSD,
         taxes: request.taxesUSD,
-        serviceFee: request.serviceFeeUSD,
+        serviceFee: request.serviceFeeUSD, // $1.00 USD standard platform fee
         totalAmount: request.totalAmountUSD,
         currency: 'USD',
       ),
-      createdAt: DateTime.now(),
+      flightDetails: request.flightDetails,
+      hotelDetails: request.hotelDetails,
+      createdAt: now,
       document: BookingDocument(
-        documentId: 'DOC-${DateTime.now().millisecondsSinceEpoch}',
-        bookingReference: 'TRV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-        issuedAt: DateTime.now(),
-        qrData: 'TRV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+        documentId: 'DOC-$reference',
+        bookingReference: reference,
+        issuedAt: now,
+        qrData: 'TRAVELGO:$reference:$pnr:${request.passengerOrGuestName}:${request.totalAmountUSD.toStringAsFixed(2)}',
+        isDemo: true,
       ),
+      paymentMethod: request.paymentMethod,
+      paymentTransactionId: 'TXN-${now.millisecondsSinceEpoch}',
+      customItemName: request.itemName,
+      customItemSubtitle: request.itemSubtitle,
+      customItemImageUrl: request.itemImageUrl,
     );
+
     _bookings.insert(0, newBooking);
     return newBooking;
   }
@@ -141,13 +160,50 @@ class BookingRepositoryImpl implements BookingRepository {
   }
 
   @override
-  Future<void> cancelBooking(String bookingId, {String? reason}) async {
-    final index = _bookings.indexWhere((b) => b.bookingId == bookingId || b.id == bookingId);
+  Future<void> cancelBooking(
+    String bookingId, {
+    String? reason,
+    double? refundAmount,
+  }) async {
+    final index = _bookings.indexWhere((b) =>
+        b.bookingId == bookingId ||
+        b.id == bookingId ||
+        b.bookingReference == bookingId);
+
     if (index != -1) {
-      _bookings[index] = _bookings[index].copyWith(
+      final old = _bookings[index];
+      final amount = refundAmount ?? old.priceBreakdown.totalAmount;
+      final refund = RefundDetails(
+        status: RefundStatus.refunded,
+        refundAmount: amount,
+        currency: old.priceBreakdown.currency,
+        refundTransactionId:
+            'RFND-TRV-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}',
+        reason: reason ?? 'Cancelled by customer',
+        requestedAt: DateTime.now(),
+        processedAt: DateTime.now(),
+        notes:
+            'Refund processed back to original payment method (${old.paymentMethod ?? "Credit Card"}).',
+      );
+
+      _bookings[index] = old.copyWith(
         status: BookingStatus.cancelled,
+        paymentStatus: PaymentStatus.refunded,
         cancellationReason: reason ?? 'Cancelled by customer',
+        refundDetails: refund,
+        updatedAt: DateTime.now(),
       );
     }
+  }
+
+  @override
+  Future<RefundDetails?> requestRefund(
+    String bookingId, {
+    required String reason,
+    double? amount,
+  }) async {
+    await cancelBooking(bookingId, reason: reason, refundAmount: amount);
+    final booking = await getBookingByReference(bookingId);
+    return booking?.refundDetails;
   }
 }

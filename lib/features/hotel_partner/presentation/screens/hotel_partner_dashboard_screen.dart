@@ -18,6 +18,7 @@ class HotelPartnerDashboardScreen extends ConsumerStatefulWidget {
 class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashboardScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _qrCodeController = TextEditingController();
+  PartnerReservationStatus? _selectedReservationFilter;
 
   @override
   void initState() {
@@ -69,6 +70,223 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
         ),
       );
     }
+  }
+
+  void _showRejectDialog(String reservationId) {
+    String selectedReason = 'Requested dates are no longer available';
+    final customCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(context.tr('partner.reject_reservation_title')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.tr('partner.reject_reservation_desc'),
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                value: selectedReason,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.rejection_reason'),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Requested dates are no longer available', child: Text('Dates not available')),
+                  DropdownMenuItem(value: 'Property undergoing scheduled maintenance', child: Text('Scheduled maintenance')),
+                  DropdownMenuItem(value: 'Guest party exceeds room maximum capacity', child: Text('Exceeds capacity')),
+                  DropdownMenuItem(value: 'Other reason', child: Text('Other reason')),
+                ],
+                onChanged: (val) {
+                  if (val != null) setDialogState(() => selectedReason = val);
+                },
+              ),
+              if (selectedReason == 'Other reason') ...[
+                const SizedBox(height: 10),
+                TextField(
+                  controller: customCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Enter reason...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(context.tr('cancel')),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+              onPressed: () async {
+                final reason = selectedReason == 'Other reason' && customCtrl.text.trim().isNotEmpty
+                    ? customCtrl.text.trim()
+                    : selectedReason;
+                await ref.read(hotelPartnerControllerProvider.notifier).rejectReservation(reservationId, reason);
+                if (mounted) Navigator.of(ctx).pop();
+              },
+              child: Text(context.tr('partner.confirm_reject_btn'), style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openPayoutModal(HotelPartnerState state) {
+    final profile = state.profile;
+    if (profile == null || profile.pendingPayoutUSD <= 0) return;
+
+    final amountCtrl = TextEditingController(text: profile.pendingPayoutUSD.toStringAsFixed(0));
+    PartnerPayoutMethod selectedMethod = profile.payoutAccount?.method ?? PartnerPayoutMethod.algeriaPostCcp;
+    final accountCtrl = TextEditingController(text: profile.payoutAccount?.accountNumberOrIban ?? '0019283746');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            left: 20,
+            right: 20,
+            top: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 44,
+                  height: 5,
+                  decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(3)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.success.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.account_balance_wallet_rounded, color: AppColors.success),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      context.tr('partner.request_payout_title'),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Available: \$${profile.pendingPayoutUSD.toStringAsFixed(2)} USD',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.success, fontSize: 15),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: amountCtrl,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.payout_amount_usd'),
+                  prefixIcon: const Icon(Icons.attach_money),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<PartnerPayoutMethod>(
+                value: selectedMethod,
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.payout_method'),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                items: PartnerPayoutMethod.values.map((m) {
+                  return DropdownMenuItem(
+                    value: m,
+                    child: Text(
+                      PartnerPayoutAccount(
+                        method: m,
+                        accountHolderName: '',
+                        accountNumberOrIban: '',
+                      ).getMethodLabel(isArabic: ref.read(languageProvider.notifier).isArabic),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  if (val != null) setModalState(() => selectedMethod = val);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: accountCtrl,
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.account_number_or_iban'),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () async {
+                    final amount = double.tryParse(amountCtrl.text) ?? 0.0;
+                    final account = PartnerPayoutAccount(
+                      method: selectedMethod,
+                      accountHolderName: profile.ownerName,
+                      accountNumberOrIban: accountCtrl.text.trim(),
+                    );
+                    final ok = await ref.read(hotelPartnerControllerProvider.notifier).requestPayout(
+                      amountUSD: amount,
+                      account: account,
+                    );
+                    if (mounted) {
+                      Navigator.of(ctx).pop();
+                      if (ok) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(context.tr('partner.payout_requested_success')),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Text(
+                    context.tr('partner.submit_payout_btn'),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -127,7 +345,14 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                         indicatorWeight: 3,
                         tabs: [
                           Tab(icon: const Icon(Icons.apartment_rounded, size: 20), text: context.tr('partner.tabs.my_hotels')),
-                          Tab(icon: const Icon(Icons.event_note_rounded, size: 20), text: context.tr('partner.tabs.reservations')),
+                          Tab(
+                            icon: Badge(
+                              isLabelVisible: state.pendingReservationsCount > 0,
+                              label: Text('${state.pendingReservationsCount}'),
+                              child: const Icon(Icons.event_note_rounded, size: 20),
+                            ),
+                            text: context.tr('partner.tabs.reservations'),
+                          ),
                           Tab(icon: const Icon(Icons.qr_code_scanner_rounded, size: 20), text: context.tr('partner.tabs.qr_scanner')),
                           Tab(icon: const Icon(Icons.account_balance_wallet_rounded, size: 20), text: context.tr('partner.tabs.earnings')),
                         ],
@@ -137,14 +362,14 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
 
                     // Tab Views Container
                     SizedBox(
-                      height: 520,
+                      height: 560,
                       child: TabBarView(
                         controller: _tabController,
                         children: [
                           _buildHotelsTab(state, isArabic),
                           _buildReservationsTab(state),
                           _buildQrScannerTab(state),
-                          _buildEarningsTab(state),
+                          _buildEarningsTab(state, isArabic),
                         ],
                       ),
                     ),
@@ -205,7 +430,7 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      profile?.ownerName ?? 'Tahar Braknia',
+                      '${profile?.ownerName ?? "Tahar Braknia"} • ${profile?.phone ?? ""}',
                       style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 13),
                     ),
                   ],
@@ -218,9 +443,9 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
-                  mainAxisSize: minAxisSize(),
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 14),
+                    const Icon(Icons.shield, color: Colors.amber, size: 14),
                     const SizedBox(width: 4),
                     Text(
                       context.tr('partner.verified_host'),
@@ -236,8 +461,6 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
     );
   }
 
-  MainAxisSize minAxisSize() => MainAxisSize.min;
-
   Widget _buildKpiMetrics(HotelPartnerState state) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -251,7 +474,7 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
               color: AppColors.success,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: _buildKpiCard(
               title: context.tr('partner.kpi_active_hotels'),
@@ -260,7 +483,7 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
               color: AppColors.primary,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           Expanded(
             child: _buildKpiCard(
               title: context.tr('partner.kpi_bookings'),
@@ -276,7 +499,7 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
 
   Widget _buildKpiCard({required String title, required String value, required IconData icon, required Color color}) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -298,12 +521,12 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
               color: color.withOpacity(0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: color, size: 18),
+            child: Icon(icon, color: color, size: 16),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 2),
           Text(
@@ -317,7 +540,7 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
     );
   }
 
-  // Tab 1: My Hotels
+  // Tab 0: My Hotels
   Widget _buildHotelsTab(HotelPartnerState state, bool isArabic) {
     if (state.hotels.isEmpty) {
       return Center(
@@ -343,7 +566,9 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
       itemCount: state.hotels.length,
       itemBuilder: (ctx, idx) {
         final hotel = state.hotels[idx];
-        final isActive = hotel.status == PartnerListingStatus.active;
+        final isActive = hotel.isActive;
+        final isPending = hotel.isPendingReview;
+        final isRejected = hotel.isRejected;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
@@ -380,11 +605,23 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: isActive ? AppColors.success : Colors.grey.shade700,
+                          color: isActive
+                              ? AppColors.success
+                              : isPending
+                                  ? AppColors.warning
+                                  : isRejected
+                                      ? AppColors.error
+                                      : Colors.grey.shade700,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          isActive ? context.tr('partner.status_active') : context.tr('partner.status_paused'),
+                          isActive
+                              ? context.tr('partner.status_active')
+                              : isPending
+                                  ? context.tr('partner.status_pending_review')
+                                  : isRejected
+                                      ? context.tr('partner.status_rejected')
+                                      : context.tr('partner.status_paused'),
                           style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -414,6 +651,34 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                 ),
               ),
 
+              // Rejection Feedback Banner if rejected
+              if (isRejected && hotel.adminFeedback != null)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  color: AppColors.error.withOpacity(0.08),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: AppColors.error, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Feedback: ${hotel.adminFeedback}',
+                          style: const TextStyle(color: AppColors.error, fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed: () => _openEditHotel(hotel),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                          side: const BorderSide(color: AppColors.error),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        ),
+                        child: const Text('Fix & Resubmit', style: TextStyle(fontSize: 11)),
+                      ),
+                    ],
+                  ),
+                ),
+
               // Hotel Info
               Padding(
                 padding: const EdgeInsets.all(14),
@@ -439,7 +704,7 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${hotel.getCity(isArabic: isArabic)}, ${hotel.getCountry(isArabic: isArabic)} • ${hotel.rooms.length} ${context.tr('hotel_rooms')}',
+                      '${hotel.getCity(isArabic: isArabic)}, ${hotel.getCountry(isArabic: isArabic)} • ${hotel.rooms.length} ${context.tr('hotel_rooms')} • ${hotel.seasonalRules.length} Seasonal Rules',
                       style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                     ),
                     const Divider(height: 20),
@@ -505,111 +770,234 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
     );
   }
 
-  // Tab 2: Reservations Feed
+  // Tab 1: Reservations Feed with Filter & Accept/Reject
   Widget _buildReservationsTab(HotelPartnerState state) {
-    if (state.reservations.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.calendar_today_outlined, size: 50, color: Colors.grey.shade400),
-            const SizedBox(height: 12),
-            Text(context.tr('partner.no_reservations_yet'), style: const TextStyle(fontSize: 15, color: Colors.grey)),
-          ],
-        ),
-      );
-    }
+    final allReservations = state.reservations;
+    final filtered = _selectedReservationFilter == null
+        ? allReservations
+        : allReservations.where((r) => r.status == _selectedReservationFilter).toList();
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: state.reservations.length,
-      itemBuilder: (ctx, idx) {
-        final res = state.reservations[idx];
-        final isCheckedIn = res.status == PartnerReservationStatus.checkedIn;
-        final isConfirmed = res.status == PartnerReservationStatus.confirmed;
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        // Filter Chips Row
+        Container(
+          height: 48,
+          color: Colors.white,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    res.bookingReference,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.primary),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: isCheckedIn
-                          ? AppColors.primaryContainer
-                          : isConfirmed
-                              ? AppColors.successLight
-                              : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      res.status.name.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: isCheckedIn ? AppColors.primaryDark : AppColors.success,
-                      ),
-                    ),
-                  ),
-                ],
+              FilterChip(
+                label: const Text('All'),
+                selected: _selectedReservationFilter == null,
+                onSelected: (_) => setState(() => _selectedReservationFilter = null),
               ),
-              const SizedBox(height: 8),
-              Text(
-                res.guestName,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              const SizedBox(width: 8),
+              FilterChip(
+                label: Text('Pending (${state.pendingReservationsCount})'),
+                selected: _selectedReservationFilter == PartnerReservationStatus.pending,
+                selectedColor: AppColors.warning.withOpacity(0.2),
+                onSelected: (_) => setState(() => _selectedReservationFilter = PartnerReservationStatus.pending),
               ),
-              const SizedBox(height: 2),
-              Text(
-                '${res.hotelName} • ${res.roomName}',
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+              const SizedBox(width: 8),
+              FilterChip(
+                label: const Text('Confirmed'),
+                selected: _selectedReservationFilter == PartnerReservationStatus.confirmed,
+                onSelected: (_) => setState(() => _selectedReservationFilter = PartnerReservationStatus.confirmed),
               ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Icon(Icons.date_range, size: 14, color: Colors.grey.shade600),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${DateFormat('MMM dd').format(res.checkInDate)} - ${DateFormat('MMM dd, yyyy').format(res.checkOutDate)} (${res.numberOfNights} nights)',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              FilterChip(
+                label: const Text('Checked-In'),
+                selected: _selectedReservationFilter == PartnerReservationStatus.checkedIn,
+                onSelected: (_) => setState(() => _selectedReservationFilter = PartnerReservationStatus.checkedIn),
               ),
-              const Divider(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Net Payout: \$${res.netHostPayoutUSD.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.success, fontSize: 14),
-                  ),
-                  Text(
-                    'Fee: \$${res.platformFeeUSD.toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              FilterChip(
+                label: const Text('Completed'),
+                selected: _selectedReservationFilter == PartnerReservationStatus.completed,
+                onSelected: (_) => setState(() => _selectedReservationFilter = PartnerReservationStatus.completed),
               ),
             ],
           ),
-        );
-      },
+        ),
+
+        // List View
+        Expanded(
+          child: filtered.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.calendar_today_outlined, size: 50, color: Colors.grey.shade400),
+                      const SizedBox(height: 12),
+                      Text(context.tr('partner.no_reservations_yet'), style: const TextStyle(fontSize: 15, color: Colors.grey)),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filtered.length,
+                  itemBuilder: (ctx, idx) {
+                    final res = filtered[idx];
+                    final isPending = res.isPending;
+                    final isConfirmed = res.isConfirmed;
+                    final isCheckedIn = res.isCheckedIn;
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isPending ? AppColors.warning.withOpacity(0.5) : Colors.grey.shade200,
+                          width: isPending ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                res.bookingReference,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.primary),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: isPending
+                                      ? AppColors.warning.withOpacity(0.15)
+                                      : isCheckedIn
+                                          ? AppColors.primaryContainer
+                                          : isConfirmed
+                                              ? AppColors.successLight
+                                              : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  res.status.name.toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: isPending
+                                        ? AppColors.warning
+                                        : isCheckedIn
+                                            ? AppColors.primaryDark
+                                            : AppColors.success,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            res.guestName,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${res.hotelName} • ${res.roomName}',
+                            style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(Icons.date_range, size: 14, color: Colors.grey.shade600),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${DateFormat('MMM dd').format(res.checkInDate)} - ${DateFormat('MMM dd, yyyy').format(res.checkOutDate)} (${res.numberOfNights} nights)',
+                                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 18),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Net Payout: \$${res.netHostPayoutUSD.toStringAsFixed(2)}',
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.success, fontSize: 14),
+                              ),
+                              Text(
+                                'Platform Fee: \$${res.platformFeeUSD.toStringAsFixed(2)}',
+                                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                              ),
+                            ],
+                          ),
+
+                          // Action Buttons: Accept / Reject for Pending, Check-In for Confirmed
+                          if (isPending) ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: () => ref.read(hotelPartnerControllerProvider.notifier).acceptReservation(res.id),
+                                    icon: const Icon(Icons.check, size: 16, color: Colors.white),
+                                    label: Text(context.tr('partner.accept_btn')),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.success,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () => _showRejectDialog(res.id),
+                                    icon: const Icon(Icons.close, size: 16, color: AppColors.error),
+                                    label: Text(context.tr('partner.reject_btn')),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.error,
+                                      side: const BorderSide(color: AppColors.error),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ] else if (isConfirmed) ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () => ref.read(hotelPartnerControllerProvider.notifier).verifyCheckInCode(res.bookingReference),
+                                icon: const Icon(Icons.check_circle_outline, size: 16),
+                                label: Text(context.tr('partner.mark_checked_in_btn')),
+                                style: OutlinedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                          ] else if (isCheckedIn) ...[
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () => ref.read(hotelPartnerControllerProvider.notifier).completeReservation(res.id),
+                                icon: const Icon(Icons.done_all, size: 16, color: Colors.white),
+                                label: Text(context.tr('partner.complete_stay_btn')),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 
-  // Tab 3: QR Scanner & Check-In Verification Terminal
+  // Tab 2: QR Scanner & Check-In Verification Terminal
   Widget _buildQrScannerTab(HotelPartnerState state) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -719,13 +1107,17 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
     );
   }
 
-  // Tab 4: Earnings & Commission Wallet
-  Widget _buildEarningsTab(HotelPartnerState state) {
+  // Tab 3: Earnings, Wallet & Payout Ledger
+  Widget _buildEarningsTab(HotelPartnerState state, bool isArabic) {
+    final profile = state.profile;
+    final payouts = state.payoutHistory;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Balance Card
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -748,6 +1140,11 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                   '\$${state.pendingPayout.toStringAsFixed(2)} USD',
                   style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  'Lifetime Settled Earnings: \$${state.totalRevenue.toStringAsFixed(2)} USD',
+                  style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
+                ),
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -757,19 +1154,7 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
                       backgroundColor: AppColors.secondary,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    onPressed: state.pendingPayout > 0
-                        ? () async {
-                            await ref.read(hotelPartnerControllerProvider.notifier).requestPayout();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(context.tr('partner.payout_requested_success')),
-                                  backgroundColor: AppColors.success,
-                                ),
-                              );
-                            }
-                          }
-                        : null,
+                    onPressed: state.pendingPayout > 0 ? () => _openPayoutModal(state) : null,
                     child: Text(
                       context.tr('partner.withdraw_funds_btn'),
                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -781,35 +1166,108 @@ class _HotelPartnerDashboardScreenState extends ConsumerState<HotelPartnerDashbo
           ),
           const SizedBox(height: 20),
 
-          // Commission Transparent Policy Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.handshake_outlined, color: AppColors.primary),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.tr('partner.commission_model_title'),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          // Configured Payout Method Display
+          if (profile?.payoutAccount != null)
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: AppColors.primaryContainer, borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.account_balance, color: AppColors.primary, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile!.payoutAccount!.getMethodLabel(isArabic: isArabic),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        Text(
+                          '${profile.payoutAccount!.accountHolderName} • ${profile.payoutAccount!.accountNumberOrIban}',
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  context.tr('partner.commission_model_desc'),
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                ),
-              ],
+                  ),
+                  TextButton(
+                    onPressed: () => _openPayoutModal(state),
+                    child: Text(context.tr('common.edit')),
+                  ),
+                ],
+              ),
             ),
+          const SizedBox(height: 20),
+
+          // Payout History Ledger
+          Text(
+            context.tr('partner.payout_history_title'),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: 10),
+          if (payouts.isEmpty)
+            Text(context.tr('partner.no_payouts_yet'), style: TextStyle(color: Colors.grey.shade600, fontSize: 13))
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: payouts.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              itemBuilder: (ctx, idx) {
+                final item = payouts[idx];
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.transactionReference ?? item.id,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                          Text(
+                            '${DateFormat('MMM dd, yyyy').format(item.requestedAt)} • ${item.destinationAccountMasked}',
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '\$${item.amountUSD.toStringAsFixed(2)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppColors.success),
+                          ),
+                          Text(
+                            item.status.name.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: item.status == PartnerPayoutStatus.processed ? AppColors.success : AppColors.warning,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );

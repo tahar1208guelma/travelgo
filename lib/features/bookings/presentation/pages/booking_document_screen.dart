@@ -182,6 +182,29 @@ class BookingDocumentScreen extends ConsumerWidget {
                     size: 130,
                     caption: 'Scan to verify booking reference',
                   ),
+                  if (booking.isCancelled) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                        border: Border.all(color: AppColors.error.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.cancel_outlined, color: AppColors.error, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'This booking was cancelled. ${booking.hasRefund ? "Refund: \$${booking.refundDetails!.refundAmount.toStringAsFixed(2)} USD (${booking.refundDetails!.statusLabel})." : ""}',
+                              style: const TextStyle(fontSize: 12, color: AppColors.error, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 20),
 
                   const Divider(height: 20),

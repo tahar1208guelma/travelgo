@@ -10,6 +10,8 @@ class StorageService {
   static const String _searchesKey = 'recent_searches_cache';
   static const String _favoritesKey = 'favorites_cache';
   static const String _userKey = 'cached_user_profile';
+  static const String _authTokenKey = 'auth_session_token';
+  static const String _refreshTokenKey = 'auth_session_refresh_token';
   static const String _onboardingSeenKey = 'onboarding_seen';
 
   final SharedPreferences _prefs;
@@ -54,7 +56,7 @@ class StorageService {
 
   bool isFavorite(String id) => getFavoriteIds().contains(id);
 
-  // Cached User
+  // Cached User & Session Tokens
   Map<String, dynamic>? getCachedUser() {
     final raw = _prefs.getString(_userKey);
     if (raw == null) return null;
@@ -69,10 +71,35 @@ class StorageService {
     }
   }
 
+  String? getAuthToken() => _prefs.getString(_authTokenKey);
+
+  Future<bool> setAuthToken(String? token) async {
+    if (token == null) {
+      return _prefs.remove(_authTokenKey);
+    }
+    return _prefs.setString(_authTokenKey, token);
+  }
+
+  String? getRefreshToken() => _prefs.getString(_refreshTokenKey);
+
+  Future<bool> setRefreshToken(String? token) async {
+    if (token == null) {
+      return _prefs.remove(_refreshTokenKey);
+    }
+    return _prefs.setString(_refreshTokenKey, token);
+  }
+
+  Future<void> clearAuthSession() async {
+    await _prefs.remove(_userKey);
+    await _prefs.remove(_authTokenKey);
+    await _prefs.remove(_refreshTokenKey);
+  }
+
   // Hotel Partner Portal Storage
   static const String _partnerHotelsKey = 'partner_hotels_cache_v1';
   static const String _partnerProfileKey = 'partner_profile_cache_v1';
   static const String _partnerReservationsKey = 'partner_reservations_cache_v1';
+  static const String _partnerPayoutsKey = 'partner_payouts_cache_v1';
 
   List<String>? getPartnerHotelsJson() => _prefs.getStringList(_partnerHotelsKey);
   Future<void> savePartnerHotelsJson(List<String> list) => _prefs.setStringList(_partnerHotelsKey, list);
@@ -82,4 +109,7 @@ class StorageService {
 
   List<String>? getPartnerReservationsJson() => _prefs.getStringList(_partnerReservationsKey);
   Future<void> savePartnerReservationsJson(List<String> list) => _prefs.setStringList(_partnerReservationsKey, list);
+
+  List<String>? getPartnerPayoutsJson() => _prefs.getStringList(_partnerPayoutsKey);
+  Future<void> savePartnerPayoutsJson(List<String> list) => _prefs.setStringList(_partnerPayoutsKey, list);
 }

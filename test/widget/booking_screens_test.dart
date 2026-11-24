@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travelgo/core/localization/app_localizations.dart';
 import 'package:travelgo/features/bookings/data/mock_booking_data.dart';
 import 'package:travelgo/features/bookings/presentation/pages/booking_details_screen.dart';
 import 'package:travelgo/features/bookings/presentation/pages/booking_document_screen.dart';
 import 'package:travelgo/features/bookings/presentation/pages/my_bookings_screen.dart';
 import 'package:travelgo/features/bookings/presentation/widgets/booking_card.dart';
+import 'package:travelgo/features/bookings/presentation/widgets/booking_ticket_widget.dart';
 import 'package:travelgo/features/bookings/presentation/widgets/qr_code_widget.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
-Widget createTestableWidget(Widget child, {List<Override> overrides = const []}) {
+Widget createTestableWidget(
+  Widget child, {
+  List<Override> overrides = const [],
+}) {
   return ProviderScope(
     overrides: overrides,
     child: MaterialApp(
@@ -33,7 +36,9 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
-  testWidgets('SafeQrCodeWidget renders with caption', (WidgetTester tester) async {
+
+  testWidgets('SafeQrCodeWidget renders with caption',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       createTestableWidget(
         const Scaffold(
@@ -50,7 +55,8 @@ void main() {
     expect(find.byType(SafeQrCodeWidget), findsOneWidget);
   });
 
-  testWidgets('BookingCard displays flight details, price, reference, and View Document button',
+  testWidgets(
+      'BookingCard displays flight details, price, reference, and View Document button',
       (WidgetTester tester) async {
     final booking = MockBookingData.flightBooking;
 
@@ -71,7 +77,8 @@ void main() {
     expect(find.text('Trip Details'), findsOneWidget);
   });
 
-  testWidgets('BookingDocumentScreen renders header, demo banner, QR code, and action buttons',
+  testWidgets(
+      'BookingDocumentScreen renders header, demo banner, QR code, and action buttons',
       (WidgetTester tester) async {
     final booking = MockBookingData.flightBooking;
 
@@ -105,5 +112,47 @@ void main() {
     expect(find.text('Upcoming'), findsOneWidget);
     expect(find.text('Completed'), findsOneWidget);
     expect(find.text('Cancelled'), findsOneWidget);
+  });
+
+  testWidgets('BookingTicketWidget renders digital pass with QR code and PNR',
+      (WidgetTester tester) async {
+    final booking = MockBookingData.flightBooking;
+
+    await tester.pumpWidget(
+      createTestableWidget(
+        Scaffold(
+          body: BookingTicketWidget(booking: booking),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Demo Airline'), findsOneWidget);
+    expect(find.text('TRV-2026-000001'), findsOneWidget);
+    expect(find.text('Tahar Braknia'), findsOneWidget);
+    expect(find.text('Digital Verification Pass'), findsOneWidget);
+    expect(find.byType(SafeQrCodeWidget), findsOneWidget);
+  });
+
+  testWidgets(
+      'BookingDetailsScreen renders cancellation and refund tracking when cancelled',
+      (WidgetTester tester) async {
+    final cancelled = MockBookingData.cancelledBooking;
+
+    await tester.pumpWidget(
+      createTestableWidget(
+        BookingDetailsScreen(booking: cancelled),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('BOOKING CANCELLED'), findsOneWidget);
+    expect(find.text('Refund Lifecycle Tracking'), findsOneWidget);
+    expect(find.textContaining('Trip cancelled by customer request'),
+        findsOneWidget);
+    expect(find.text('1. Cancellation Request Submitted'), findsOneWidget);
+    expect(find.text('2. TRAVELGO Refund Approved'), findsOneWidget);
+    expect(find.text('3. Transferred to Original Payment Method'),
+        findsOneWidget);
   });
 }

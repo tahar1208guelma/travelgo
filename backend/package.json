@@ -1,0 +1,25 @@
+{
+  "name": "travelgo-backend-gateway",
+  "version": "1.0.0",
+  "description": "TravelGo API Gateway, Rate Limiting, Schema Validation & Zero-Secret Travel Aggregator",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": [
+    "travelgo",
+    "api-gateway",
+    "travel-booking",
+    "rate-limiting",
+    "security",
+    "zero-secrets"
+  ],
+  "author": "TravelGo Engineering Team",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

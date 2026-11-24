@@ -124,6 +124,13 @@ class ProfileScreen extends ConsumerWidget {
                                 textColor: Colors.white,
                                 fontSize: 10,
                               )
+                            else if (user?.role == UserRole.partner)
+                              const BadgeChip(
+                                label: 'PARTNER',
+                                backgroundColor: AppColors.secondary,
+                                textColor: Colors.white,
+                                fontSize: 10,
+                              )
                             else if (user?.isGuest ?? true)
                               BadgeChip(
                                 label: context.tr('profile_guest_badge'),

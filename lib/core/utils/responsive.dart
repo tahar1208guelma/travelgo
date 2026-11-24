@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 
 class Responsive {
+  static const double smallMobileBreakpoint = 600.0;
   static const double mobileBreakpoint = 768.0;
   static const double tabletBreakpoint = 1024.0;
   static const double desktopMaxWidth = 1280.0;
+
+  static bool isSmallMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < smallMobileBreakpoint;
+
+  static bool isCompactPhone(BuildContext context) =>
+      MediaQuery.of(context).size.width < 380.0;
 
   static bool isMobile(BuildContext context) =>
       MediaQuery.of(context).size.width < mobileBreakpoint;
@@ -50,24 +57,37 @@ class Responsive {
     if (isTablet(context)) return tablet;
     return mobile;
   }
+
+  static EdgeInsets horizontalPadding(BuildContext context) {
+    if (isDesktop(context)) {
+      return const EdgeInsets.symmetric(horizontal: 32.0);
+    }
+    if (isTablet(context)) {
+      return const EdgeInsets.symmetric(horizontal: 24.0);
+    }
+    return const EdgeInsets.symmetric(horizontal: 16.0);
+  }
 }
 
-/// A container that constrains content width and centers it on large screens
+/// A container that constrains content width and aligns it at the top-center on large screens
 class ResponsiveWrapper extends StatelessWidget {
   final Widget child;
   final double maxWidth;
   final EdgeInsetsGeometry padding;
+  final AlignmentGeometry alignment;
 
   const ResponsiveWrapper({
     super.key,
     required this.child,
     this.maxWidth = Responsive.desktopMaxWidth,
     this.padding = EdgeInsets.zero,
+    this.alignment = Alignment.topCenter,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Align(
+      alignment: alignment,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Padding(

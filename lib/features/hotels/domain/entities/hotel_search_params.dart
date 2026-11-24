@@ -8,6 +8,9 @@ class HotelSearchParams {
   final double? minPrice;
   final double? maxPrice;
   final int? minRating;
+  final double? latitude;
+  final double? longitude;
+  final double? radiusKm;
 
   const HotelSearchParams({
     required this.destination,
@@ -19,6 +22,9 @@ class HotelSearchParams {
     this.minPrice,
     this.maxPrice,
     this.minRating,
+    this.latitude,
+    this.longitude,
+    this.radiusKm,
   });
 
   int get totalGuests => adults + children;
@@ -40,6 +46,9 @@ class HotelSearchParams {
     double? minPrice,
     double? maxPrice,
     int? minRating,
+    double? latitude,
+    double? longitude,
+    double? radiusKm,
   }) {
     return HotelSearchParams(
       destination: destination ?? this.destination,
@@ -51,6 +60,9 @@ class HotelSearchParams {
       minPrice: minPrice ?? this.minPrice,
       maxPrice: maxPrice ?? this.maxPrice,
       minRating: minRating ?? this.minRating,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      radiusKm: radiusKm ?? this.radiusKm,
     );
   }
 
@@ -65,6 +77,9 @@ class HotelSearchParams {
       'minPrice': minPrice,
       'maxPrice': maxPrice,
       'minRating': minRating,
+      'latitude': latitude,
+      'longitude': longitude,
+      'radiusKm': radiusKm,
     };
   }
 
@@ -79,6 +94,9 @@ class HotelSearchParams {
       minPrice: (json['minPrice'] as num?)?.toDouble(),
       maxPrice: (json['maxPrice'] as num?)?.toDouble(),
       minRating: json['minRating'] as int?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      radiusKm: (json['radiusKm'] as num?)?.toDouble(),
     );
   }
 }

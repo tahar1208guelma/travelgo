@@ -30,3 +30,19 @@ class BookingException implements Exception {
   @override
   String toString() => 'BookingException: $message';
 }
+
+class ValidationException implements Exception {
+  final String message;
+  ValidationException({required this.message});
+
+  @override
+  String toString() => 'ValidationException: $message';
+}
+
+class AuthException implements Exception {
+  final String message;
+  AuthException({required this.message});
+
+  @override
+  String toString() => 'AuthException: $message';
+}

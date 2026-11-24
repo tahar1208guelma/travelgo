@@ -1,7 +1,211 @@
 import 'package:travelgo/features/flights/domain/entities/flight_entity.dart';
 import 'package:travelgo/features/hotels/domain/entities/hotel_entity.dart';
 
-enum PartnerListingStatus { active, paused, pendingReview }
+enum PartnerListingStatus { active, paused, pendingReview, rejected }
+
+enum PartnerDocumentType {
+  commercialRegister,
+  tourismLicense,
+  taxCertificate,
+  propertyDeed,
+  legalRepresentativeId,
+  liabilityInsurance,
+}
+
+enum PartnerRoomCategory {
+  standard,
+  deluxe,
+  executiveSuite,
+  familySuite,
+  presidentialSuite,
+  beachBungalow,
+  desertLuxuryCamp,
+  privateVilla,
+}
+
+extension PartnerRoomCategoryX on PartnerRoomCategory {
+  String getDisplayName({bool isArabic = false}) {
+    switch (this) {
+      case PartnerRoomCategory.standard:
+        return isArabic ? 'غرفة قياسية (Standard)' : 'Standard Room';
+      case PartnerRoomCategory.deluxe:
+        return isArabic ? 'غرفة ديلوكس (Deluxe)' : 'Deluxe Room';
+      case PartnerRoomCategory.executiveSuite:
+        return isArabic ? 'جناح تنفيذي (Executive Suite)' : 'Executive Suite';
+      case PartnerRoomCategory.familySuite:
+        return isArabic ? 'جناح عائلي (Family Suite)' : 'Family Suite';
+      case PartnerRoomCategory.presidentialSuite:
+        return isArabic ? 'جناح رئاسي (Presidential)' : 'Presidential Suite';
+      case PartnerRoomCategory.beachBungalow:
+        return isArabic ? 'شاليه شاطئي (Beach Bungalow)' : 'Beachfront Bungalow';
+      case PartnerRoomCategory.desertLuxuryCamp:
+        return isArabic ? 'خيمة صحراوية فاخرة (Desert Camp)' : 'Desert Luxury Tent';
+      case PartnerRoomCategory.privateVilla:
+        return isArabic ? 'فيلا خاصة مستقلة (Private Villa)' : 'Private Luxury Villa';
+    }
+  }
+}
+
+class PartnerBedTypeCatalog {
+  static const List<String> standardBedTypes = [
+    '1 King Bed',
+    '1 Queen Bed',
+    '2 Twin Beds',
+    '1 Single Bed',
+    '1 King Bed + 1 Sofa Bed',
+    '1 Queen Bed + 2 Twin Beds',
+    '2 Double Beds',
+    'Bunk Beds (4 Guests)',
+  ];
+}
+
+class PartnerVerificationDocument {
+  final String id;
+  final PartnerDocumentType type;
+  final String documentNumber;
+  final String fileName;
+  final String? fileUrl;
+  final DateTime? expiryDate;
+  final DateTime uploadedAt;
+  final bool isVerified;
+  final String? verificationNote;
+
+  const PartnerVerificationDocument({
+    required this.id,
+    required this.type,
+    required this.documentNumber,
+    required this.fileName,
+    this.fileUrl,
+    this.expiryDate,
+    required this.uploadedAt,
+    this.isVerified = false,
+    this.verificationNote,
+  });
+
+  String getDocumentTitle({bool isArabic = false}) {
+    switch (type) {
+      case PartnerDocumentType.commercialRegister:
+        return isArabic ? 'السجل التجاري (Registre de Commerce)' : 'Commercial Registry / Trade License';
+      case PartnerDocumentType.tourismLicense:
+        return isArabic ? 'رخصة وزارة السياحة والتصنيف' : 'Tourism Ministry Classification License';
+      case PartnerDocumentType.taxCertificate:
+        return isArabic ? 'شهادة التعريف الجبائي (NIF / TIN)' : 'Tax Identification Number (NIF / TIN)';
+      case PartnerDocumentType.propertyDeed:
+        return isArabic ? 'عقد الملكية أو عقد الإيجار التجاري' : 'Property Deed or Commercial Lease Contract';
+      case PartnerDocumentType.legalRepresentativeId:
+        return isArabic ? 'بطاقة هوية / جواز سفر الممثل القانوني' : 'Government ID / Passport of Representative';
+      case PartnerDocumentType.liabilityInsurance:
+        return isArabic ? 'تأمين المسؤولية المدنية المهنية' : 'Commercial Liability Insurance';
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'type': type.name,
+    'documentNumber': documentNumber,
+    'fileName': fileName,
+    'fileUrl': fileUrl,
+    'expiryDate': expiryDate?.toIso8601String(),
+    'uploadedAt': uploadedAt.toIso8601String(),
+    'isVerified': isVerified,
+    'verificationNote': verificationNote,
+  };
+
+  factory PartnerVerificationDocument.fromJson(Map<String, dynamic> json) => PartnerVerificationDocument(
+    id: json['id'] as String? ?? 'doc_${DateTime.now().millisecondsSinceEpoch}',
+    type: PartnerDocumentType.values.firstWhere(
+      (e) => e.name == json['type'],
+      orElse: () => PartnerDocumentType.commercialRegister,
+    ),
+    documentNumber: json['documentNumber'] as String? ?? '',
+    fileName: json['fileName'] as String? ?? 'document.pdf',
+    fileUrl: json['fileUrl'] as String?,
+    expiryDate: json['expiryDate'] != null ? DateTime.tryParse(json['expiryDate'] as String) : null,
+    uploadedAt: json['uploadedAt'] != null ? DateTime.tryParse(json['uploadedAt'] as String) ?? DateTime.now() : DateTime.now(),
+    isVerified: json['isVerified'] as bool? ?? false,
+    verificationNote: json['verificationNote'] as String?,
+  );
+}
+
+class SeasonalPriceRule {
+  final String id;
+  final String hotelId;
+  final String nameEn;
+  final String nameAr;
+  final DateTime startDate;
+  final DateTime endDate;
+  final double priceMultiplier; // e.g. 1.25 (+25%) or 0.85 (-15%)
+  final double? overrideNightlyRateUSD;
+  final int minimumStayNights;
+  final bool isWeekendSurchargeEnabled;
+  final double weekendSurchargePercentage; // e.g. 15.0 for 15%
+  final bool isActive;
+
+  const SeasonalPriceRule({
+    required this.id,
+    required this.hotelId,
+    required this.nameEn,
+    required this.nameAr,
+    required this.startDate,
+    required this.endDate,
+    this.priceMultiplier = 1.25,
+    this.overrideNightlyRateUSD,
+    this.minimumStayNights = 1,
+    this.isWeekendSurchargeEnabled = true,
+    this.weekendSurchargePercentage = 15.0,
+    this.isActive = true,
+  });
+
+  String getName({bool isArabic = false}) => isArabic ? nameAr : nameEn;
+
+  bool isDateApplicable(DateTime date) {
+    if (!isActive) return false;
+    final target = DateTime(date.year, date.month, date.day);
+    final start = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
+    return !target.isBefore(start) && !target.isAfter(end);
+  }
+
+  double calculateRateForDate(DateTime date, double basePrice) {
+    if (!isDateApplicable(date)) return basePrice;
+    double rate = overrideNightlyRateUSD ?? (basePrice * priceMultiplier);
+    // Friday (5) or Saturday (6) in weekend models
+    if (isWeekendSurchargeEnabled && (date.weekday == DateTime.friday || date.weekday == DateTime.saturday)) {
+      rate *= (1.0 + (weekendSurchargePercentage / 100.0));
+    }
+    return rate;
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'hotelId': hotelId,
+    'nameEn': nameEn,
+    'nameAr': nameAr,
+    'startDate': startDate.toIso8601String(),
+    'endDate': endDate.toIso8601String(),
+    'priceMultiplier': priceMultiplier,
+    'overrideNightlyRateUSD': overrideNightlyRateUSD,
+    'minimumStayNights': minimumStayNights,
+    'isWeekendSurchargeEnabled': isWeekendSurchargeEnabled,
+    'weekendSurchargePercentage': weekendSurchargePercentage,
+    'isActive': isActive,
+  };
+
+  factory SeasonalPriceRule.fromJson(Map<String, dynamic> json) => SeasonalPriceRule(
+    id: json['id'] as String? ?? 'season_${DateTime.now().millisecondsSinceEpoch}',
+    hotelId: json['hotelId'] as String? ?? '',
+    nameEn: json['nameEn'] as String? ?? 'Peak High Season',
+    nameAr: json['nameAr'] as String? ?? 'موسم الذروة الصيفي',
+    startDate: json['startDate'] != null ? DateTime.tryParse(json['startDate'] as String) ?? DateTime.now() : DateTime.now(),
+    endDate: json['endDate'] != null ? DateTime.tryParse(json['endDate'] as String) ?? DateTime.now().add(const Duration(days: 60)) : DateTime.now().add(const Duration(days: 60)),
+    priceMultiplier: (json['priceMultiplier'] as num?)?.toDouble() ?? 1.25,
+    overrideNightlyRateUSD: (json['overrideNightlyRateUSD'] as num?)?.toDouble(),
+    minimumStayNights: json['minimumStayNights'] as int? ?? 1,
+    isWeekendSurchargeEnabled: json['isWeekendSurchargeEnabled'] as bool? ?? true,
+    weekendSurchargePercentage: (json['weekendSurchargePercentage'] as num?)?.toDouble() ?? 15.0,
+    isActive: json['isActive'] as bool? ?? true,
+  );
+}
 
 class PartnerAmenity {
   final String id;
@@ -43,6 +247,7 @@ class PartnerRoomType {
   final String hotelId;
   final String nameEn;
   final String nameAr;
+  final PartnerRoomCategory category;
   final double pricePerNightUSD;
   final int maxGuests;
   final String bedType;
@@ -50,6 +255,7 @@ class PartnerRoomType {
   final bool freeCancellation;
   final int totalUnits;
   final int availableUnits;
+  final int bookedUnits;
   final List<String> perks;
   final List<String> photos;
 
@@ -58,6 +264,7 @@ class PartnerRoomType {
     required this.hotelId,
     required this.nameEn,
     required this.nameAr,
+    this.category = PartnerRoomCategory.standard,
     required this.pricePerNightUSD,
     required this.maxGuests,
     required this.bedType,
@@ -65,17 +272,21 @@ class PartnerRoomType {
     this.freeCancellation = true,
     this.totalUnits = 5,
     this.availableUnits = 5,
+    this.bookedUnits = 0,
     this.perks = const [],
     this.photos = const [],
   });
 
   String getName({bool isArabic = false}) => isArabic ? nameAr : nameEn;
 
+  int get remainingAvailableUnits => (totalUnits - bookedUnits).clamp(0, totalUnits);
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'hotelId': hotelId,
     'nameEn': nameEn,
     'nameAr': nameAr,
+    'category': category.name,
     'pricePerNightUSD': pricePerNightUSD,
     'maxGuests': maxGuests,
     'bedType': bedType,
@@ -83,6 +294,7 @@ class PartnerRoomType {
     'freeCancellation': freeCancellation,
     'totalUnits': totalUnits,
     'availableUnits': availableUnits,
+    'bookedUnits': bookedUnits,
     'perks': perks,
     'photos': photos,
   };
@@ -92,6 +304,10 @@ class PartnerRoomType {
     hotelId: json['hotelId'] as String? ?? '',
     nameEn: json['nameEn'] as String? ?? 'Standard Room',
     nameAr: json['nameAr'] as String? ?? 'غرفة قياسية',
+    category: PartnerRoomCategory.values.firstWhere(
+      (c) => c.name == json['category'],
+      orElse: () => PartnerRoomCategory.standard,
+    ),
     pricePerNightUSD: (json['pricePerNightUSD'] as num?)?.toDouble() ?? 100.0,
     maxGuests: json['maxGuests'] as int? ?? 2,
     bedType: json['bedType'] as String? ?? '1 King Bed',
@@ -99,6 +315,7 @@ class PartnerRoomType {
     freeCancellation: json['freeCancellation'] as bool? ?? true,
     totalUnits: json['totalUnits'] as int? ?? 5,
     availableUnits: json['availableUnits'] as int? ?? 5,
+    bookedUnits: json['bookedUnits'] as int? ?? 0,
     perks: (json['perks'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     photos: (json['photos'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
   );
@@ -144,7 +361,10 @@ class PartnerHotelListing {
   final double latitude;
   final double longitude;
   final List<PartnerRoomType> rooms;
+  final List<SeasonalPriceRule> seasonalRules;
+  final List<PartnerVerificationDocument> documents;
   final PartnerListingStatus status;
+  final String? adminFeedback;
   final DateTime createdAt;
 
   const PartnerHotelListing({
@@ -175,7 +395,10 @@ class PartnerHotelListing {
     this.latitude = 36.7538,
     this.longitude = 3.0588,
     this.rooms = const [],
+    this.seasonalRules = const [],
+    this.documents = const [],
     this.status = PartnerListingStatus.active,
+    this.adminFeedback,
     required this.createdAt,
   });
 
@@ -185,6 +408,18 @@ class PartnerHotelListing {
   String getDescription({bool isArabic = false}) => isArabic ? descriptionAr : descriptionEn;
 
   bool get isActive => status == PartnerListingStatus.active;
+  bool get isPendingReview => status == PartnerListingStatus.pendingReview;
+  bool get isRejected => status == PartnerListingStatus.rejected;
+  bool get isPaused => status == PartnerListingStatus.paused;
+
+  double getEffectivePriceForDate(DateTime date) {
+    for (final rule in seasonalRules) {
+      if (rule.isDateApplicable(date)) {
+        return rule.calculateRateForDate(date, pricePerNightUSD);
+      }
+    }
+    return pricePerNightUSD;
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -214,7 +449,10 @@ class PartnerHotelListing {
     'latitude': latitude,
     'longitude': longitude,
     'rooms': rooms.map((r) => r.toJson()).toList(),
+    'seasonalRules': seasonalRules.map((s) => s.toJson()).toList(),
+    'documents': documents.map((d) => d.toJson()).toList(),
     'status': status.name,
+    'adminFeedback': adminFeedback,
     'createdAt': createdAt.toIso8601String(),
   };
 
@@ -246,12 +484,77 @@ class PartnerHotelListing {
     latitude: (json['latitude'] as num?)?.toDouble() ?? 36.7538,
     longitude: (json['longitude'] as num?)?.toDouble() ?? 3.0588,
     rooms: (json['rooms'] as List<dynamic>?)?.map((r) => PartnerRoomType.fromJson(r as Map<String, dynamic>)).toList() ?? [],
+    seasonalRules: (json['seasonalRules'] as List<dynamic>?)?.map((s) => SeasonalPriceRule.fromJson(s as Map<String, dynamic>)).toList() ?? [],
+    documents: (json['documents'] as List<dynamic>?)?.map((d) => PartnerVerificationDocument.fromJson(d as Map<String, dynamic>)).toList() ?? [],
     status: PartnerListingStatus.values.firstWhere(
       (s) => s.name == json['status'],
       orElse: () => PartnerListingStatus.active,
     ),
+    adminFeedback: json['adminFeedback'] as String?,
     createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now() : DateTime.now(),
   );
+
+  PartnerHotelListing copyWith({
+    String? nameEn,
+    String? nameAr,
+    String? cityEn,
+    String? cityAr,
+    String? countryEn,
+    String? countryAr,
+    String? address,
+    int? starRating,
+    double? pricePerNightUSD,
+    double? taxesPerNightUSD,
+    String? mainCoverImageUrl,
+    List<String>? galleryImages,
+    List<String>? amenities,
+    String? descriptionEn,
+    String? descriptionAr,
+    String? checkInTime,
+    String? checkOutTime,
+    String? cancellationPolicyEn,
+    String? cancellationPolicyAr,
+    List<PartnerRoomType>? rooms,
+    List<SeasonalPriceRule>? seasonalRules,
+    List<PartnerVerificationDocument>? documents,
+    PartnerListingStatus? status,
+    String? adminFeedback,
+  }) {
+    return PartnerHotelListing(
+      id: id,
+      ownerPartnerId: ownerPartnerId,
+      nameEn: nameEn ?? this.nameEn,
+      nameAr: nameAr ?? this.nameAr,
+      cityEn: cityEn ?? this.cityEn,
+      cityAr: cityAr ?? this.cityAr,
+      countryEn: countryEn ?? this.countryEn,
+      countryAr: countryAr ?? this.countryAr,
+      address: address ?? this.address,
+      starRating: starRating ?? this.starRating,
+      userRating: userRating,
+      reviewCount: reviewCount,
+      distanceToCenter: distanceToCenter,
+      pricePerNightUSD: pricePerNightUSD ?? this.pricePerNightUSD,
+      taxesPerNightUSD: taxesPerNightUSD ?? this.taxesPerNightUSD,
+      mainCoverImageUrl: mainCoverImageUrl ?? this.mainCoverImageUrl,
+      galleryImages: galleryImages ?? this.galleryImages,
+      amenities: amenities ?? this.amenities,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
+      descriptionAr: descriptionAr ?? this.descriptionAr,
+      checkInTime: checkInTime ?? this.checkInTime,
+      checkOutTime: checkOutTime ?? this.checkOutTime,
+      cancellationPolicyEn: cancellationPolicyEn ?? this.cancellationPolicyEn,
+      cancellationPolicyAr: cancellationPolicyAr ?? this.cancellationPolicyAr,
+      latitude: latitude,
+      longitude: longitude,
+      rooms: rooms ?? this.rooms,
+      seasonalRules: seasonalRules ?? this.seasonalRules,
+      documents: documents ?? this.documents,
+      status: status ?? this.status,
+      adminFeedback: adminFeedback ?? this.adminFeedback,
+      createdAt: createdAt,
+    );
+  }
 
   HotelEntity toHotelEntity() {
     return HotelEntity(
@@ -303,6 +606,125 @@ class PartnerHotelListing {
   }
 }
 
+enum PartnerPayoutMethod {
+  bankWire,
+  stripeConnect,
+  payPal,
+  algeriaPostCcp,
+}
+
+enum PartnerPayoutStatus {
+  pending,
+  processed,
+  failed,
+}
+
+class PartnerPayoutAccount {
+  final PartnerPayoutMethod method;
+  final String accountHolderName;
+  final String accountNumberOrIban;
+  final String? bankName;
+  final String? swiftBic;
+  final String? routingOrCle;
+
+  const PartnerPayoutAccount({
+    required this.method,
+    required this.accountHolderName,
+    required this.accountNumberOrIban,
+    this.bankName,
+    this.swiftBic,
+    this.routingOrCle,
+  });
+
+  String getMethodLabel({bool isArabic = false}) {
+    switch (method) {
+      case PartnerPayoutMethod.bankWire:
+        return isArabic ? 'تحويل بنكي مباشر (SWIFT / IBAN)' : 'Direct Bank Wire (IBAN/SWIFT)';
+      case PartnerPayoutMethod.stripeConnect:
+        return 'Stripe Express Payout';
+      case PartnerPayoutMethod.payPal:
+        return 'PayPal Business Account';
+      case PartnerPayoutMethod.algeriaPostCcp:
+        return isArabic ? 'بريد الجزائر (حساب جاري بريدي CCP)' : 'Algerie Poste (CCP Account)';
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'method': method.name,
+    'accountHolderName': accountHolderName,
+    'accountNumberOrIban': accountNumberOrIban,
+    'bankName': bankName,
+    'swiftBic': swiftBic,
+    'routingOrCle': routingOrCle,
+  };
+
+  factory PartnerPayoutAccount.fromJson(Map<String, dynamic> json) => PartnerPayoutAccount(
+    method: PartnerPayoutMethod.values.firstWhere(
+      (m) => m.name == json['method'],
+      orElse: () => PartnerPayoutMethod.bankWire,
+    ),
+    accountHolderName: json['accountHolderName'] as String? ?? '',
+    accountNumberOrIban: json['accountNumberOrIban'] as String? ?? '',
+    bankName: json['bankName'] as String?,
+    swiftBic: json['swiftBic'] as String?,
+    routingOrCle: json['routingOrCle'] as String?,
+  );
+}
+
+class PartnerPayoutRecord {
+  final String id;
+  final String partnerId;
+  final double amountUSD;
+  final PartnerPayoutMethod method;
+  final String destinationAccountMasked;
+  final DateTime requestedAt;
+  final DateTime? processedAt;
+  final PartnerPayoutStatus status;
+  final String? transactionReference;
+
+  const PartnerPayoutRecord({
+    required this.id,
+    required this.partnerId,
+    required this.amountUSD,
+    required this.method,
+    required this.destinationAccountMasked,
+    required this.requestedAt,
+    this.processedAt,
+    this.status = PartnerPayoutStatus.pending,
+    this.transactionReference,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'partnerId': partnerId,
+    'amountUSD': amountUSD,
+    'method': method.name,
+    'destinationAccountMasked': destinationAccountMasked,
+    'requestedAt': requestedAt.toIso8601String(),
+    'processedAt': processedAt?.toIso8601String(),
+    'status': status.name,
+    'transactionReference': transactionReference,
+  };
+
+  factory PartnerPayoutRecord.fromJson(Map<String, dynamic> json) => PartnerPayoutRecord(
+    id: json['id'] as String? ?? 'pay_${DateTime.now().millisecondsSinceEpoch}',
+    partnerId: json['partnerId'] as String? ?? 'host_001',
+    amountUSD: (json['amountUSD'] as num?)?.toDouble() ?? 0.0,
+    method: PartnerPayoutMethod.values.firstWhere(
+      (m) => m.name == json['method'],
+      orElse: () => PartnerPayoutMethod.bankWire,
+    ),
+    destinationAccountMasked: json['destinationAccountMasked'] as String? ?? '****',
+    requestedAt: json['requestedAt'] != null ? DateTime.tryParse(json['requestedAt'] as String) ?? DateTime.now() : DateTime.now(),
+    processedAt: json['processedAt'] != null ? DateTime.tryParse(json['processedAt'] as String) : null,
+    status: PartnerPayoutStatus.values.firstWhere(
+      (s) => s.name == json['status'],
+      orElse: () => PartnerPayoutStatus.pending,
+    ),
+    transactionReference: json['transactionReference'] as String?,
+  );
+}
+
 class HotelPartnerProfile {
   final String id;
   final String ownerName;
@@ -310,8 +732,10 @@ class HotelPartnerProfile {
   final String email;
   final String phone;
   final bool isVerified;
+  final bool isKycSubmitted;
   final double totalEarningsUSD;
   final double pendingPayoutUSD;
+  final PartnerPayoutAccount? payoutAccount;
   final DateTime joinedAt;
 
   const HotelPartnerProfile({
@@ -321,8 +745,10 @@ class HotelPartnerProfile {
     required this.email,
     required this.phone,
     this.isVerified = true,
+    this.isKycSubmitted = true,
     this.totalEarningsUSD = 1840.0,
     this.pendingPayoutUSD = 620.0,
+    this.payoutAccount,
     required this.joinedAt,
   });
 
@@ -333,8 +759,10 @@ class HotelPartnerProfile {
     'email': email,
     'phone': phone,
     'isVerified': isVerified,
+    'isKycSubmitted': isKycSubmitted,
     'totalEarningsUSD': totalEarningsUSD,
     'pendingPayoutUSD': pendingPayoutUSD,
+    'payoutAccount': payoutAccount?.toJson(),
     'joinedAt': joinedAt.toIso8601String(),
   };
 
@@ -345,13 +773,41 @@ class HotelPartnerProfile {
     email: json['email'] as String? ?? 'partner@travelgo.app',
     phone: json['phone'] as String? ?? '+213 555 123 456',
     isVerified: json['isVerified'] as bool? ?? true,
+    isKycSubmitted: json['isKycSubmitted'] as bool? ?? true,
     totalEarningsUSD: (json['totalEarningsUSD'] as num?)?.toDouble() ?? 1840.0,
     pendingPayoutUSD: (json['pendingPayoutUSD'] as num?)?.toDouble() ?? 620.0,
+    payoutAccount: json['payoutAccount'] != null ? PartnerPayoutAccount.fromJson(json['payoutAccount'] as Map<String, dynamic>) : null,
     joinedAt: json['joinedAt'] != null ? DateTime.tryParse(json['joinedAt'] as String) ?? DateTime.now() : DateTime.now(),
   );
+
+  HotelPartnerProfile copyWith({
+    String? ownerName,
+    String? businessName,
+    String? email,
+    String? phone,
+    bool? isVerified,
+    bool? isKycSubmitted,
+    double? totalEarningsUSD,
+    double? pendingPayoutUSD,
+    PartnerPayoutAccount? payoutAccount,
+  }) {
+    return HotelPartnerProfile(
+      id: id,
+      ownerName: ownerName ?? this.ownerName,
+      businessName: businessName ?? this.businessName,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      isVerified: isVerified ?? this.isVerified,
+      isKycSubmitted: isKycSubmitted ?? this.isKycSubmitted,
+      totalEarningsUSD: totalEarningsUSD ?? this.totalEarningsUSD,
+      pendingPayoutUSD: pendingPayoutUSD ?? this.pendingPayoutUSD,
+      payoutAccount: payoutAccount ?? this.payoutAccount,
+      joinedAt: joinedAt,
+    );
+  }
 }
 
-enum PartnerReservationStatus { confirmed, checkedIn, completed, cancelled }
+enum PartnerReservationStatus { pending, confirmed, checkedIn, completed, cancelled, rejected }
 
 class PartnerReservation {
   final String id;
@@ -369,6 +825,7 @@ class PartnerReservation {
   final double platformFeeUSD;
   final double netHostPayoutUSD;
   final PartnerReservationStatus status;
+  final String? rejectionReason;
   final String bookingReference;
   final DateTime bookedAt;
 
@@ -388,9 +845,17 @@ class PartnerReservation {
     this.platformFeeUSD = 1.0,
     required this.netHostPayoutUSD,
     this.status = PartnerReservationStatus.confirmed,
+    this.rejectionReason,
     required this.bookingReference,
     required this.bookedAt,
   });
+
+  bool get isPending => status == PartnerReservationStatus.pending;
+  bool get isConfirmed => status == PartnerReservationStatus.confirmed;
+  bool get isCheckedIn => status == PartnerReservationStatus.checkedIn;
+  bool get isCompleted => status == PartnerReservationStatus.completed;
+  bool get isRejected => status == PartnerReservationStatus.rejected;
+  bool get isCancelled => status == PartnerReservationStatus.cancelled;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -408,6 +873,7 @@ class PartnerReservation {
     'platformFeeUSD': platformFeeUSD,
     'netHostPayoutUSD': netHostPayoutUSD,
     'status': status.name,
+    'rejectionReason': rejectionReason,
     'bookingReference': bookingReference,
     'bookedAt': bookedAt.toIso8601String(),
   };
@@ -431,7 +897,34 @@ class PartnerReservation {
       (s) => s.name == json['status'],
       orElse: () => PartnerReservationStatus.confirmed,
     ),
+    rejectionReason: json['rejectionReason'] as String?,
     bookingReference: json['bookingReference'] as String? ?? 'TRV-HTL-001',
     bookedAt: json['bookedAt'] != null ? DateTime.tryParse(json['bookedAt'] as String) ?? DateTime.now() : DateTime.now(),
   );
+
+  PartnerReservation copyWith({
+    PartnerReservationStatus? status,
+    String? rejectionReason,
+  }) {
+    return PartnerReservation(
+      id: id,
+      hotelId: hotelId,
+      hotelName: hotelName,
+      roomName: roomName,
+      guestName: guestName,
+      guestEmail: guestEmail,
+      guestPhone: guestPhone,
+      checkInDate: checkInDate,
+      checkOutDate: checkOutDate,
+      numberOfNights: numberOfNights,
+      numberOfGuests: numberOfGuests,
+      totalPriceUSD: totalPriceUSD,
+      platformFeeUSD: platformFeeUSD,
+      netHostPayoutUSD: netHostPayoutUSD,
+      status: status ?? this.status,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
+      bookingReference: bookingReference,
+      bookedAt: bookedAt,
+    );
+  }
 }

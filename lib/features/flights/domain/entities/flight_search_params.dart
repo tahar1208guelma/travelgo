@@ -14,6 +14,8 @@ class FlightSearchParams {
   final int infants;
   final CabinClass cabinClass;
   final bool directOnly;
+  final int flexibleDays; // e.g. 0, 3, 7
+  final bool includeNearbyAirports;
 
   const FlightSearchParams({
     this.tripType = TripType.roundTrip,
@@ -28,6 +30,8 @@ class FlightSearchParams {
     this.infants = 0,
     this.cabinClass = CabinClass.economy,
     this.directOnly = false,
+    this.flexibleDays = 0,
+    this.includeNearbyAirports = false,
   });
 
   int get totalPassengers => adults + children + infants;
@@ -45,6 +49,8 @@ class FlightSearchParams {
     int? infants,
     CabinClass? cabinClass,
     bool? directOnly,
+    int? flexibleDays,
+    bool? includeNearbyAirports,
   }) {
     return FlightSearchParams(
       tripType: tripType ?? this.tripType,
@@ -59,6 +65,8 @@ class FlightSearchParams {
       infants: infants ?? this.infants,
       cabinClass: cabinClass ?? this.cabinClass,
       directOnly: directOnly ?? this.directOnly,
+      flexibleDays: flexibleDays ?? this.flexibleDays,
+      includeNearbyAirports: includeNearbyAirports ?? this.includeNearbyAirports,
     );
   }
 
@@ -76,6 +84,8 @@ class FlightSearchParams {
       'infants': infants,
       'cabinClass': cabinClass.name,
       'directOnly': directOnly,
+      'flexibleDays': flexibleDays,
+      'includeNearbyAirports': includeNearbyAirports,
     };
   }
 
@@ -93,6 +103,8 @@ class FlightSearchParams {
       infants: json['infants'] as int? ?? 0,
       cabinClass: CabinClass.values.firstWhere((e) => e.name == json['cabinClass'], orElse: () => CabinClass.economy),
       directOnly: json['directOnly'] as bool? ?? false,
+      flexibleDays: json['flexibleDays'] as int? ?? 0,
+      includeNearbyAirports: json['includeNearbyAirports'] as bool? ?? false,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../core/localization/language_provider.dart';
@@ -19,10 +20,11 @@ class HotelRegistrationWizardScreen extends ConsumerStatefulWidget {
 class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistrationWizardScreen> {
   final _pageController = PageController();
   int _currentStep = 0;
+  static const int _totalSteps = 7;
 
   // Form Keys
   final _step0FormKey = GlobalKey<FormState>();
-  final _step4FormKey = GlobalKey<FormState>();
+  final _step6FormKey = GlobalKey<FormState>();
 
   // Controllers - Step 0: Basic Info
   late TextEditingController _nameEnCtrl;
@@ -36,17 +38,24 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
   late TextEditingController _taxesCtrl;
   int _starRating = 5;
 
-  // Step 1: Amenities
+  // Step 1: Legal Documents & Compliance
+  final List<PartnerVerificationDocument> _documents = [];
+
+  // Step 2: Amenities
   final Set<String> _selectedAmenities = {};
 
-  // Step 2: Rooms
+  // Step 3: Rooms
   final List<PartnerRoomType> _rooms = [];
 
-  // Step 3: Photos
+  // Step 4: Seasonal Pricing
+  final List<SeasonalPriceRule> _seasonalRules = [];
+
+  // Step 5: Photos
   late TextEditingController _coverUrlCtrl;
   final List<String> _galleryPhotos = [];
+  final TextEditingController _newPhotoUrlCtrl = TextEditingController();
 
-  // Step 4: Policies & Description
+  // Step 6: Policies & Description
   late TextEditingController _descEnCtrl;
   late TextEditingController _descArCtrl;
   late TextEditingController _checkInCtrl;
@@ -80,8 +89,10 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
     _starRating = h?.starRating ?? 5;
 
     if (h != null) {
+      _documents.addAll(h.documents);
       _selectedAmenities.addAll(h.amenities);
       _rooms.addAll(h.rooms);
+      _seasonalRules.addAll(h.seasonalRules);
       _galleryPhotos.addAll(h.galleryImages);
     } else {
       _selectedAmenities.addAll(['wifi', 'pool', 'breakfast', 'parking', 'ac']);
@@ -91,6 +102,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
           hotelId: '',
           nameEn: 'Deluxe Room',
           nameAr: 'غرفة ديلوكس فاخرة',
+          category: PartnerRoomCategory.deluxe,
           pricePerNightUSD: 150.0,
           maxGuests: 2,
           bedType: '1 King Bed',
@@ -98,7 +110,45 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
           freeCancellation: true,
           totalUnits: 5,
           availableUnits: 5,
+          bookedUnits: 0,
           perks: ['City View', 'Free WiFi'],
+        ),
+      );
+
+      // Default initial mock compliance documents
+      _documents.addAll([
+        PartnerVerificationDocument(
+          id: 'doc_init_1',
+          type: PartnerDocumentType.commercialRegister,
+          documentNumber: 'RC-16/00-98441B22',
+          fileName: 'Registre_Commerce_Certifie.pdf',
+          uploadedAt: DateTime.now(),
+          isVerified: true,
+        ),
+        PartnerVerificationDocument(
+          id: 'doc_init_2',
+          type: PartnerDocumentType.tourismLicense,
+          documentNumber: 'LIC-DZ-HOTEL-2025-09',
+          fileName: 'Agrement_Ministere_Tourisme.pdf',
+          uploadedAt: DateTime.now(),
+          isVerified: true,
+        ),
+      ]);
+
+      // Default seasonal pricing rule
+      _seasonalRules.add(
+        SeasonalPriceRule(
+          id: 'season_summer_init',
+          hotelId: '',
+          nameEn: 'Summer High Season',
+          nameAr: 'موسم الصيف السياحي',
+          startDate: DateTime(DateTime.now().year, 6, 1),
+          endDate: DateTime(DateTime.now().year, 8, 31),
+          priceMultiplier: 1.25,
+          minimumStayNights: 2,
+          isWeekendSurchargeEnabled: true,
+          weekendSurchargePercentage: 15.0,
+          isActive: true,
         ),
       );
     }
@@ -136,6 +186,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
     _priceCtrl.dispose();
     _taxesCtrl.dispose();
     _coverUrlCtrl.dispose();
+    _newPhotoUrlCtrl.dispose();
     _descEnCtrl.dispose();
     _descArCtrl.dispose();
     _checkInCtrl.dispose();
@@ -149,7 +200,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
     if (_currentStep == 0) {
       if (!_step0FormKey.currentState!.validate()) return;
     }
-    if (_currentStep == 2 && _rooms.isEmpty) {
+    if (_currentStep == 3 && _rooms.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.tr('partner.add_at_least_one_room')),
@@ -159,7 +210,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
       return;
     }
 
-    if (_currentStep < 4) {
+    if (_currentStep < _totalSteps - 1) {
       setState(() => _currentStep++);
       _pageController.animateToPage(
         _currentStep,
@@ -183,7 +234,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
   }
 
   Future<void> _publishHotel() async {
-    if (!_step4FormKey.currentState!.validate()) return;
+    if (!_step6FormKey.currentState!.validate()) return;
 
     final hotelId = widget.editHotel?.id ?? 'partner_ht_${DateTime.now().millisecondsSinceEpoch}';
     final price = double.tryParse(_priceCtrl.text) ?? 120.0;
@@ -194,6 +245,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
       hotelId: hotelId,
       nameEn: r.nameEn,
       nameAr: r.nameAr,
+      category: r.category,
       pricePerNightUSD: r.pricePerNightUSD,
       maxGuests: r.maxGuests,
       bedType: r.bedType,
@@ -201,9 +253,30 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
       freeCancellation: r.freeCancellation,
       totalUnits: r.totalUnits,
       availableUnits: r.availableUnits,
+      bookedUnits: r.bookedUnits,
       perks: r.perks,
       photos: r.photos,
     )).toList();
+
+    final updatedSeasonalRules = _seasonalRules.map((s) => SeasonalPriceRule(
+      id: s.id,
+      hotelId: hotelId,
+      nameEn: s.nameEn,
+      nameAr: s.nameAr,
+      startDate: s.startDate,
+      endDate: s.endDate,
+      priceMultiplier: s.priceMultiplier,
+      overrideNightlyRateUSD: s.overrideNightlyRateUSD,
+      minimumStayNights: s.minimumStayNights,
+      isWeekendSurchargeEnabled: s.isWeekendSurchargeEnabled,
+      weekendSurchargePercentage: s.weekendSurchargePercentage,
+      isActive: s.isActive,
+    )).toList();
+
+    // In edit mode preserve existing status if already active, otherwise pendingReview
+    final targetStatus = widget.editHotel?.status == PartnerListingStatus.active
+        ? PartnerListingStatus.active
+        : PartnerListingStatus.pendingReview;
 
     final listing = PartnerHotelListing(
       id: hotelId,
@@ -233,7 +306,9 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
       latitude: widget.editHotel?.latitude ?? 36.7538,
       longitude: widget.editHotel?.longitude ?? 3.0588,
       rooms: updatedRooms,
-      status: PartnerListingStatus.active,
+      seasonalRules: updatedSeasonalRules,
+      documents: _documents,
+      status: targetStatus,
       createdAt: widget.editHotel?.createdAt ?? DateTime.now(),
     );
 
@@ -241,22 +316,38 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
     if (!mounted) return;
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white),
+              const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 28),
               const SizedBox(width: 10),
-              Expanded(
-                child: Text(context.tr('partner.hotel_published_success')),
-              ),
+              Text(context.tr('partner.submission_success_title')),
             ],
           ),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
+          content: Text(
+            targetStatus == PartnerListingStatus.active
+                ? context.tr('partner.hotel_updated_success')
+                : context.tr('partner.submitted_for_approval_desc'),
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pop(true);
+              },
+              child: Text(context.tr('common.ok'), style: const TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       );
-      Navigator.of(context).pop(true);
     }
   }
 
@@ -279,6 +370,210 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
             }
           });
         },
+      ),
+    );
+  }
+
+  void _openAddDocumentDialog() {
+    PartnerDocumentType selectedType = PartnerDocumentType.commercialRegister;
+    final numCtrl = TextEditingController();
+    final fileCtrl = TextEditingController(text: 'license_cert.pdf');
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(context.tr('partner.add_compliance_document')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<PartnerDocumentType>(
+                value: selectedType,
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.document_type'),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                items: PartnerDocumentType.values.map((t) {
+                  return DropdownMenuItem(
+                    value: t,
+                    child: Text(
+                      PartnerVerificationDocument(
+                        id: '',
+                        type: t,
+                        documentNumber: '',
+                        fileName: '',
+                        uploadedAt: DateTime.now(),
+                      ).getDocumentTitle(isArabic: ref.read(languageProvider.notifier).isArabic),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  if (val != null) setDialogState(() => selectedType = val);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: numCtrl,
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.document_number'),
+                  hintText: 'e.g. RC-16/00-88123B',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: fileCtrl,
+                decoration: InputDecoration(
+                  labelText: context.tr('partner.file_name_url'),
+                  hintText: 'license.pdf',
+                  prefixIcon: const Icon(Icons.attach_file),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(context.tr('cancel')),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+              onPressed: () {
+                if (numCtrl.text.trim().isEmpty) return;
+                setState(() {
+                  _documents.add(PartnerVerificationDocument(
+                    id: 'doc_${DateTime.now().millisecondsSinceEpoch}',
+                    type: selectedType,
+                    documentNumber: numCtrl.text.trim(),
+                    fileName: fileCtrl.text.trim().isNotEmpty ? fileCtrl.text.trim() : 'document.pdf',
+                    uploadedAt: DateTime.now(),
+                    isVerified: true,
+                  ));
+                });
+                Navigator.of(ctx).pop();
+              },
+              child: Text(context.tr('common.save'), style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openAddSeasonalRuleDialog() {
+    final nameEnCtrl = TextEditingController(text: 'Peak Season');
+    final nameArCtrl = TextEditingController(text: 'موسم الذروة');
+    final multiplierCtrl = TextEditingController(text: '1.25');
+    final weekendPctCtrl = TextEditingController(text: '15');
+    int minNights = 2;
+    bool isWeekendEnabled = true;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(context.tr('partner.add_seasonal_price_rule')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameEnCtrl,
+                  decoration: InputDecoration(
+                    labelText: '${context.tr('partner.season_name')} (English)',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: nameArCtrl,
+                  decoration: InputDecoration(
+                    labelText: '${context.tr('partner.season_name')} (العربية)',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: multiplierCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: context.tr('partner.price_multiplier_hint'),
+                    hintText: '1.25 for +25%',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(context.tr('partner.min_stay_nights'), style: const TextStyle(fontSize: 13)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      onPressed: minNights > 1 ? () => setDialogState(() => minNights--) : null,
+                    ),
+                    Text('$minNights', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: () => setDialogState(() => minNights++),
+                    ),
+                  ],
+                ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(context.tr('partner.weekend_surcharge_toggle'), style: const TextStyle(fontSize: 13)),
+                  value: isWeekendEnabled,
+                  onChanged: (v) => setDialogState(() => isWeekendEnabled = v),
+                ),
+                if (isWeekendEnabled)
+                  TextField(
+                    controller: weekendPctCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: '${context.tr('partner.weekend_surcharge_pct')} (%)',
+                      hintText: '15',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(context.tr('cancel')),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+              onPressed: () {
+                final mult = double.tryParse(multiplierCtrl.text) ?? 1.25;
+                final wkPct = double.tryParse(weekendPctCtrl.text) ?? 15.0;
+                final now = DateTime.now();
+                setState(() {
+                  _seasonalRules.add(SeasonalPriceRule(
+                    id: 'season_${DateTime.now().millisecondsSinceEpoch}',
+                    hotelId: widget.editHotel?.id ?? '',
+                    nameEn: nameEnCtrl.text.trim(),
+                    nameAr: nameArCtrl.text.trim().isNotEmpty ? nameArCtrl.text.trim() : nameEnCtrl.text.trim(),
+                    startDate: now,
+                    endDate: now.add(const Duration(days: 90)),
+                    priceMultiplier: mult,
+                    minimumStayNights: minNights,
+                    isWeekendSurchargeEnabled: isWeekendEnabled,
+                    weekendSurchargePercentage: wkPct,
+                    isActive: true,
+                  ));
+                });
+                Navigator.of(ctx).pop();
+              },
+              child: Text(context.tr('common.save'), style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -321,7 +616,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
           child: Column(
             children: [
               LinearProgressIndicator(
-                value: (_currentStep + 1) / 5.0,
+                value: (_currentStep + 1) / _totalSteps.toDouble(),
                 backgroundColor: Colors.grey.shade200,
                 valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                 minHeight: 4,
@@ -333,7 +628,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '${context.tr('partner.step')} ${_currentStep + 1} / 5',
+                      '${context.tr('partner.step')} ${_currentStep + 1} / $_totalSteps',
                       style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13),
                     ),
                     Text(
@@ -352,10 +647,12 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
         physics: const NeverScrollableScrollPhysics(),
         children: [
           _buildStep0BasicInfo(),
-          _buildStep1Amenities(isArabic),
-          _buildStep2Rooms(),
-          _buildStep3Photos(),
-          _buildStep4PoliciesAndPublish(isArabic),
+          _buildStep1Documents(isArabic),
+          _buildStep2Amenities(isArabic),
+          _buildStep3Rooms(),
+          _buildStep4SeasonalPricing(isArabic),
+          _buildStep5Photos(),
+          _buildStep6PoliciesAndReview(isArabic),
         ],
       ),
       bottomNavigationBar: Container(
@@ -389,7 +686,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
               child: ElevatedButton(
                 onPressed: state.isSaving ? null : _nextStep,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _currentStep == 4 ? AppColors.success : AppColors.primary,
+                  backgroundColor: _currentStep == _totalSteps - 1 ? AppColors.success : AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
@@ -403,12 +700,16 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _currentStep == 4 ? context.tr('partner.publish_hotel_btn') : context.tr('next'),
+                            _currentStep == _totalSteps - 1
+                                ? context.tr('partner.submit_for_approval_btn')
+                                : context.tr('next'),
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                           const SizedBox(width: 8),
                           Icon(
-                            _currentStep == 4 ? Icons.rocket_launch_rounded : (isArabic ? Icons.arrow_back : Icons.arrow_forward),
+                            _currentStep == _totalSteps - 1
+                                ? Icons.verified_rounded
+                                : (isArabic ? Icons.arrow_back : Icons.arrow_forward),
                             color: Colors.white,
                             size: 18,
                           ),
@@ -425,10 +726,12 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
   String _getStepTitle(int step) {
     switch (step) {
       case 0: return context.tr('partner.step_basic_info');
-      case 1: return context.tr('partner.step_amenities');
-      case 2: return context.tr('partner.step_rooms');
-      case 3: return context.tr('partner.step_photos');
-      case 4: return context.tr('partner.step_publish');
+      case 1: return context.tr('partner.step_documents');
+      case 2: return context.tr('partner.step_amenities');
+      case 3: return context.tr('partner.step_rooms');
+      case 4: return context.tr('partner.step_seasonal_pricing');
+      case 5: return context.tr('partner.step_photos');
+      case 6: return context.tr('partner.step_publish');
       default: return '';
     }
   }
@@ -497,7 +800,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
             ),
             const SizedBox(height: 14),
 
-            // Country & Address
+            // Country Row
             Row(
               children: [
                 Expanded(
@@ -537,7 +840,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
             ),
             const SizedBox(height: 20),
 
-            // Star Rating Selector (1 to 5 Stars)
+            // Star Rating Selector
             Text(context.tr('partner.star_rating'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const SizedBox(height: 8),
             Row(
@@ -589,8 +892,116 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
     );
   }
 
-  // Step 1: 16+ Amenities Selection Grid
-  Widget _buildStep1Amenities(bool isArabic) {
+  // Step 1: Legal Documents & Compliance
+  Widget _buildStep1Documents(bool isArabic) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildSectionHeader(context.tr('partner.legal_documents_title'), Icons.verified_user_outlined),
+              ElevatedButton.icon(
+                onPressed: _openAddDocumentDialog,
+                icon: const Icon(Icons.add, size: 16),
+                label: Text(context.tr('partner.add_document_btn')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            context.tr('partner.legal_documents_desc'),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          ),
+          const SizedBox(height: 16),
+
+          if (_documents.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.folder_shared_outlined, size: 40, color: Colors.grey.shade400),
+                    const SizedBox(height: 10),
+                    Text(
+                      context.tr('partner.no_documents_uploaded'),
+                      style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _documents.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (ctx, idx) {
+                final doc = _documents[idx];
+                return Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryContainer,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.picture_as_pdf, color: AppColors.primary, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              doc.getDocumentTitle(isArabic: isArabic),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${doc.documentNumber} • ${doc.fileName}',
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 18),
+                        onPressed: () => setState(() => _documents.removeAt(idx)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Step 2: 16+ Amenities Selection Grid
+  Widget _buildStep2Amenities(bool isArabic) {
     final catalog = PartnerAmenity.defaultCatalog;
 
     return SingleChildScrollView(
@@ -606,7 +1017,6 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
           ),
           const SizedBox(height: 16),
 
-          // Grid of amenities
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -676,8 +1086,8 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
     );
   }
 
-  // Step 2: Room Types & Inventory
-  Widget _buildStep2Rooms() {
+  // Step 3: Room Types & Inventory
+  Widget _buildStep3Rooms() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -718,12 +1128,6 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
                       context.tr('partner.no_rooms_yet'),
                       style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      context.tr('partner.no_rooms_desc'),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                    ),
                   ],
                 ),
               ),
@@ -742,13 +1146,6 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.grey.shade200),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
                   ),
                   child: Row(
                     children: [
@@ -771,7 +1168,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${room.bedType} • Max ${room.maxGuests} Guests • ${room.totalUnits} Units',
+                              '${room.category.getDisplayName(isArabic: ref.watch(languageProvider.notifier).isArabic)} • ${room.bedType} • Max ${room.maxGuests} Guests • ${room.totalUnits} Units',
                               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                             ),
                             const SizedBox(height: 4),
@@ -802,8 +1199,123 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
     );
   }
 
-  // Step 3: Photo Gallery Manager
-  Widget _buildStep3Photos() {
+  // Step 4: Seasonal Pricing & Dynamic Rates
+  Widget _buildStep4SeasonalPricing(bool isArabic) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildSectionHeader(context.tr('partner.seasonal_pricing_title'), Icons.price_change_outlined),
+              ElevatedButton.icon(
+                onPressed: _openAddSeasonalRuleDialog,
+                icon: const Icon(Icons.add, size: 16),
+                label: Text(context.tr('partner.add_season_btn')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            context.tr('partner.seasonal_pricing_desc'),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          ),
+          const SizedBox(height: 16),
+
+          if (_seasonalRules.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Center(
+                child: Text(
+                  context.tr('partner.no_seasonal_rules_yet'),
+                  style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _seasonalRules.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (ctx, idx) {
+                final rule = _seasonalRules[idx];
+                final pctChange = ((rule.priceMultiplier - 1.0) * 100).round();
+                final pctLabel = pctChange >= 0 ? '+$pctChange%' : '$pctChange%';
+
+                return Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: pctChange >= 0 ? AppColors.warning.withOpacity(0.15) : AppColors.info.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          pctLabel,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: pctChange >= 0 ? AppColors.warning : AppColors.info,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              rule.getName(isArabic: isArabic),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${DateFormat('MMM dd').format(rule.startDate)} - ${DateFormat('MMM dd').format(rule.endDate)} • Min ${rule.minimumStayNights} nights',
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                            ),
+                            if (rule.isWeekendSurchargeEnabled)
+                              Text(
+                                '+${rule.weekendSurchargePercentage.toStringAsFixed(0)}% Weekend Surcharge',
+                                style: const TextStyle(color: AppColors.secondary, fontSize: 11, fontWeight: FontWeight.w600),
+                              ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 18),
+                        onPressed: () => setState(() => _seasonalRules.removeAt(idx)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Step 5: Photo Gallery Manager
+  Widget _buildStep5Photos() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -821,11 +1333,11 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
               children: [
                 Image.network(
                   _coverUrlCtrl.text.trim(),
-                  height: 200,
+                  height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Container(
-                    height: 200,
+                    height: 180,
                     color: Colors.grey.shade300,
                     child: const Center(child: Icon(Icons.image_not_supported, size: 40)),
                   ),
@@ -863,7 +1375,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Preset Image Palette
           Text(context.tr('partner.quick_preset_photos'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -898,17 +1410,82 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
               },
             ),
           ),
+          const SizedBox(height: 20),
+
+          // Additional Gallery Photos
+          Text(context.tr('partner.additional_gallery_photos'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _newPhotoUrlCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'https://images.unsplash.com/...',
+                    prefixIcon: const Icon(Icons.add_photo_alternate_outlined),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () {
+                  final url = _newPhotoUrlCtrl.text.trim();
+                  if (url.isNotEmpty) {
+                    setState(() {
+                      _galleryPhotos.add(url);
+                      _newPhotoUrlCtrl.clear();
+                    });
+                  }
+                },
+                child: const Text('Add', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          if (_galleryPhotos.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _galleryPhotos.map((url) {
+                return Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(url, width: 80, height: 60, fit: BoxFit.cover),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: InkWell(
+                        onTap: () => setState(() => _galleryPhotos.remove(url)),
+                        child: Container(
+                          decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                          child: const Icon(Icons.close, size: 16, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  // Step 4: Policies, Descriptions & Final Summary
-  Widget _buildStep4PoliciesAndPublish(bool isArabic) {
+  // Step 6: Policies, Descriptions & Final Summary
+  Widget _buildStep6PoliciesAndReview(bool isArabic) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Form(
-        key: _step4FormKey,
+        key: _step6FormKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -978,7 +1555,7 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
             ),
             const SizedBox(height: 20),
 
-            // Summary Card
+            // Submission Summary Card
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -1018,6 +1595,22 @@ class _HotelRegistrationWizardScreenState extends ConsumerState<HotelRegistratio
                     children: [
                       Text(context.tr('partner.active_amenities_count'), style: const TextStyle(fontSize: 13)),
                       Text('${_selectedAmenities.length}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(context.tr('partner.compliance_docs_count'), style: const TextStyle(fontSize: 13)),
+                      Text('${_documents.length}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(context.tr('partner.seasonal_rules_count'), style: const TextStyle(fontSize: 13)),
+                      Text('${_seasonalRules.length}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                     ],
                   ),
                 ],

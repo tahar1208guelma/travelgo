@@ -13,5 +13,6 @@ abstract class BookingRepository {
     required String productId,
     required String rawTargetUrl,
   });
-  Future<void> cancelBooking(String bookingId, {String? reason});
+  Future<void> cancelBooking(String bookingId, {String? reason, double? refundAmount});
+  Future<RefundDetails?> requestRefund(String bookingId, {required String reason, double? amount});
 }

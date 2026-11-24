@@ -43,3 +43,12 @@ macos/Flutter/ephemeral/
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment variables
+.env
+*.env
+
+# Temporary files
+.temp_appdata/
+flutter_ver.txt
+

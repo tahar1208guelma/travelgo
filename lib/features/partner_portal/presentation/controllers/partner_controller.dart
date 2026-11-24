@@ -35,3 +35,8 @@ final adminPendingListingsProvider = FutureProvider.autoDispose<List<PartnerList
   final repo = ref.watch(partnerRepositoryProvider);
   return repo.getAllPendingAdminListings();
 });
+
+final allAdminListingsProvider = FutureProvider.autoDispose<List<PartnerListingEntity>>((ref) async {
+  final repo = ref.watch(partnerRepositoryProvider);
+  return repo.getAllListings();
+});
