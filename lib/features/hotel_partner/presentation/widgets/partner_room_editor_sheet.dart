@@ -98,18 +98,18 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
     final isEditing = widget.initialRoom != null;
     final isArabic = Directionality.of(context) == TextDirection.rtl;
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        left: 20,
-        right: 20,
-        top: 20,
-      ),
-      child: Form(
+    return Material(
+      color: Colors.white,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        child: Form(
         key: _formKey,
         child: SingleChildScrollView(
           child: Column(
@@ -153,6 +153,7 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
 
               // Room Category Dropdown
               DropdownButtonFormField<PartnerRoomCategory>(
+                isExpanded: true,
                 value: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: context.tr('partner.room_category'),
@@ -162,7 +163,11 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
                 items: PartnerRoomCategory.values.map((cat) {
                   return DropdownMenuItem(
                     value: cat,
-                    child: Text(cat.getDisplayName(isArabic: isArabic)),
+                    child: Text(
+                      cat.getDisplayName(isArabic: isArabic),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   );
                 }).toList(),
                 onChanged: (cat) {
@@ -217,6 +222,7 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<String>(
+                      isExpanded: true,
                       value: PartnerBedTypeCatalog.standardBedTypes.contains(_bedTypeCtrl.text)
                           ? _bedTypeCtrl.text
                           : PartnerBedTypeCatalog.standardBedTypes.first,
@@ -226,7 +232,15 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       items: PartnerBedTypeCatalog.standardBedTypes.map((bed) {
-                        return DropdownMenuItem(value: bed, child: Text(bed, style: const TextStyle(fontSize: 13)));
+                        return DropdownMenuItem(
+                          value: bed,
+                          child: Text(
+                            bed,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        );
                       }).toList(),
                       onChanged: (bed) {
                         if (bed != null) {
@@ -365,6 +379,7 @@ class _PartnerRoomEditorSheetState extends State<PartnerRoomEditorSheet> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

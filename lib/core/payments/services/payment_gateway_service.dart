@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../financial/models/ledger_entry.dart';
 import '../../financial/services/financial_ledger_service.dart';
 import '../../services/commission_service.dart';
 import '../contracts/payment_provider.dart';

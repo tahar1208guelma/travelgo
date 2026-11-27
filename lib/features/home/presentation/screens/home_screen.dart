@@ -56,53 +56,64 @@ class HomeScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: (isDark ? AppColors.secondary : AppColors.primary).withValues(alpha: 0.3),
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 22,
-                              backgroundColor: isDark ? AppColors.cardDarkElevated : AppColors.primaryContainer,
-                              backgroundImage: user?.profileImage != null ? NetworkImage(user!.profileImage!) : null,
-                              child: user?.profileImage == null
-                                  ? Icon(Icons.person_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary)
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getGreeting(context),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: (isDark ? AppColors.secondary : AppColors.primary).withValues(alpha: 0.3),
+                                  width: 2,
                                 ),
                               ),
-                              Text(
-                                user?.name ?? context.tr('traveler'),
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.2,
-                                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                                ),
+                              child: CircleAvatar(
+                                radius: 22,
+                                backgroundColor: isDark ? AppColors.cardDarkElevated : AppColors.primaryContainer,
+                                backgroundImage: user?.profileImage != null ? NetworkImage(user!.profileImage!) : null,
+                                child: user?.profileImage == null
+                                    ? Icon(Icons.person_rounded, color: isDark ? AppColors.secondaryLight : AppColors.primary)
+                                    : null,
                               ),
-                            ],
-                          ),
-                        ],
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _getGreeting(context),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                    ),
+                                  ),
+                                  Text(
+                                    user?.name ?? context.tr('traveler'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.2,
+                                      color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: AppSpacing.xs),
 
                       // Quick Header Action Controls (Dark Mode Toggle & Language Toggle)
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           // Theme Switcher Button
                           IconButton(
@@ -288,12 +299,16 @@ class HomeScreen extends ConsumerWidget {
                                   children: [
                                     Row(
                                       children: [
-                                        Text(
-                                          context.tr('ai_assistant_title'),
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                        Expanded(
+                                          child: Text(
+                                            context.tr('ai_assistant_title'),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: 8),
@@ -547,24 +562,33 @@ class HomeScreen extends ConsumerWidget {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildTrustItem(
-                              icon: Icons.lock_outline_rounded,
-                              title: context.tr('home_trust_ssl'),
-                              subtitle: context.tr('home_trust_ssl_sub'),
-                              isDark: isDark,
+                            Expanded(
+                              child: _buildTrustItem(
+                                icon: Icons.lock_outline_rounded,
+                                title: context.tr('home_trust_ssl'),
+                                subtitle: context.tr('home_trust_ssl_sub'),
+                                isDark: isDark,
+                              ),
                             ),
-                            _buildTrustItem(
-                              icon: Icons.verified_user_outlined,
-                              title: context.tr('home_trust_verified'),
-                              subtitle: context.tr('home_trust_verified_sub'),
-                              isDark: isDark,
+                            const SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: _buildTrustItem(
+                                icon: Icons.verified_user_outlined,
+                                title: context.tr('home_trust_verified'),
+                                subtitle: context.tr('home_trust_verified_sub'),
+                                isDark: isDark,
+                              ),
                             ),
-                            _buildTrustItem(
-                              icon: Icons.support_agent_rounded,
-                              title: context.tr('home_trust_support'),
-                              subtitle: context.tr('home_trust_support_sub'),
-                              isDark: isDark,
+                            const SizedBox(width: AppSpacing.xs),
+                            Expanded(
+                              child: _buildTrustItem(
+                                icon: Icons.support_agent_rounded,
+                                title: context.tr('home_trust_support'),
+                                subtitle: context.tr('home_trust_support_sub'),
+                                isDark: isDark,
+                              ),
                             ),
                           ],
                         ),
@@ -600,6 +624,9 @@ class HomeScreen extends ConsumerWidget {
         const SizedBox(height: 6),
         Text(
           title,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -608,6 +635,9 @@ class HomeScreen extends ConsumerWidget {
         ),
         Text(
           subtitle,
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 10,
             color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,

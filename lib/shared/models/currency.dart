@@ -13,6 +13,7 @@ class Currency {
     required this.exchangeRateToUSD,
   });
 
+  String get name => nameEn;
   String getName({bool isArabic = false}) => isArabic ? nameAr : nameEn;
 
   static const List<Currency> supportedCurrencies = [

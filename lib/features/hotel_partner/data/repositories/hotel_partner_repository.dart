@@ -415,6 +415,7 @@ class HotelPartnerRepository {
       final updated = list[index].copyWith(
         status: PartnerListingStatus.active,
         adminFeedback: null,
+        clearAdminFeedback: true,
       );
       list[index] = updated;
       await _savePartnerHotels(list);

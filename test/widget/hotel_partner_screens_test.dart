@@ -97,7 +97,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(PartnerRoomEditorSheet), findsOneWidget);
-    expect(find.byType(DropdownButtonFormField), findsWidgets);
+    expect(find.byWidgetPredicate((w) => w is DropdownButtonFormField), findsWidgets);
   });
 
   testWidgets('AdminPanelScreen renders super admin panel and approval tabs', (WidgetTester tester) async {

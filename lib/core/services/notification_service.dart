@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum NotificationType { bookingConfirmed, bookingCancelled, priceAlert, promoOffer }
+enum NotificationType { bookingConfirmed, bookingCancelled, priceAlert, promoOffer, flightStatusAlert }
 
 class AppNotification {
   final String id;

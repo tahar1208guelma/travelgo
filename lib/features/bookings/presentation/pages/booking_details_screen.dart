@@ -11,6 +11,7 @@ import '../../../../core/utils/responsive.dart';
 import '../../../../shared/widgets/badge_chip.dart';
 import '../../../../shared/widgets/custom_card.dart';
 import '../../models/booking_model.dart';
+import '../../models/customer_info.dart';
 import '../../services/booking_service.dart';
 import '../controllers/booking_controller.dart';
 import '../widgets/document_action_bar.dart';

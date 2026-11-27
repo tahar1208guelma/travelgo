@@ -519,6 +519,7 @@ class PartnerHotelListing {
     List<PartnerVerificationDocument>? documents,
     PartnerListingStatus? status,
     String? adminFeedback,
+    bool clearAdminFeedback = false,
   }) {
     return PartnerHotelListing(
       id: id,
@@ -551,7 +552,7 @@ class PartnerHotelListing {
       seasonalRules: seasonalRules ?? this.seasonalRules,
       documents: documents ?? this.documents,
       status: status ?? this.status,
-      adminFeedback: adminFeedback ?? this.adminFeedback,
+      adminFeedback: clearAdminFeedback ? null : (adminFeedback ?? this.adminFeedback),
       createdAt: createdAt,
     );
   }

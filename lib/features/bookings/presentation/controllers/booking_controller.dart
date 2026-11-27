@@ -110,7 +110,7 @@ class BookingController extends StateNotifier<AsyncValue<Booking?>> {
         title: 'Booking Cancelled',
         body:
             'Booking #$bookingId has been cancelled. Your refund has been initiated.',
-        type: NotificationType.flightStatusAlert,
+        type: NotificationType.bookingCancelled,
       );
 
       return true;

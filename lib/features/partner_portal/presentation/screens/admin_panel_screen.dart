@@ -198,7 +198,7 @@ class _AdminPanelScreenState extends ConsumerState<AdminPanelScreen> with Single
     final portalItems = pendingPortalListingsAsync.value ?? [];
 
     if (pendingHotels.isEmpty && portalItems.isEmpty) {
-      return const Center(
+      return Center(
         child: EmptyStateView(
           icon: Icons.verified_rounded,
           title: 'All Caught Up! 🎉',
